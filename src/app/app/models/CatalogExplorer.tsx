@@ -166,7 +166,7 @@ export default function CatalogExplorer({ models }: { models: CatalogModel[] }) 
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <span className="w-20 shrink-0 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-            Provider
+            Merek
           </span>
           <button type="button" onClick={() => setFamily("semua")} className={chipBtn(family === "semua")}>
             Semua

@@ -102,7 +102,7 @@ export default async function UserOverviewPage() {
       where: mine,
       orderBy: { createdAt: "desc" },
       take: 8,
-      include: { provider: { select: { name: true } }, apiKey: { select: { prefix: true } } },
+      include: { apiKey: { select: { prefix: true } } },
     }),
     prisma.announcement.findMany({ orderBy: { createdAt: "desc" }, take: 3 }),
     prisma.usageLog.findMany({
@@ -430,7 +430,6 @@ export default async function UserOverviewPage() {
                   <tr>
                     <th className="px-4 py-3 font-medium">Waktu</th>
                     <th className="px-4 py-3 font-medium">Model</th>
-                    <th className="px-4 py-3 font-medium">Provider</th>
                     <th className="px-4 py-3 font-medium">Key</th>
                     <th className="px-4 py-3 font-medium">Token</th>
                     <th className="px-4 py-3 font-medium">Latency</th>
@@ -440,7 +439,7 @@ export default async function UserOverviewPage() {
                 <tbody>
                   {recent.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="px-4 py-8 text-center text-zinc-500">
+                      <td colSpan={6} className="px-4 py-8 text-center text-zinc-500">
                         Belum ada request dari key milikmu.
                       </td>
                     </tr>
@@ -457,7 +456,6 @@ export default async function UserOverviewPage() {
                         })}
                       </td>
                       <td className="px-4 py-3 font-mono text-xs">{l.modelId}</td>
-                      <td className="px-4 py-3">{l.provider?.name ?? "-"}</td>
                       <td className="px-4 py-3 font-mono text-xs">{l.apiKey?.prefix ?? "-"}</td>
                       <td className="px-4 py-3">{l.totalTokens?.toLocaleString("id-ID") ?? "-"}</td>
                       <td className="px-4 py-3">{l.latencyMs != null ? `${l.latencyMs} ms` : "-"}</td>
