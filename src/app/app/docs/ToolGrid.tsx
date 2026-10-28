@@ -217,14 +217,22 @@ export default function ToolGrid() {
             type="button"
             onClick={() => setActive(t.id === active ? null : t.id)}
             className={`glass rounded-3xl p-4 text-left transition hover:-translate-y-0.5 ${
-              t.id === active ? "ring-2 ring-lime-300/70" : ""
+              t.id === active
+                ? "bg-lime-400/[0.13] ring-2 ring-lime-300/80"
+                : ""
             }`}
           >
             <span className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 ring-1 ring-white/15">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={t.logo} alt={t.name} className="h-7 w-7 object-contain" loading="lazy" />
             </span>
-            <span className="mt-3 block text-sm font-semibold text-zinc-100">{t.name}</span>
+            <span
+              className={`mt-3 block text-sm font-semibold ${
+                t.id === active ? "text-lime-200" : "text-zinc-100"
+              }`}
+            >
+              {t.name}
+            </span>
           </button>
         ))}
       </div>
