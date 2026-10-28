@@ -74,6 +74,17 @@ const STEPS = [
   },
 ];
 
+const TOOLS = [
+  { name: "OpenCode", kind: "Agen coding terminal", logo: "/assets/tools/opencode.svg" },
+  { name: "Claude Code", kind: "Agen coding terminal", logo: "/assets/tools/claudecode.svg" },
+  { name: "Codex", kind: "Agen coding dari OpenAI", logo: "/assets/tools/codex-mark.svg" },
+  { name: "Cursor", kind: "Editor kode berbasis AI", logo: "/assets/tools/cursor.svg" },
+  { name: "Cline", kind: "Ekstensi agen untuk VS Code", logo: "/assets/tools/cline.svg" },
+  { name: "Continue", kind: "Ekstensi AI untuk editor", logo: "/assets/tools/continue.png" },
+  { name: "Aider", kind: "Pair programming di terminal", logo: "/assets/tools/aider.png" },
+  { name: "Open WebUI", kind: "Antarmuka chat self-hosted", logo: "/assets/tools/openwebui.png" },
+];
+
 const PROVIDERS = [
   { name: "DeepSeek", kind: "deepseek" },
   { name: "Z.ai", kind: "zai" },
@@ -285,6 +296,42 @@ export default function Home() {
               </Reveal>
             ))}
           </div>
+        </section>
+
+        {/* Hubungkan Alat */}
+        <section id="alat" className="scroll-mt-28 pt-16 sm:pt-24">
+          <Reveal className="text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-lime-300/80">Hubungkan Alat</p>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+              Pakai di alat favoritmu
+            </h2>
+            <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-zinc-400 sm:text-base">
+              GreenRouter menyambung ke alat coding populer dengan base URL dan API key yang
+              sama. Hubungkan sekali, lalu semua model langsung bisa dipilih dari alatmu.
+            </p>
+          </Reveal>
+          <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+            {TOOLS.map((t, i) => (
+              <Reveal key={t.name} delay={(i % 4) * 110} className="h-full">
+                <div className="glass group h-full rounded-3xl p-5 transition duration-300 hover:-translate-y-1 hover:border-lime-300/40">
+                  <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 ring-1 ring-white/15 transition duration-300 group-hover:scale-105">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={t.logo} alt={t.name} className="h-8 w-8 object-contain" loading="lazy" />
+                  </span>
+                  <p className="mt-4 font-semibold">{t.name}</p>
+                  <p className="mt-1 text-[13px] leading-relaxed text-zinc-400">{t.kind}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+          <Reveal className="mt-8 text-center">
+            <Link
+              href="/app/docs"
+              className="inline-flex items-center gap-2 text-sm font-medium text-lime-300 transition hover:text-lime-200"
+            >
+              Lihat panduan menghubungkan tiap alat <ArrowRight size={16} />
+            </Link>
+          </Reveal>
         </section>
 
         {/* Model */}
