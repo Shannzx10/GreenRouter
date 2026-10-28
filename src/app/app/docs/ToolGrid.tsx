@@ -73,7 +73,7 @@ claude`,
   {
     id: "codex",
     name: "Codex",
-    logo: "/assets/tools/codex.svg",
+    logo: "/assets/tools/codex-mark.svg",
     tagline: "Agen coding dari OpenAI.",
     steps: [
       "Instal Codex dengan perintah di bawah.",
