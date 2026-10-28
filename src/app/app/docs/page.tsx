@@ -33,7 +33,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section id={id} className="scroll-mt-36 lg:scroll-mt-24">
+    <section id={id} className="scroll-mt-36 py-12 first:pt-0 last:pb-0 lg:scroll-mt-24">
       <h2 className="text-xl font-bold tracking-tight">{title}</h2>
       <div className="mt-4 space-y-5 text-[15px] leading-relaxed text-zinc-300">{children}</div>
     </section>
@@ -80,7 +80,7 @@ export default async function AppDocsPage() {
         ))}
       </nav>
 
-      <div className="mt-10 space-y-14">
+      <div className="mt-10 divide-y divide-white/10">
         <Section id="mulai-cepat" title="Mulai Cepat">
           <ol className="list-decimal space-y-2.5 pl-5">
             <li>
