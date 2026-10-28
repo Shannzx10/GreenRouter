@@ -201,8 +201,8 @@ API Key : gr-...`,
 ];
 
 export default function ToolGrid() {
-  const [active, setActive] = useState(TOOLS[0].id);
-  const tool = TOOLS.find((t) => t.id === active) ?? TOOLS[0];
+  const [active, setActive] = useState<string | null>(null);
+  const tool = TOOLS.find((t) => t.id === active) ?? null;
 
   return (
     <div>
@@ -215,7 +215,7 @@ export default function ToolGrid() {
           <button
             key={t.id}
             type="button"
-            onClick={() => setActive(t.id)}
+            onClick={() => setActive(t.id === active ? null : t.id)}
             className={`glass rounded-3xl p-4 text-left transition hover:-translate-y-0.5 ${
               t.id === active ? "ring-2 ring-lime-300/70" : ""
             }`}
@@ -229,20 +229,22 @@ export default function ToolGrid() {
         ))}
       </div>
 
-      <div className="mt-6">
-        <h3 className="text-lg font-semibold text-zinc-100">{tool.name}</h3>
-        <p className="mt-1">{tool.tagline}</p>
-        <ol className="mt-4 list-decimal space-y-2 pl-5">
-          {tool.steps.map((s) => (
-            <li key={s.slice(0, 24)}>{s}</li>
-          ))}
-        </ol>
-        <div className="mt-5 space-y-4">
-          {tool.blocks.map((b) => (
-            <CodeBlock key={b.title} title={b.title} code={b.code} />
-          ))}
+      {tool && (
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold text-zinc-100">{tool.name}</h3>
+          <p className="mt-1">{tool.tagline}</p>
+          <ol className="mt-4 list-decimal space-y-2 pl-5">
+            {tool.steps.map((s) => (
+              <li key={s.slice(0, 24)}>{s}</li>
+            ))}
+          </ol>
+          <div className="mt-5 space-y-4">
+            {tool.blocks.map((b) => (
+              <CodeBlock key={b.title} title={b.title} code={b.code} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
