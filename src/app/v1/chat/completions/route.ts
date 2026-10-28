@@ -4,7 +4,7 @@ import {
   getCandidates,
   openAiError,
 } from "@/server/gateway";
-import { cycleTokensUsed, fmtDateShort } from "@/lib/quota";
+import { cycleTokensUsed, fmtDateShort, hourlyRequestsUsed } from "@/lib/quota";
 
 
 // POST /v1/chat/completions — OpenAI-compatible, dengan failover antar key/provider.
@@ -37,6 +37,21 @@ export async function POST(req: Request) {
         "rate_limit_error",
         "quota_exceeded",
       );
+    }
+  }
+
+  // Batas request per jam milik pemilik key (jendela bergeser, bila diatur).
+  if (client.user && client.user.requestLimitHourly != null) {
+    const { count, retryAfterSec } = await hourlyRequestsUsed(client.user.id);
+    if (count >= client.user.requestLimitHourly) {
+      const res = openAiError(
+        429,
+        `Batas ${client.user.requestLimitHourly} request per jam tercapai. Silakan coba lagi dalam ${Math.ceil((retryAfterSec ?? 60) / 60)} menit.`,
+        "rate_limit_error",
+        "hourly_limit_exceeded",
+      );
+      if (retryAfterSec) res.headers.set("Retry-After", String(retryAfterSec));
+      return res;
     }
   }
 

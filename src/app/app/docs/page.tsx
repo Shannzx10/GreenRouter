@@ -478,9 +478,15 @@ for chunk in stream:
         <Section id="kuota" title="Kuota">
           <p>
             Setiap akun mendapat kuota{" "}
-            <span className="font-semibold text-zinc-100">1.000.000 token per siklus 7 hari</span>.
+            <span className="font-semibold text-zinc-100">5.000.000 token per siklus 7 hari</span>.
             Siklus berjalan sejak tanggal pendaftaran akunmu dan terisi penuh lagi secara otomatis
             setiap 7 hari, tanpa perlu menunggu awal bulan.
+          </p>
+          <p>
+            Selain kuota token, akunmu juga dibatasi{" "}
+            <span className="font-semibold text-zinc-100">100 request per jam</span>. Batas ini
+            dihitung dengan jendela bergeser 60 menit, jadi kapasitasmu pulih bertahap mengikuti
+            keluarnya request lama dari jendela, bukan menunggu jam berikutnya.
           </p>
           <p>
             Pemakaian dihitung dari total token setiap request (prompt ditambah completion) dan
@@ -493,7 +499,11 @@ for chunk in stream:
               Log Pemakaian
             </Link>
             . Bila kuota habis, request berikutnya ditolak dengan status 429 sampai siklus
-            berganti, dan pesan errornya menyebutkan tanggal kuotamu diperbarui.
+            berganti, dan pesan errornya menyebutkan tanggal kuotamu diperbarui. Bila batas
+            request per jam yang tercapai, jawabannya juga 429 dengan kode{" "}
+            <code className="font-mono text-[13px]">hourly_limit_exceeded</code> dan header{" "}
+            <code className="font-mono text-[13px]">Retry-After</code> berisi detik yang perlu
+            ditunggu sebelum mencoba lagi.
           </p>
         </Section>
 
@@ -519,6 +529,7 @@ for chunk in stream:
                   ["401", "API key tidak ada, salah, atau sudah dicabut", "Periksa key, buat baru bila perlu"],
                   ["404", "Model tidak ditemukan", "Pakai ID persis dari GET /v1/models"],
                   ["429", "Kuota token siklus ini habis", "Tunggu siklus berikutnya, tanggalnya ada di pesan error"],
+                  ["429", "Batas request per jam tercapai", "Tunggu sejumlah detik pada header Retry-After"],
                   ["5xx", "Gangguan sementara di sisi server", "Coba lagi setelah beberapa saat"],
                 ].map(([s, a, t]) => (
                   <tr key={s} className="border-t border-white/[0.05]">

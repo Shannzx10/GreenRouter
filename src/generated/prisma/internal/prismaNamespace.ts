@@ -1140,6 +1140,7 @@ export const UserScalarFieldEnum = {
   authProviders: 'authProviders',
   isActive: 'isActive',
   tokenLimit: 'tokenLimit',
+  requestLimitHourly: 'requestLimitHourly',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

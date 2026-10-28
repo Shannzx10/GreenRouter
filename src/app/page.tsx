@@ -38,7 +38,7 @@ const FEATURES = [
   {
     icon: Gauge,
     title: "Kuota Jelas & Adil",
-    body: "Setiap akun baru membawa 1.000.000 token per siklus 7 hari. Progres pemakaian selalu transparan di dashboard.",
+    body: "Setiap akun baru membawa 5.000.000 token per siklus 7 hari, dengan batas 100 request per jam. Progres pemakaian selalu transparan di dashboard.",
   },
   {
     icon: ShieldCheck,
@@ -66,7 +66,7 @@ const STEPS = [
   {
     n: "02",
     title: "Buat API Key",
-    body: "Satu klik di dashboard dan key pertamamu langsung aktif, lengkap dengan kuota 1.000.000 token.",
+    body: "Satu klik di dashboard dan key pertamamu langsung aktif, lengkap dengan kuota 5.000.000 token.",
   },
   {
     n: "03",
@@ -203,7 +203,7 @@ export default function Home() {
           </Reveal>
           <Reveal delay={500}>
             <div className="mt-9 flex flex-wrap items-center justify-center gap-2 text-xs text-zinc-300 sm:text-sm">
-              {["1.000.000 token tiap siklus", "Katalog model premium", "Streaming real-time", "Daftar cuma 1 menit"].map((s) => (
+              {["5.000.000 token tiap siklus", "Katalog model premium", "Streaming real-time", "Daftar cuma 1 menit"].map((s) => (
                 <span key={s} className="glass rounded-full px-3.5 py-1.5">{s}</span>
               ))}
             </div>
@@ -343,14 +343,15 @@ export default function Home() {
                 Untuk setiap akun baru
               </p>
               <p className="text-gradient-anim relative mt-4 bg-gradient-to-r from-lime-200 via-lime-300 to-emerald-300 bg-clip-text text-6xl font-extrabold tracking-tight text-transparent sm:text-8xl">
-                1.000.000
+                5.000.000
               </p>
               <p className="relative mt-3 text-lg font-medium text-zinc-200">
                 token gratis, diperbarui setiap siklus 7 hari
               </p>
               <p className="relative mx-auto mt-2 max-w-md text-sm leading-relaxed text-zinc-400">
                 Bukan trial sekali pakai. Kuotamu terisi penuh lagi setiap siklus,
-                dan progresnya bisa kamu pantau transparan di dashboard.
+                dengan batas pemakaian 100 request per jam, dan progresnya bisa
+                kamu pantau transparan di dashboard.
               </p>
               <Link
                 href="/register"

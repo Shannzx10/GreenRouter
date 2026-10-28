@@ -36,6 +36,7 @@ export type AuthedClient = ApiKey & {
     id: string;
     isActive: boolean;
     tokenLimit: number | null;
+    requestLimitHourly: number | null;
     createdAt: Date;
   } | null;
 };
@@ -49,7 +50,9 @@ export async function authenticateClient(req: Request): Promise<AuthedClient | n
   const row = await prisma.apiKey.findUnique({
     where: { keyHash: hashClientKey(token) },
     include: {
-      user: { select: { id: true, isActive: true, tokenLimit: true, createdAt: true } },
+      user: {
+        select: { id: true, isActive: true, tokenLimit: true, requestLimitHourly: true, createdAt: true },
+      },
     },
   });
   if (!row || !row.isActive) return null;

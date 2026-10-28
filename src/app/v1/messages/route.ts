@@ -4,7 +4,7 @@ import {
   forwardAnthropicMessages,
   getCandidates,
 } from "@/server/gateway";
-import { cycleTokensUsed, fmtDateShort } from "@/lib/quota";
+import { cycleTokensUsed, fmtDateShort, hourlyRequestsUsed } from "@/lib/quota";
 
 // POST /v1/messages — kompatibel Anthropic (Claude Code & Anthropic SDK).
 // Key klien, kuota siklus, routing, dan pencatatan sama seperti jalur OpenAI;
@@ -37,6 +37,20 @@ export async function POST(req: Request) {
         `Kuota token siklus ini habis (${used.toLocaleString("id-ID")} dari ${client.user.tokenLimit.toLocaleString("id-ID")} token). Kuota diperbarui otomatis pada ${fmtDateShort(window.end)}.`,
         "rate_limit_error",
       );
+    }
+  }
+
+  // Batas request per jam milik pemilik key (jendela bergeser, bila diatur).
+  if (client.user && client.user.requestLimitHourly != null) {
+    const { count, retryAfterSec } = await hourlyRequestsUsed(client.user.id);
+    if (count >= client.user.requestLimitHourly) {
+      const res = anthropicError(
+        429,
+        `Batas ${client.user.requestLimitHourly} request per jam tercapai. Silakan coba lagi dalam ${Math.ceil((retryAfterSec ?? 60) / 60)} menit.`,
+        "rate_limit_error",
+      );
+      if (retryAfterSec) res.headers.set("Retry-After", String(retryAfterSec));
+      return res;
     }
   }
 

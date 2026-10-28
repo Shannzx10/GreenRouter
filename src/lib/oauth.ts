@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { hashPassword, signSession } from "@/lib/crypto";
 import { SESSION_COOKIE, getSession } from "@/lib/session";
-import { DEFAULT_TOKEN_LIMIT } from "@/lib/quota";
+import { DEFAULT_REQUEST_LIMIT_HOURLY, DEFAULT_TOKEN_LIMIT } from "@/lib/quota";
 
 // Login OAuth (Google & GitHub) tanpa library tambahan.
 // Satu email = satu akun. Setiap akun mencatat metode masuknya
@@ -285,8 +285,9 @@ export async function finishOAuth(
           image: profile.image,
           authProviders: provider,
           role: "USER",
-          // Akun baru: kuota awal per siklus 7 hari.
+          // Akun baru: kuota awal per siklus 7 hari + batas request per jam.
           tokenLimit: DEFAULT_TOKEN_LIMIT,
+          requestLimitHourly: DEFAULT_REQUEST_LIMIT_HOURLY,
           // Password acak yang tidak diketahui siapa pun; user bisa menyetel
           // password sungguhan dari halaman Profil (prefix "oauth:" penandanya).
           passwordHash: `oauth:${hashPassword(randomBytes(24).toString("hex"))}`,

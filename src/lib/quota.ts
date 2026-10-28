@@ -4,8 +4,35 @@ import { prisma } from "@/lib/db";
 // (createdAt). Siklus bergulir otomatis — begitu jendela lewat, pemakaian
 // dihitung dari nol lagi untuk jendela berikutnya. Tanpa cron/penjadwal:
 // jendela selalu dihitung dari waktu saat ini.
-export const DEFAULT_TOKEN_LIMIT = 1_000_000;
+export const DEFAULT_TOKEN_LIMIT = 5_000_000;
+export const DEFAULT_REQUEST_LIMIT_HOURLY = 100;
 export const CYCLE_DAYS = 7;
+
+const HOUR_MS = 3600 * 1000;
+
+// Pemakaian request per jam: jendela BERGESER 60 menit ke belakang, dihitung
+// per akun dari kolom userId permanen di UsageLog (pola anti-akalan yang
+// sama seperti kuota token). Semua request yang diteruskan dihitung, sukses
+// maupun gagal, dan satu request klien selalu menghasilkan tepat satu baris
+// log sehingga percobaan internal gateway tidak menggandakan hitungan.
+export async function hourlyRequestsUsed(
+  userId: string,
+): Promise<{ count: number; retryAfterSec: number | null }> {
+  const now = new Date();
+  const since = new Date(now.getTime() - HOUR_MS);
+  const where = { userId, createdAt: { gt: since } };
+  const count = await prisma.usageLog.count({ where });
+  if (count === 0) return { count, retryAfterSec: null };
+  const oldest = await prisma.usageLog.findFirst({
+    where,
+    orderBy: { createdAt: "asc" },
+    select: { createdAt: true },
+  });
+  const retryAfterSec = oldest
+    ? Math.max(1, Math.ceil((oldest.createdAt.getTime() + HOUR_MS - now.getTime()) / 1000))
+    : null;
+  return { count, retryAfterSec };
+}
 
 const CYCLE_MS = CYCLE_DAYS * 24 * 3600 * 1000;
 

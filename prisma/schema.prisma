@@ -23,6 +23,9 @@ model User {
   // Kuota token per siklus 7 hari (jangkar: tanggal akun dibuat).
   // Nama kolom DB dipertahankan dari era limit bulanan lewat @map.
   tokenLimit        Int?     @map("tokenLimitMonthly")
+  // Batas request per jam (jendela bergeser 60 menit, dihitung per akun).
+  // NULL = tanpa batas, sama seperti tokenLimit.
+  requestLimitHourly Int?
   apiKeys           ApiKey[]
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt

@@ -14,6 +14,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
     role?: string;
     isActive?: boolean;
     tokenLimit?: number | null;
+    requestLimitHourly?: number | null;
   };
   try {
     body = await req.json();
@@ -28,6 +29,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
     role?: string;
     isActive?: boolean;
     tokenLimit?: number | null;
+    requestLimitHourly?: number | null;
   } = {};
 
   if (body.name !== undefined) data.name = (body.name ?? "").trim() || null;
@@ -62,12 +64,18 @@ export async function PATCH(req: Request, { params }: Ctx) {
         ? Math.floor(body.tokenLimit)
         : null;
   }
+  if (body.requestLimitHourly !== undefined) {
+    data.requestLimitHourly =
+      typeof body.requestLimitHourly === "number" && body.requestLimitHourly > 0
+        ? Math.floor(body.requestLimitHourly)
+        : null;
+  }
 
   try {
     const user = await prisma.user.update({
       where: { id },
       data,
-      select: { id: true, email: true, name: true, role: true, isActive: true, tokenLimit: true, createdAt: true },
+      select: { id: true, email: true, name: true, role: true, isActive: true, tokenLimit: true, requestLimitHourly: true, createdAt: true },
     });
     return Response.json({ user });
   } catch (e) {

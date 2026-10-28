@@ -28,6 +28,7 @@ export default async function AdminUsersPage() {
     role: u.role,
     isActive: u.isActive,
     tokenLimit: u.tokenLimit,
+    requestLimitHourly: u.requestLimitHourly,
     keyCount: u._count.apiKeys,
     usedThisCycle: usedList[i] ?? 0,
     createdAt: u.createdAt.toISOString(),

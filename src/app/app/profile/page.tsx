@@ -1,7 +1,7 @@
 import { connection } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { CYCLE_DAYS, cycleTokensUsed, fmtDateShort, fmtResetIn } from "@/lib/quota";
+import { CYCLE_DAYS, cycleTokensUsed, fmtDateShort, fmtResetIn, hourlyRequestsUsed } from "@/lib/quota";
 import { Fingerprint, Gauge } from "lucide-react";
 import ProfileForms from "./ProfileForms";
 import LogoutSection from "./LogoutSection";
@@ -20,6 +20,11 @@ export default async function ProfilePage() {
   const limit = user.tokenLimit;
   const pct = limit ? Math.min(100, Math.round((used / limit) * 100)) : null;
   const remaining = limit ? Math.max(0, limit - used) : null;
+  const hourly = await hourlyRequestsUsed(user.id);
+  const hourlyLimit = user.requestLimitHourly;
+  const hourlyPct = hourlyLimit
+    ? Math.min(100, Math.round((hourly.count / hourlyLimit) * 100))
+    : null;
 
   return (
     <div>
@@ -73,7 +78,7 @@ export default async function ProfilePage() {
             <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
               <Gauge size={18} />
             </span>
-            Kuota Token
+            Kuota
           </h2>
           <span className="rounded-full bg-white/[0.06] px-3 py-1 text-xs font-medium text-zinc-300">
             Siklus {CYCLE_DAYS} hari
@@ -125,6 +130,38 @@ export default async function ProfilePage() {
             <p className="mt-1.5 text-xs text-zinc-500">Akunmu tidak dibatasi kuota.</p>
           </>
         )}
+
+        <div className="mt-6 border-t border-white/[0.06] pt-5">
+          <p className="text-sm font-medium">Request per Jam</p>
+          {hourlyLimit ? (
+            <>
+              <div className="mt-3 flex items-baseline justify-between text-sm">
+                <p className="text-zinc-400">
+                  Terpakai{" "}
+                  <span className="font-semibold text-zinc-100">{hourly.count.toLocaleString("id-ID")}</span>
+                  <span className="text-zinc-500"> dari {hourlyLimit.toLocaleString("id-ID")} request dalam 60 menit terakhir</span>
+                </p>
+                <span className="text-zinc-500">{hourlyPct}%</span>
+              </div>
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/[0.06]">
+                <div
+                  className={`h-full rounded-full ${hourlyPct! >= 100 ? "bg-red-400" : hourlyPct! >= 80 ? "bg-amber-300" : "bg-lime-400"}`}
+                  style={{ width: `${hourlyPct}%` }}
+                />
+              </div>
+              <p className="mt-3 text-xs text-zinc-500">
+                Dihitung dengan jendela bergeser 60 menit, kapasitas pulih bertahap mengikuti
+                keluarnya request lama dari jendela.
+              </p>
+            </>
+          ) : (
+            <p className="mt-2 text-sm text-zinc-400">
+              Terpakai 60 menit terakhir:{" "}
+              <span className="font-semibold text-zinc-100">{hourly.count.toLocaleString("id-ID")}</span>{" "}
+              request, tanpa batas per jam.
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="glass mt-6 rounded-3xl p-6">

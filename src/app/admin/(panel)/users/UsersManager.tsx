@@ -15,6 +15,7 @@ type UserRow = {
   role: string;
   isActive: boolean;
   tokenLimit: number | null;
+  requestLimitHourly: number | null;
   keyCount: number;
   usedThisCycle: number;
   createdAt: string;
@@ -52,7 +53,7 @@ export default function UsersManager({ users }: { users: UserRow[] }) {
       setDeleting(false);
     }
   }
-  const [editForm, setEditForm] = useState({ name: "", email: "", role: "USER", limit: "" });
+  const [editForm, setEditForm] = useState({ name: "", email: "", role: "USER", limit: "", hourly: "" });
 
   async function call(url: string, method: string, body?: unknown) {
     const res = await fetch(url, {
@@ -74,6 +75,7 @@ export default function UsersManager({ users }: { users: UserRow[] }) {
       email: u.email,
       role: u.role,
       limit: u.tokenLimit?.toString() ?? "",
+      hourly: u.requestLimitHourly?.toString() ?? "",
     });
     setErr("");
   }
@@ -86,6 +88,7 @@ export default function UsersManager({ users }: { users: UserRow[] }) {
         email: editForm.email,
         role: editForm.role,
         tokenLimit: editForm.limit ? parseInt(editForm.limit, 10) : null,
+        requestLimitHourly: editForm.hourly ? parseInt(editForm.hourly, 10) : null,
       });
       setEditing(null);
       router.refresh();
@@ -193,6 +196,12 @@ export default function UsersManager({ users }: { users: UserRow[] }) {
                     {u.tokenLimit ? `${fmtNum(u.tokenLimit)} / siklus` : "tanpa batas"}
                   </span>
                 </span>
+                <span>
+                  Request:{" "}
+                  <span className="text-zinc-200">
+                    {u.requestLimitHourly ? `${fmtNum(u.requestLimitHourly)} / jam` : "tanpa batas"}
+                  </span>
+                </span>
                 <span>Bergabung {new Date(u.createdAt).toLocaleDateString("id-ID", { dateStyle: "medium" })}</span>
               </div>
               {pct !== null && (
@@ -213,6 +222,7 @@ export default function UsersManager({ users }: { users: UserRow[] }) {
                     <option value="ADMIN">ADMIN</option>
                   </select>
                   <input className={inputCls} type="number" min="0" placeholder="Limit token/siklus 7 hari (kosong = ∞)" value={editForm.limit} onChange={(e) => setEditForm({ ...editForm, limit: e.target.value })} />
+                  <input className={inputCls} type="number" min="0" placeholder="Limit request/jam (kosong = ∞)" value={editForm.hourly} onChange={(e) => setEditForm({ ...editForm, hourly: e.target.value })} />
                   <button onClick={() => saveEdit(u)} className={btnCls}>
                     Simpan Perubahan
                   </button>

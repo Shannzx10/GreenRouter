@@ -28,10 +28,12 @@ export type AggregateUser = {
 
 export type UserAvgAggregateOutputType = {
   tokenLimit: number | null
+  requestLimitHourly: number | null
 }
 
 export type UserSumAggregateOutputType = {
   tokenLimit: number | null
+  requestLimitHourly: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -44,6 +46,7 @@ export type UserMinAggregateOutputType = {
   authProviders: string | null
   isActive: boolean | null
   tokenLimit: number | null
+  requestLimitHourly: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -58,6 +61,7 @@ export type UserMaxAggregateOutputType = {
   authProviders: string | null
   isActive: boolean | null
   tokenLimit: number | null
+  requestLimitHourly: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -72,6 +76,7 @@ export type UserCountAggregateOutputType = {
   authProviders: number
   isActive: number
   tokenLimit: number
+  requestLimitHourly: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -80,10 +85,12 @@ export type UserCountAggregateOutputType = {
 
 export type UserAvgAggregateInputType = {
   tokenLimit?: true
+  requestLimitHourly?: true
 }
 
 export type UserSumAggregateInputType = {
   tokenLimit?: true
+  requestLimitHourly?: true
 }
 
 export type UserMinAggregateInputType = {
@@ -96,6 +103,7 @@ export type UserMinAggregateInputType = {
   authProviders?: true
   isActive?: true
   tokenLimit?: true
+  requestLimitHourly?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -110,6 +118,7 @@ export type UserMaxAggregateInputType = {
   authProviders?: true
   isActive?: true
   tokenLimit?: true
+  requestLimitHourly?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -124,6 +133,7 @@ export type UserCountAggregateInputType = {
   authProviders?: true
   isActive?: true
   tokenLimit?: true
+  requestLimitHourly?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -225,6 +235,7 @@ export type UserGroupByOutputType = {
   authProviders: string
   isActive: boolean
   tokenLimit: number | null
+  requestLimitHourly: number | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -262,6 +273,7 @@ export type UserWhereInput = {
   authProviders?: Prisma.StringFilter<"User"> | string
   isActive?: Prisma.BoolFilter<"User"> | boolean
   tokenLimit?: Prisma.IntNullableFilter<"User"> | number | null
+  requestLimitHourly?: Prisma.IntNullableFilter<"User"> | number | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   apiKeys?: Prisma.ApiKeyListRelationFilter
@@ -277,6 +289,7 @@ export type UserOrderByWithRelationInput = {
   authProviders?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   tokenLimit?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestLimitHourly?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   apiKeys?: Prisma.ApiKeyOrderByRelationAggregateInput
@@ -295,6 +308,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   authProviders?: Prisma.StringFilter<"User"> | string
   isActive?: Prisma.BoolFilter<"User"> | boolean
   tokenLimit?: Prisma.IntNullableFilter<"User"> | number | null
+  requestLimitHourly?: Prisma.IntNullableFilter<"User"> | number | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   apiKeys?: Prisma.ApiKeyListRelationFilter
@@ -310,6 +324,7 @@ export type UserOrderByWithAggregationInput = {
   authProviders?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   tokenLimit?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestLimitHourly?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -332,6 +347,7 @@ export type UserScalarWhereWithAggregatesInput = {
   authProviders?: Prisma.StringWithAggregatesFilter<"User"> | string
   isActive?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   tokenLimit?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
+  requestLimitHourly?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -346,6 +362,7 @@ export type UserCreateInput = {
   authProviders?: string
   isActive?: boolean
   tokenLimit?: number | null
+  requestLimitHourly?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
@@ -361,6 +378,7 @@ export type UserUncheckedCreateInput = {
   authProviders?: string
   isActive?: boolean
   tokenLimit?: number | null
+  requestLimitHourly?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
@@ -376,6 +394,7 @@ export type UserUpdateInput = {
   authProviders?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  requestLimitHourly?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
@@ -391,6 +410,7 @@ export type UserUncheckedUpdateInput = {
   authProviders?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  requestLimitHourly?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
@@ -406,6 +426,7 @@ export type UserCreateManyInput = {
   authProviders?: string
   isActive?: boolean
   tokenLimit?: number | null
+  requestLimitHourly?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -420,6 +441,7 @@ export type UserUpdateManyMutationInput = {
   authProviders?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  requestLimitHourly?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -434,6 +456,7 @@ export type UserUncheckedUpdateManyInput = {
   authProviders?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  requestLimitHourly?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -448,12 +471,14 @@ export type UserCountOrderByAggregateInput = {
   authProviders?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   tokenLimit?: Prisma.SortOrder
+  requestLimitHourly?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type UserAvgOrderByAggregateInput = {
   tokenLimit?: Prisma.SortOrder
+  requestLimitHourly?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -466,6 +491,7 @@ export type UserMaxOrderByAggregateInput = {
   authProviders?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   tokenLimit?: Prisma.SortOrder
+  requestLimitHourly?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -480,12 +506,14 @@ export type UserMinOrderByAggregateInput = {
   authProviders?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   tokenLimit?: Prisma.SortOrder
+  requestLimitHourly?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type UserSumOrderByAggregateInput = {
   tokenLimit?: Prisma.SortOrder
+  requestLimitHourly?: Prisma.SortOrder
 }
 
 export type UserNullableScalarRelationFilter = {
@@ -543,6 +571,7 @@ export type UserCreateWithoutApiKeysInput = {
   authProviders?: string
   isActive?: boolean
   tokenLimit?: number | null
+  requestLimitHourly?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -557,6 +586,7 @@ export type UserUncheckedCreateWithoutApiKeysInput = {
   authProviders?: string
   isActive?: boolean
   tokenLimit?: number | null
+  requestLimitHourly?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -587,6 +617,7 @@ export type UserUpdateWithoutApiKeysInput = {
   authProviders?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  requestLimitHourly?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -601,6 +632,7 @@ export type UserUncheckedUpdateWithoutApiKeysInput = {
   authProviders?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  requestLimitHourly?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -646,6 +678,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   authProviders?: boolean
   isActive?: boolean
   tokenLimit?: boolean
+  requestLimitHourly?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   apiKeys?: boolean | Prisma.User$apiKeysArgs<ExtArgs>
@@ -662,6 +695,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   authProviders?: boolean
   isActive?: boolean
   tokenLimit?: boolean
+  requestLimitHourly?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -676,6 +710,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   authProviders?: boolean
   isActive?: boolean
   tokenLimit?: boolean
+  requestLimitHourly?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -690,11 +725,12 @@ export type UserSelectScalar = {
   authProviders?: boolean
   isActive?: boolean
   tokenLimit?: boolean
+  requestLimitHourly?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "role" | "name" | "image" | "authProviders" | "isActive" | "tokenLimit" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "role" | "name" | "image" | "authProviders" | "isActive" | "tokenLimit" | "requestLimitHourly" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   apiKeys?: boolean | Prisma.User$apiKeysArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -717,6 +753,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     authProviders: string
     isActive: boolean
     tokenLimit: number | null
+    requestLimitHourly: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1152,6 +1189,7 @@ export interface UserFieldRefs {
   readonly authProviders: Prisma.FieldRef<"User", 'String'>
   readonly isActive: Prisma.FieldRef<"User", 'Boolean'>
   readonly tokenLimit: Prisma.FieldRef<"User", 'Int'>
+  readonly requestLimitHourly: Prisma.FieldRef<"User", 'Int'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
