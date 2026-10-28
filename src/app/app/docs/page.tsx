@@ -6,6 +6,7 @@ import SmoothAnchors from "../../SmoothAnchors";
 import ProviderIcon from "../../ProviderIcon";
 import CodeBlock from "./CodeBlock";
 import ExampleTabs from "./ExampleTabs";
+import ToolGrid from "./ToolGrid";
 
 const BASE = "https://www.greenrouter.eu.cc";
 
@@ -14,7 +15,7 @@ const NAV = [
   { id: "autentikasi", label: "Autentikasi" },
   { id: "endpoint", label: "Endpoint" },
   { id: "contoh-kode", label: "Contoh Kode" },
-  { id: "tool-populer", label: "Tool Populer" },
+  { id: "hubungkan-alat", label: "Hubungkan Alat" },
   { id: "model", label: "Model" },
   { id: "streaming", label: "Streaming" },
   { id: "kuota", label: "Kuota" },
@@ -356,44 +357,8 @@ console.log(res.choices[0].message.content);`,
           />
         </Section>
 
-        <Section id="tool-populer" title="Tool Populer">
-          <h3 className="text-lg font-semibold text-zinc-100">OpenCode</h3>
-          <p>Daftarkan GreenRouter sebagai provider kustom di file konfigurasi OpenCode:</p>
-          <CodeBlock
-            title="opencode.json"
-            code={`{
-  "provider": {
-    "greenrouter": {
-      "npm": "@ai-sdk/openai-compatible",
-      "options": {
-        "baseURL": "${BASE}/v1",
-        "apiKey": "gr-..."
-      },
-      "models": {
-        "deepseek-v4.1-flash": {}
-      }
-    }
-  }
-}`}
-          />
-          <h3 className="pt-2 text-lg font-semibold text-zinc-100">Claude Code</h3>
-          <p>
-            Claude Code memakai format Anthropic. Atur tiga variabel lingkungan ini sebelum
-            menjalankan Claude Code:
-          </p>
-          <CodeBlock
-            title="terminal · claude code"
-            code={`export ANTHROPIC_BASE_URL="${BASE}"
-export ANTHROPIC_API_KEY="gr-..."
-export ANTHROPIC_MODEL="deepseek-v4.1-flash"
-
-claude`}
-          />
-          <p>
-            Tool lain yang mendukung base URL kustom untuk OpenAI atau Anthropic, misalnya Cursor,
-            Continue, dan Aider, bekerja dengan cara yang sama: isi base URL dan key GreenRouter,
-            lalu pilih modelnya.
-          </p>
+        <Section id="hubungkan-alat" title="Hubungkan Alat">
+          <ToolGrid />
         </Section>
 
         <Section id="model" title="Model">
