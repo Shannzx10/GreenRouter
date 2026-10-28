@@ -98,6 +98,7 @@ export function startOAuth(
   const res = NextResponse.redirect(url);
   res.cookies.set(STATE_COOKIE, `${provider}:${state}:${mode}`, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
     maxAge: 600,
@@ -320,6 +321,7 @@ export async function finishOAuth(
   const res = NextResponse.redirect(`${appUrl()}${user.role === "ADMIN" ? "/admin" : "/app"}`);
   res.cookies.set(SESSION_COOKIE, token, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
     maxAge: 7 * 24 * 3600,
