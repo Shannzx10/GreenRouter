@@ -7,6 +7,7 @@ import ProviderIcon from "../../ProviderIcon";
 import CodeBlock from "./CodeBlock";
 import ExampleTabs from "./ExampleTabs";
 import ToolGrid from "./ToolGrid";
+import DocsNav from "./DocsNav";
 
 const BASE = "https://www.greenrouter.eu.cc";
 
@@ -67,18 +68,8 @@ export default async function AppDocsPage() {
         kamu kenal.
       </p>
 
-      {/* Navigasi section, lengket mengikuti scroll */}
-      <nav className="glass sticky top-[68px] z-30 mt-6 flex gap-1.5 overflow-x-auto rounded-full p-1.5 lg:top-6">
-        {NAV.map((n) => (
-          <a
-            key={n.id}
-            href={`#${n.id}`}
-            className="shrink-0 rounded-full px-3.5 py-1.5 text-[13px] text-zinc-300 transition hover:bg-lime-400/10 hover:text-lime-200"
-          >
-            {n.label}
-          </a>
-        ))}
-      </nav>
+      {/* Navigasi section, lengket mengikuti scroll + penanda aktif */}
+      <DocsNav items={NAV} />
 
       <div className="mt-10 divide-y divide-white/10">
         <Section id="mulai-cepat" title="Mulai Cepat">
