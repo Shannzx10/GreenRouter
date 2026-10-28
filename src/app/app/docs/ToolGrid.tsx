@@ -217,9 +217,7 @@ export default function ToolGrid() {
             type="button"
             onClick={() => setActive(t.id === active ? null : t.id)}
             className={`glass rounded-3xl p-4 text-left transition hover:-translate-y-0.5 ${
-              t.id === active
-                ? "bg-lime-400/[0.13] ring-2 ring-lime-300/80"
-                : ""
+              t.id === active ? "tool-active" : ""
             }`}
           >
             <span className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 ring-1 ring-white/15">
