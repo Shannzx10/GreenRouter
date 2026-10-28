@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Leaf, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import OAuthButtons from "../OAuthButtons";
 
 export default function LoginForm() {
@@ -46,9 +46,8 @@ export default function LoginForm() {
 
       <form onSubmit={submit} className="glass relative w-full max-w-sm rounded-[28px] p-7 sm:p-8">
         <div className="mb-2 flex items-center gap-2.5">
-          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-lime-400 text-zinc-950">
-            <Leaf size={21} strokeWidth={2.4} />
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/assets/brand/leaf.png" alt="GreenRouter" className="h-10 w-10 shrink-0 object-contain" />
           <h1 className="text-2xl font-bold tracking-tight">
             Green<span className="text-lime-300">Router</span>
           </h1>

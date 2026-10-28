@@ -5,7 +5,6 @@ import {
   Blocks,
   Gauge,
   KeyRound,
-  Leaf,
   ShieldCheck,
   Sparkles,
   Zap,
@@ -122,9 +121,8 @@ export default function Home() {
         {/* Navigasi melayang */}
         <header className="glass sticky top-4 z-40 flex items-center justify-between rounded-full py-2.5 pl-4 pr-2.5">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-lime-400 text-zinc-950">
-              <Leaf size={18} strokeWidth={2.4} />
-            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/assets/brand/leaf.png" alt="GreenRouter" className="h-9 w-9 shrink-0 object-contain" />
             <span className="text-lg font-bold tracking-tight">
               Green<span className="text-lime-300">Router</span>
             </span>
@@ -391,9 +389,8 @@ export default function Home() {
           <div className="grid grid-cols-1 gap-10 sm:grid-cols-3">
             <div>
               <div className="flex items-center gap-2.5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-lime-400 text-zinc-950">
-                  <Leaf size={18} strokeWidth={2.4} />
-                </span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/assets/brand/leaf.png" alt="GreenRouter" className="h-9 w-9 shrink-0 object-contain" />
                 <span className="text-lg font-bold tracking-tight">
                   Green<span className="text-lime-300">Router</span>
                 </span>

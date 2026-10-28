@@ -10,7 +10,6 @@ import {
   KeyRound,
   Layers,
   LayoutDashboard,
-  Leaf,
   Menu,
   ScrollText,
   ShieldCheck,
@@ -29,9 +28,8 @@ const NAV = [
 function Brand({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-2.5">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-lime-400 text-zinc-950">
-        <Leaf size={19} strokeWidth={2.4} />
-      </span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/assets/brand/leaf.png" alt="GreenRouter" className="h-9 w-9 shrink-0 object-contain" />
       {!compact && (
         <span className="text-lg font-bold tracking-tight">
           Green<span className="text-lime-300">Router</span>

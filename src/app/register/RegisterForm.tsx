@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Leaf } from "lucide-react";
 import OAuthButtons from "../OAuthButtons";
 
 // Pendaftaran HANYA lewat Google/GitHub (registrasi email+password sudah dihapus).
@@ -14,9 +13,8 @@ export default function RegisterForm() {
 
       <div className="glass relative w-full max-w-sm rounded-[28px] p-7 sm:p-8">
         <div className="mb-2 flex items-center gap-2.5">
-          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-lime-400 text-zinc-950">
-            <Leaf size={21} strokeWidth={2.4} />
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/assets/brand/leaf.png" alt="GreenRouter" className="h-10 w-10 shrink-0 object-contain" />
           <h1 className="text-2xl font-bold tracking-tight">
             Green<span className="text-lime-300">Router</span>
           </h1>
