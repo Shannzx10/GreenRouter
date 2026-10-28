@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+:root {
+  --background: #060806;
+  --foreground: #f4f7f0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  /* Cegah elemen dekoratif meluber jadi ruang scroll liar (khususnya mobile). */
+  overflow-x: clip;
+}
+
+/* Scroll anchor TIDAK memakai scroll-behavior:smooth bawaan browser:
+   di Chrome Android pendaratannya meleset saat bilah alamat berubah tinggi
+   di tengah animasi. Transisi halus diurus SmoothAnchors (JS, target
+   dihitung ulang tiap frame + snap presisi di akhir). */
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+::selection {
+  background: rgba(163, 230, 53, 0.35);
+}
+
+/* Panel kaca khas GreenRouter */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* Pola titik halus untuk latar hero */
+.bg-dots {
+  background-image: radial-gradient(rgba(190, 242, 100, 0.07) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+/* Aurora: gumpalan cahaya hijau yang melayang pelan */
+@keyframes aurora-drift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, -30px) scale(1.15); }
+  100% { transform: translate(-30px, 20px) scale(0.95); }
+}
+.aurora {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  pointer-events: none;
+  animation: aurora-drift 16s ease-in-out infinite alternate;
+}
+
+/* ---- Animasi landing premium ---- */
+
+/* Kemunculan saat scroll (kelas is-visible dipasang Reveal via IntersectionObserver) */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 0.9s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Marquee model berjalan tanpa henti */
+@keyframes marquee-x {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee-x 32s linear infinite;
+}
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Gradasi teks hero yang bergerak pelan */
+@keyframes gradient-pan {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.text-gradient-anim {
+  background-size: 220% auto;
+  animation: gradient-pan 7s ease-in-out infinite;
+}
+
+/* Melayang halus untuk chip melayang di sekitar demo */
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-11px); }
+}
+.animate-float {
+  animation: float-y 6s ease-in-out infinite;
+}
+
+/* Kursor mengetik pada demo chat */
+@keyframes caret-blink {
+  0%, 45% { opacity: 1; }
+  50%, 95% { opacity: 0; }
+}
+.caret-blink {
+  animation: caret-blink 1s steps(1) infinite;
+}
+
+/* Kilau menyapu tombol utama */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.45) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+}
+.btn-shine:hover::after {
+  transform: translateX(120%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .animate-marquee, .animate-float, .text-gradient-anim, .aurora { animation: none; }
+}
+
+/* Scrollbar ramping gelap */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(163, 230, 53, 0.25) transparent;
+}
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(163, 230, 53, 0.25);
+  border-radius: 9999px;
+}

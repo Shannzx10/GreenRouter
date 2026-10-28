@@ -1,0 +1,70 @@
+import {
+  anthropicError,
+  authenticateClient,
+  forwardAnthropicMessages,
+  getCandidates,
+} from "@/server/gateway";
+import { cycleTokensUsed, fmtDateShort } from "@/lib/quota";
+
+// POST /v1/messages — kompatibel Anthropic (Claude Code & Anthropic SDK).
+// Key klien, kuota siklus, routing, dan pencatatan sama seperti jalur OpenAI;
+// yang berbeda hanya amplop error dan format yang diteruskan ke hulu.
+export async function POST(req: Request) {
+  const client = await authenticateClient(req);
+  if (!client) {
+    return anthropicError(401, "API key tidak valid", "authentication_error");
+  }
+
+  let body: Record<string, unknown>;
+  try {
+    body = (await req.json()) as Record<string, unknown>;
+  } catch {
+    return anthropicError(400, "Body harus berupa JSON yang valid");
+  }
+
+  const model = typeof body.model === "string" ? body.model : "";
+  if (!model) return anthropicError(400, "Field 'model' wajib diisi");
+  if (!Array.isArray(body.messages)) {
+    return anthropicError(400, "Field 'messages' wajib berupa array");
+  }
+
+  // Kuota token per siklus 7 hari milik pemilik key (sama seperti jalur OpenAI).
+  if (client.user && client.user.tokenLimit != null) {
+    const { used, window } = await cycleTokensUsed(client.user.id, client.user.createdAt);
+    if (used >= client.user.tokenLimit) {
+      return anthropicError(
+        429,
+        `Kuota token siklus ini habis (${used.toLocaleString("id-ID")} dari ${client.user.tokenLimit.toLocaleString("id-ID")} token). Kuota diperbarui otomatis pada ${fmtDateShort(window.end)}.`,
+        "rate_limit_error",
+      );
+    }
+  }
+
+  const { catalog, candidates, retryAfterSec } = await getCandidates(model);
+  if (!catalog) {
+    return anthropicError(404, `Model '${model}' tidak ditemukan`, "not_found_error");
+  }
+  if (!candidates.length) {
+    if (retryAfterSec) {
+      const res = anthropicError(
+        429,
+        "Terlalu banyak request dalam waktu singkat. Silakan coba lagi dalam beberapa saat.",
+        "rate_limit_error",
+      );
+      res.headers.set("Retry-After", String(retryAfterSec));
+      return res;
+    }
+    return anthropicError(503, `Tidak ada penyedia aktif untuk model '${model}'`, "api_error");
+  }
+
+  return forwardAnthropicMessages({
+    apiKeyId: client.id,
+    userId: client.user?.id ?? null,
+    modelId: model,
+    candidates,
+    body,
+    stream: body.stream === true,
+    anthropicVersion: req.headers.get("anthropic-version") ?? undefined,
+    anthropicBeta: req.headers.get("anthropic-beta") ?? undefined,
+  });
+}

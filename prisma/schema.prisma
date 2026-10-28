@@ -1,0 +1,158 @@
+// GreenRouter — skema database gateway AI
+// Provider & pool key hulu, katalog model + routing per model,
+// key klien (tersimpan sebagai hash), dan log pemakaian.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  passwordHash      String
+  role              String   @default("ADMIN")
+  name              String?
+  image             String?
+  authProviders     String   @default("password")
+  isActive          Boolean  @default(true)
+  // Kuota token per siklus 7 hari (jangkar: tanggal akun dibuat).
+  // Nama kolom DB dipertahankan dari era limit bulanan lewat @map.
+  tokenLimit        Int?     @map("tokenLimitMonthly")
+  apiKeys           ApiKey[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model ApiKey {
+  id         String     @id @default(cuid())
+  userId     String?
+  user       User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name       String
+  prefix     String
+  keyHash    String     @unique
+  isActive   Boolean    @default(true)
+  lastUsedAt DateTime?
+  usageLogs  UsageLog[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@index([keyHash])
+}
+
+model Provider {
+  id           String        @id @default(cuid())
+  name         String        @unique
+  baseUrl      String
+  isActive     Boolean       @default(true)
+  upstreamKeys UpstreamKey[]
+  routes       ModelRoute[]
+  usageLogs    UsageLog[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model UpstreamKey {
+  id            String     @id @default(cuid())
+  providerId    String
+  provider      Provider   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  label         String
+  encryptedKey  String
+  keyHint       String
+  status        String     @default("ACTIVE") // ACTIVE | COOLDOWN | DISABLED | LIMITED (402, menunggu tindakan admin)
+  cooldownUntil DateTime?
+  failCount     Int        @default(0)
+  usageLogs     UsageLog[]
+  cooldowns     UpstreamKeyCooldown[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([providerId, status])
+}
+
+// Cooldown rate-limit per (key, model): hulu seperti Yeta membatasi request
+// per model (30/menit, jendela bergeser, ada header Retry-After), jadi 429
+// tidak boleh memblokir key untuk semua model. Baris kedaluwarsa diabaikan.
+model UpstreamKeyCooldown {
+  id            String      @id @default(cuid())
+  upstreamKey   UpstreamKey @relation(fields: [upstreamKeyId], references: [id], onDelete: Cascade)
+  upstreamKeyId String
+  modelId       String // ID model di hulu (upstreamModelId pada route)
+  until         DateTime
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([upstreamKeyId, modelId])
+  @@index([until])
+}
+
+model ModelCatalog {
+  id              String       @id @default(cuid())
+  modelId         String       @unique
+  displayName     String
+  // Metadata tampilan katalog (disinkron dari provider hulu, bisa diedit admin).
+  contextTokens   Int?
+  maxOutputTokens Int?
+  inputModalities String? // daftar dipisah koma: text,image,video,pdf,audio
+  capabilities    String? // daftar dipisah koma: reasoning,tool_call,structured_output,attachment
+  knowledgeCutoff String? // format "YYYY-MM"
+  routes          ModelRoute[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model ModelRoute {
+  id              String       @id @default(cuid())
+  modelId         String
+  model           ModelCatalog @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  providerId      String
+  provider        Provider     @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  upstreamModelId String
+  priority        Int          @default(0)
+  isActive        Boolean      @default(true)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@unique([modelId, providerId])
+  @@index([modelId, isActive])
+}
+
+// Pengumuman dari admin yang tampil di dashboard semua user.
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  body      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UsageLog {
+  id               String       @id @default(cuid())
+  // Pemilik key saat request terjadi — ditulis permanen (denormal) agar
+  // hitungan kuota TIDAK reset saat user menghapus key-nya: relasi apiKey
+  // di bawah SetNull, kolom ini tidak ikut berubah. Tanpa relasi FK supaya
+  // riwayat tetap utuh walau user/key dihapus.
+  userId           String?
+  apiKeyId         String?
+  apiKey           ApiKey?      @relation(fields: [apiKeyId], references: [id], onDelete: SetNull)
+  providerId       String?
+  provider         Provider?    @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  upstreamKeyId    String?
+  upstreamKey      UpstreamKey? @relation(fields: [upstreamKeyId], references: [id], onDelete: SetNull)
+  modelId          String
+  promptTokens     Int?
+  completionTokens Int?
+  totalTokens      Int?
+  latencyMs        Int?
+  status           String // SUCCESS | ERROR
+  error            String?
+  createdAt        DateTime     @default(now())
+
+  @@index([createdAt])
+  @@index([apiKeyId, createdAt])
+  @@index([userId, createdAt])
+}

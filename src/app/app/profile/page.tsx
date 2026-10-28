@@ -1,0 +1,188 @@
+import { connection } from "next/server";
+import { prisma } from "@/lib/db";
+import { getSession } from "@/lib/session";
+import { CYCLE_DAYS, cycleTokensUsed, fmtDateShort, fmtResetIn } from "@/lib/quota";
+import { Fingerprint, Gauge } from "lucide-react";
+import ProfileForms from "./ProfileForms";
+import LogoutSection from "./LogoutSection";
+
+export default async function ProfilePage() {
+  await connection();
+  const session = await getSession();
+  if (!session) return null;
+  const user = await prisma.user.findUnique({ where: { id: session.uid } });
+  if (!user) return null;
+  const providers = user.authProviders
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const { used, window } = await cycleTokensUsed(user.id, user.createdAt);
+  const limit = user.tokenLimit;
+  const pct = limit ? Math.min(100, Math.round((used / limit) * 100)) : null;
+  const remaining = limit ? Math.max(0, limit - used) : null;
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold">Profil</h1>
+      <p className="mt-1 text-sm text-zinc-400">Data dirimu, kuota token, dan metode masuk.</p>
+
+      <div className="glass mt-6 rounded-3xl p-6">
+        <div className="flex flex-wrap items-center gap-4">
+          {user.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={user.image}
+              alt={user.name ?? user.email}
+              className="h-14 w-14 rounded-3xl object-cover ring-1 ring-white/15"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <span className="flex h-14 w-14 items-center justify-center rounded-3xl bg-lime-400 text-xl font-extrabold text-zinc-950">
+              {(user.name ?? user.email).charAt(0).toUpperCase()}
+            </span>
+          )}
+          <div className="min-w-0">
+            <p className="truncate text-xl font-bold">{user.name ?? user.email.split("@")[0]}</p>
+            <p className="truncate text-sm text-zinc-400">{user.email}</p>
+          </div>
+          <span className="ml-auto rounded-full bg-white/[0.06] px-3 py-1 text-xs font-medium text-zinc-300">
+            {user.role}
+          </span>
+        </div>
+
+        <div className="mt-6 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+          <div>
+            <p className="text-zinc-500">Bergabung</p>
+            <p className="mt-0.5 font-medium">
+              {user.createdAt.toLocaleDateString("id-ID", { dateStyle: "long" })}
+            </p>
+          </div>
+          <div>
+            <p className="text-zinc-500">Status akun</p>
+            <p className="mt-0.5 flex items-center gap-2 font-medium">
+              <span className={`h-2 w-2 rounded-full ${user.isActive ? "bg-lime-300" : "bg-red-400"}`} />
+              {user.isActive ? "Aktif" : "Nonaktif"}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass mt-6 rounded-3xl p-6">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="flex items-center gap-3 font-semibold">
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
+              <Gauge size={18} />
+            </span>
+            Kuota Token
+          </h2>
+          <span className="rounded-full bg-white/[0.06] px-3 py-1 text-xs font-medium text-zinc-300">
+            Siklus {CYCLE_DAYS} hari
+          </span>
+        </div>
+
+        {limit ? (
+          <>
+            <div className="mt-4 flex items-baseline justify-between text-sm">
+              <p className="text-zinc-400">
+                Terpakai{" "}
+                <span className="font-semibold text-zinc-100">{used.toLocaleString("id-ID")}</span>
+                <span className="text-zinc-500"> dari {limit.toLocaleString("id-ID")} token</span>
+              </p>
+              <span className="text-zinc-500">{pct}%</span>
+            </div>
+            <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/[0.06]">
+              <div
+                className={`h-full rounded-full ${pct! >= 100 ? "bg-red-400" : pct! >= 80 ? "bg-amber-300" : "bg-lime-400"}`}
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+            <div className="mt-5 grid grid-cols-1 gap-4 text-sm sm:grid-cols-3">
+              <div>
+                <p className="text-zinc-500">Sisa kuota</p>
+                <p className="mt-0.5 font-medium">{remaining!.toLocaleString("id-ID")} token</p>
+              </div>
+              <div>
+                <p className="text-zinc-500">Periode siklus ini</p>
+                <p className="mt-0.5 font-medium">
+                  {fmtDateShort(window.start)} – {fmtDateShort(window.end)}
+                </p>
+              </div>
+              <div>
+                <p className="text-zinc-500">Kuota diperbarui</p>
+                <p className="mt-0.5 font-medium">
+                  {fmtDateShort(window.end)} · {fmtResetIn(window.end)}
+                </p>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="mt-4 text-sm text-zinc-400">
+              Terpakai siklus ini:{" "}
+              <span className="font-semibold text-zinc-100">{used.toLocaleString("id-ID")}</span>{" "}
+              token
+            </p>
+            <p className="mt-1.5 text-xs text-zinc-500">Akunmu tidak dibatasi kuota.</p>
+          </>
+        )}
+      </div>
+
+      <div className="glass mt-6 rounded-3xl p-6">
+        <h2 className="flex items-center gap-3 font-semibold">
+          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
+            <Fingerprint size={18} />
+          </span>
+          Metode Masuk
+        </h2>
+        <p className="mt-3 text-sm text-zinc-400">
+          Metode lain dengan email yang sama harus dihubungkan dulu dari sini, tidak otomatis
+          digabung.
+        </p>
+        <div className="mt-4 flex flex-col gap-2.5">
+          {(["google", "github"] as const).map((p) => {
+            const linked = providers.includes(p);
+            return (
+              <div
+                key={p}
+                className="flex items-center justify-between rounded-2xl border border-white/[0.06] bg-white/[0.03] px-4 py-3"
+              >
+                <span className="text-sm font-medium">{p === "google" ? "Google" : "GitHub"}</span>
+                {linked ? (
+                  <span className="rounded-full bg-lime-400/10 px-3 py-1 text-xs font-medium text-lime-300">
+                    Terhubung
+                  </span>
+                ) : (
+                  <a
+                    href={`/api/auth/${p}?link=1`}
+                    className="rounded-full border border-white/10 px-3.5 py-1.5 text-xs font-medium text-zinc-100 transition hover:border-lime-300/40 hover:text-lime-200"
+                  >
+                    Hubungkan
+                  </a>
+                )}
+              </div>
+            );
+          })}
+          <div className="flex items-center justify-between rounded-2xl border border-white/[0.06] bg-white/[0.03] px-4 py-3">
+            <span className="text-sm font-medium">Email + Password</span>
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-medium ${
+                providers.includes("password")
+                  ? "bg-lime-400/10 text-lime-300"
+                  : "bg-white/[0.06] text-zinc-400"
+              }`}
+            >
+              {providers.includes("password") ? "Terhubung" : "Belum disetel"}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <ProfileForms
+        initialName={user.name ?? ""}
+        hasPassword={!user.passwordHash.startsWith("oauth:")}
+      />
+
+      <LogoutSection />
+    </div>
+  );
+}
