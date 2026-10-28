@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Reveal from "./Reveal";
 import CodeShowcase from "./CodeShowcase";
+import ProviderIcon from "./ProviderIcon";
 import SmoothAnchors from "./SmoothAnchors";
 
 const MODELS = [
@@ -350,10 +351,7 @@ export default function Home() {
             {MODELS.map((m, i) => (
               <Reveal key={m.id} delay={(i % 3) * 100} className="h-full">
                 <div className="glass group flex h-full items-center gap-3.5 rounded-3xl px-5 py-4 transition duration-300 hover:-translate-y-1 hover:border-lime-300/35">
-                  <span className="relative flex h-2.5 w-2.5 shrink-0">
-                    <span className="absolute h-full w-full animate-ping rounded-full bg-lime-400 opacity-50" />
-                    <span className="relative h-2.5 w-2.5 rounded-full bg-lime-400" />
-                  </span>
+                  <ProviderIcon modelId={m.id} className="h-11 w-11" />
                   <div className="min-w-0">
                     <p className="font-semibold leading-snug">{m.label}</p>
                     <p className="break-all font-mono text-xs leading-snug text-zinc-500">{m.id}</p>
