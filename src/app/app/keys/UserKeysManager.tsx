@@ -101,7 +101,7 @@ export default function UserKeysManager({ keys }: { keys: ClientKey[] }) {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Key & Panduan</h1>
+      <h1 className="text-2xl font-bold">Key Saya</h1>
       <p className="mt-1 text-sm text-zinc-400">
         Kelola API key milikmu, buat yang baru, rotate, atau cabut yang sudah tidak dipakai.
       </p>

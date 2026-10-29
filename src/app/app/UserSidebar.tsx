@@ -18,7 +18,7 @@ import {
 
 const NAV = [
   { href: "/app", label: "Ringkasan", short: "Ringkasan", icon: LayoutDashboard, exact: true },
-  { href: "/app/keys", label: "Key & Panduan", short: "Key", icon: KeyRound, exact: false },
+  { href: "/app/keys", label: "Key Saya", short: "Key", icon: KeyRound, exact: false },
   { href: "/app/models", label: "Katalog Model", short: "Model", icon: Layers, exact: false },
   { href: "/app/logs", label: "Log Pemakaian", short: "Log", icon: ScrollText, exact: false },
   { href: "/app/docs", label: "Dokumentasi", short: "Docs", icon: BookOpen, exact: false },

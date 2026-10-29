@@ -77,7 +77,7 @@ export default async function AppDocsPage() {
             <li>
               <span className="font-medium text-zinc-100">Buat key.</span> Buat API key di halaman{" "}
               <Link href="/app/keys" className={inlineLink}>
-                Key &amp; Panduan
+                Key Saya
               </Link>
               . Key hanya tampil sekali saat dibuat, simpan baik-baik.
             </li>
@@ -559,7 +559,7 @@ for chunk in stream:
               <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">
                 Segera rotate key itu di halaman{" "}
                 <Link href="/app/keys" className={inlineLink}>
-                  Key &amp; Panduan
+                  Key Saya
                 </Link>
                 , nilai rahasianya diganti baru dan nilai lama langsung berhenti bekerja, tanpa
                 perlu menghapus dan membuat key dari awal. Setelah itu perbarui key di semua tool
