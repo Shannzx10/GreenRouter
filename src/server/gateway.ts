@@ -1,4 +1,9 @@
 import { prisma } from "@/lib/db";
+import {
+  anthropicToOpenAI,
+  openAIToAnthropic,
+  translateOpenAIStream,
+} from "@/server/anthropic-translate";
 import { decryptSecret, hashClientKey } from "@/lib/crypto";
 import type {
   ApiKey,
@@ -75,22 +80,16 @@ const cursors = new Map<string, number>();
 
 export async function getCandidates(
   modelId: string,
+  // Parameter format dipertahankan untuk kejelasan pemanggil; pemilihan
+  // native vs terjemahan untuk jalur Anthropic kini diputuskan per
+  // kandidat di forwardAnthropicMessages berdasarkan supportsAnthropic.
   format: "openai" | "anthropic" = "openai",
 ): Promise<{ catalog: ModelCatalog | null; candidates: Candidate[] }> {
   const catalog = await prisma.modelCatalog.findUnique({ where: { modelId } });
   if (!catalog) return { catalog: null, candidates: [] };
 
   const routes = await prisma.modelRoute.findMany({
-    where: {
-      modelId: catalog.id,
-      isActive: true,
-      provider: {
-        isActive: true,
-        // Jalur Anthropic hanya boleh memakai provider yang memang
-        // melayani endpoint /messages.
-        ...(format === "anthropic" ? { supportsAnthropic: true } : {}),
-      },
-    },
+    where: { modelId: catalog.id, isActive: true, provider: { isActive: true } },
     orderBy: [{ priority: "asc" }, { createdAt: "asc" }],
     include: { provider: { include: { upstreamKeys: true } } },
   });
@@ -513,6 +512,140 @@ export async function forwardChatCompletion(args: {
   return clientErrorResponse("openai", lastStatus, lastStatus === 429 ? minRetryAfter : undefined);
 }
 
+
+// ---------- Kandidat Anthropic terjemahan (provider non-native) ----------
+// Untuk provider yang tidak melayani /messages (supportsAnthropic false,
+// mis. Dahl): request diterjemahkan ke chat completions provider itu dan
+// responsnya diterjemahkan balik ke format Anthropic. Semantik failover,
+// penandaan key, dan pencatatan sama seperti jalur native.
+type TranslatedOutcome =
+  | { kind: "response"; response: Response }
+  | { kind: "failover"; status: number; body: string; retryAfter?: number | null };
+
+async function tryTranslatedCandidate(
+  cand: Candidate,
+  args: {
+    apiKeyId: string;
+    userId?: string | null;
+    modelId: string;
+    body: Record<string, unknown>;
+    stream: boolean;
+  },
+  started: number,
+): Promise<TranslatedOutcome> {
+  const outBody = anthropicToOpenAI(args.body, cand.route.upstreamModelId);
+  if (args.stream) {
+    outBody.stream = true;
+    outBody.stream_options = { include_usage: true };
+  }
+
+  let upstream: Response;
+  try {
+    upstream = await fetch(`${cand.provider.baseUrl.replace(/\/$/, "")}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${decryptSecret(cand.key.encryptedKey)}`,
+      },
+      body: JSON.stringify(outBody),
+      signal: AbortSignal.timeout(180_000),
+    });
+  } catch (e) {
+    await markKeyFailure(cand.key, 502);
+    return {
+      kind: "failover",
+      status: 502,
+      body: e instanceof Error ? e.message : "network error",
+    };
+  }
+
+  if (!upstream.ok) {
+    const text = await upstream.text().catch(() => "");
+    if (isFailoverStatus(upstream.status)) {
+      await markKeyFailure(cand.key, upstream.status);
+      return {
+        kind: "failover",
+        status: upstream.status,
+        body: text,
+        retryAfter: upstream.status === 429 ? parseRetryAfter(upstream.headers) : null,
+      };
+    }
+    await logUsage({
+      apiKeyId: args.apiKeyId,
+      userId: args.userId ?? undefined,
+      providerId: cand.provider.id,
+      upstreamKeyId: cand.key.id,
+      modelId: args.modelId,
+      latencyMs: Date.now() - started,
+      status: "ERROR",
+      error: `upstream ${upstream.status}`,
+    });
+    return { kind: "response", response: clientErrorResponse("anthropic", upstream.status) };
+  }
+
+  await markKeySuccess(cand.key);
+
+  if (!args.stream || !upstream.body) {
+    const text = await upstream.text();
+    let json: Record<string, any> | null = null;
+    try {
+      json = JSON.parse(text) as Record<string, any>;
+    } catch {
+      /* respons sukses tapi bukan JSON: perlakukan sebagai gangguan hulu */
+    }
+    if (!json) {
+      await markKeyFailure(cand.key, 502);
+      return { kind: "failover", status: 502, body: text.slice(0, 200) };
+    }
+    const usage = json.usage as Usage | undefined;
+    await logUsage({
+      apiKeyId: args.apiKeyId,
+      userId: args.userId ?? undefined,
+      providerId: cand.provider.id,
+      upstreamKeyId: cand.key.id,
+      modelId: args.modelId,
+      promptTokens: usage?.prompt_tokens,
+      completionTokens: usage?.completion_tokens,
+      totalTokens: usage?.total_tokens,
+      latencyMs: Date.now() - started,
+      status: "SUCCESS",
+    });
+    return {
+      kind: "response",
+      response: Response.json(openAIToAnthropic(json, args.modelId), { status: 200 }),
+    };
+  }
+
+  const bodyStream = translateOpenAIStream(upstream.body, args.modelId, (u) => {
+    void logUsage({
+      apiKeyId: args.apiKeyId,
+      userId: args.userId ?? undefined,
+      providerId: cand.provider.id,
+      upstreamKeyId: cand.key.id,
+      modelId: args.modelId,
+      promptTokens: u.promptTokens,
+      completionTokens: u.completionTokens,
+      totalTokens:
+        u.promptTokens != null || u.completionTokens != null
+          ? (u.promptTokens ?? 0) + (u.completionTokens ?? 0)
+          : undefined,
+      latencyMs: Date.now() - started,
+      status: "SUCCESS",
+    });
+  });
+  return {
+    kind: "response",
+    response: new Response(bodyStream, {
+      status: 200,
+      headers: {
+        "content-type": "text/event-stream",
+        "cache-control": "no-cache, no-transform",
+        connection: "keep-alive",
+      },
+    }),
+  };
+}
+
 // ---------- Forward Anthropic Messages (POST /v1/messages) ----------
 // Penerusan ala kadarnya seperti jalur OpenAI, tetapi ke endpoint Anthropic
 // hulu ({baseUrl}/messages): header x-api-key + anthropic-version, usage
@@ -543,6 +676,19 @@ export async function forwardAnthropicMessages(args: {
       lastStatus = 402;
       lastBody = "quota key habis (cek limit per request)";
       lastCand = cand;
+      continue;
+    }
+    if (!cand.provider.supportsAnthropic) {
+      // Provider tanpa endpoint /messages native: lewat penerjemah.
+      const outcome = await tryTranslatedCandidate(cand, args, started);
+      if (outcome.kind === "response") return outcome.response;
+      lastStatus = outcome.status;
+      lastBody = outcome.body;
+      lastCand = cand;
+      if (outcome.status === 429) {
+        const wait = outcome.retryAfter ?? 60;
+        if (minRetryAfter === null || wait < minRetryAfter) minRetryAfter = wait;
+      }
       continue;
     }
     const outBody: Record<string, unknown> = {

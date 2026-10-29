@@ -56,8 +56,9 @@ model Provider {
   // gateway mengecek sisa token key SEBELUM setiap request diteruskan;
   // sisa 0 berarti key ditandai LIMITED dan dikeluarkan dari rotasi.
   quotaCheckUrl String?
-  // false bila hulu tidak melayani endpoint Anthropic /messages (mis. Dahl);
-  // kandidat provider ini dilewati khusus jalur Anthropic.
+  // false bila hulu tidak melayani endpoint Anthropic /messages secara
+  // native (mis. Dahl); jalur Anthropic untuk provider ini diterjemahkan
+  // GreenRouter lewat endpoint OpenAI-nya (lihat anthropic-translate.ts).
   supportsAnthropic Boolean @default(true)
   upstreamKeys UpstreamKey[]
   routes       ModelRoute[]

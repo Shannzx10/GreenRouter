@@ -185,8 +185,8 @@ export default function ProvidersManager({ providers }: { providers: Prov[] }) {
                         </span>
                       )}
                       {!p.supportsAnthropic && (
-                        <span className="rounded-full bg-white/[0.06] px-2.5 py-0.5 text-xs text-zinc-400" title="Provider ini tidak melayani endpoint Anthropic /messages">
-                          OpenAI saja
+                        <span className="rounded-full bg-white/[0.06] px-2.5 py-0.5 text-xs text-zinc-400" title="Provider ini tidak melayani /messages secara native; jalur Anthropic diterjemahkan GreenRouter lewat endpoint OpenAI-nya">
+                          Anthropic via Terjemahan
                         </span>
                       )}
                     </div>
