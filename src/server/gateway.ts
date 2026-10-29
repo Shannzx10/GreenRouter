@@ -75,9 +75,9 @@ const cursors = new Map<string, number>();
 
 export async function getCandidates(
   modelId: string,
-): Promise<{ catalog: ModelCatalog | null; candidates: Candidate[]; retryAfterSec: number | null }> {
+): Promise<{ catalog: ModelCatalog | null; candidates: Candidate[] }> {
   const catalog = await prisma.modelCatalog.findUnique({ where: { modelId } });
-  if (!catalog) return { catalog: null, candidates: [], retryAfterSec: null };
+  if (!catalog) return { catalog: null, candidates: [] };
 
   const routes = await prisma.modelRoute.findMany({
     where: { modelId: catalog.id, isActive: true, provider: { isActive: true } },
@@ -86,18 +86,7 @@ export async function getCandidates(
   });
 
   const now = new Date();
-  // Cooldown rate-limit yang masih berjalan untuk pasangan (key, model).
-  const keyIds = routes.flatMap((r) => r.provider.upstreamKeys.map((k) => k.id));
-  const cooldowns = keyIds.length
-    ? await prisma.upstreamKeyCooldown.findMany({
-        where: { upstreamKeyId: { in: keyIds }, until: { gt: now } },
-        select: { upstreamKeyId: true, modelId: true, until: true },
-      })
-    : [];
-  const coolingUntil = new Map(cooldowns.map((c) => [`${c.upstreamKeyId}|${c.modelId}`, c.until]));
-
   const candidates: Candidate[] = [];
-  let earliestCooling: Date | null = null;
   for (const route of routes) {
     const usable = route.provider.upstreamKeys.filter(
       (k) =>
@@ -109,21 +98,10 @@ export async function getCandidates(
     const ordered = [...usable.slice(start), ...usable.slice(0, start)];
     cursors.set(route.providerId, start + 1);
     for (const key of ordered) {
-      const until = coolingUntil.get(`${key.id}|${route.upstreamModelId}`);
-      if (until) {
-        // Key ini sedang rate-cooldown khusus untuk model ini; catat kapan
-        // paling cepat ia bebas lagi untuk header Retry-After ke klien.
-        if (!earliestCooling || until < earliestCooling) earliestCooling = until;
-        continue;
-      }
       candidates.push({ provider: route.provider, route, key });
     }
   }
-  const retryAfterSec =
-    candidates.length === 0 && earliestCooling
-      ? Math.max(1, Math.ceil((earliestCooling.getTime() - now.getTime()) / 1000))
-      : null;
-  return { catalog, candidates, retryAfterSec };
+  return { catalog, candidates };
 }
 
 // ---------- Pemetaan error hulu ----------
@@ -284,8 +262,8 @@ async function markKeyFailure(key: UpstreamKey, status: number): Promise<void> {
         data: { status: "LIMITED", cooldownUntil: null, failCount: { increment: 1 } },
       });
     } else if (status === 429) {
-      // 429 ditangani markRateLimited per (key, model); di sini cukup catat
-      // kegagalannya tanpa memblokir key secara global.
+      // Rate-limit hulu bersifat sementara; cukup catat kegagalannya,
+      // key tidak diblokir dan tetap ikut rotasi.
       await prisma.upstreamKey.update({
         where: { id: key.id },
         data: { failCount: { increment: 1 } },
@@ -296,33 +274,6 @@ async function markKeyFailure(key: UpstreamKey, status: number): Promise<void> {
         data: { failCount: { increment: 1 } },
       });
     }
-  } catch {}
-}
-
-// 429 dari hulu = batas laju per model (mis. Yeta 30 request/menit/model,
-// jendela bergeser). Key hanya didinginkan untuk model itu saja selama
-// Retry-After hulu (bawaan 60 detik, dibatasi 1..300 detik); model lain
-// lewat key yang sama tidak ikut terganggu.
-async function markRateLimited(
-  key: UpstreamKey,
-  upstreamModelId: string,
-  retryAfterSec: number | null,
-): Promise<void> {
-  const secs = Math.min(300, Math.max(1, retryAfterSec ?? 60));
-  try {
-    await prisma.upstreamKeyCooldown.upsert({
-      where: { upstreamKeyId_modelId: { upstreamKeyId: key.id, modelId: upstreamModelId } },
-      create: {
-        upstreamKeyId: key.id,
-        modelId: upstreamModelId,
-        until: new Date(Date.now() + secs * 1000),
-      },
-      update: { until: new Date(Date.now() + secs * 1000) },
-    });
-    await prisma.upstreamKey.update({
-      where: { id: key.id },
-      data: { failCount: { increment: 1 } },
-    });
   } catch {}
 }
 
@@ -412,15 +363,13 @@ export async function forwardChatCompletion(args: {
       lastBody = await upstream.text().catch(() => "");
       if (isFailoverStatus(upstream.status)) {
         if (upstream.status === 429) {
-          // Rate-limit per model: dinginkan hanya pasangan (key, model) ini
-          // selama Retry-After hulu, lalu coba kandidat berikutnya.
+          // Rate-limit hulu: simpan Retry-After tersingkat untuk disampaikan
+          // ke klien bila semua kandidat ikut gagal.
           const ra = parseRetryAfter(upstream.headers);
           const wait = ra ?? 60;
           if (minRetryAfter === null || wait < minRetryAfter) minRetryAfter = wait;
-          await markRateLimited(cand.key, cand.route.upstreamModelId, ra);
-        } else {
-          await markKeyFailure(cand.key, upstream.status);
         }
+        await markKeyFailure(cand.key, upstream.status);
         continue; // coba kandidat berikutnya
       }
       // Error lain (400 dsb.) berasal dari request klien; jawab dengan
@@ -581,10 +530,8 @@ export async function forwardAnthropicMessages(args: {
           const ra = parseRetryAfter(upstream.headers);
           const wait = ra ?? 60;
           if (minRetryAfter === null || wait < minRetryAfter) minRetryAfter = wait;
-          await markRateLimited(cand.key, cand.route.upstreamModelId, ra);
-        } else {
-          await markKeyFailure(cand.key, upstream.status);
         }
+        await markKeyFailure(cand.key, upstream.status);
         continue;
       }
       await logUsage({

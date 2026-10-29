@@ -55,23 +55,11 @@ export async function POST(req: Request) {
     }
   }
 
-  const { catalog, candidates, retryAfterSec } = await getCandidates(model);
+  const { catalog, candidates } = await getCandidates(model);
   if (!catalog) {
     return openAiError(404, `Model '${model}' tidak ditemukan`, "invalid_request_error", "model_not_found");
   }
   if (!candidates.length) {
-    if (retryAfterSec) {
-      // Semua key sedang rate-cooldown khusus model ini; sampaikan kapan
-      // paling cepat bisa dicoba lagi lewat header Retry-After.
-      const res = openAiError(
-        429,
-        "Terlalu banyak request dalam waktu singkat. Silakan coba lagi dalam beberapa saat.",
-        "rate_limit_error",
-        "rate_limited",
-      );
-      res.headers.set("Retry-After", String(retryAfterSec));
-      return res;
-    }
     return openAiError(503, `Tidak ada penyedia aktif untuk model '${model}'`, "upstream_error");
   }
 

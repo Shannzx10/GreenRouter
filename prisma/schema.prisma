@@ -70,27 +70,10 @@ model UpstreamKey {
   cooldownUntil DateTime?
   failCount     Int        @default(0)
   usageLogs     UsageLog[]
-  cooldowns     UpstreamKeyCooldown[]
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
   @@index([providerId, status])
-}
-
-// Cooldown rate-limit per (key, model): hulu seperti Yeta membatasi request
-// per model (30/menit, jendela bergeser, ada header Retry-After), jadi 429
-// tidak boleh memblokir key untuk semua model. Baris kedaluwarsa diabaikan.
-model UpstreamKeyCooldown {
-  id            String      @id @default(cuid())
-  upstreamKey   UpstreamKey @relation(fields: [upstreamKeyId], references: [id], onDelete: Cascade)
-  upstreamKeyId String
-  modelId       String // ID model di hulu (upstreamModelId pada route)
-  until         DateTime
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-
-  @@unique([upstreamKeyId, modelId])
-  @@index([until])
 }
 
 model ModelCatalog {

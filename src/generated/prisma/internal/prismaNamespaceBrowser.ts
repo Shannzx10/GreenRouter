@@ -55,7 +55,6 @@ export const ModelName = {
   ApiKey: 'ApiKey',
   Provider: 'Provider',
   UpstreamKey: 'UpstreamKey',
-  UpstreamKeyCooldown: 'UpstreamKeyCooldown',
   ModelCatalog: 'ModelCatalog',
   ModelRoute: 'ModelRoute',
   Announcement: 'Announcement',
@@ -137,18 +136,6 @@ export const UpstreamKeyScalarFieldEnum = {
 } as const
 
 export type UpstreamKeyScalarFieldEnum = (typeof UpstreamKeyScalarFieldEnum)[keyof typeof UpstreamKeyScalarFieldEnum]
-
-
-export const UpstreamKeyCooldownScalarFieldEnum = {
-  id: 'id',
-  upstreamKeyId: 'upstreamKeyId',
-  modelId: 'modelId',
-  until: 'until',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type UpstreamKeyCooldownScalarFieldEnum = (typeof UpstreamKeyCooldownScalarFieldEnum)[keyof typeof UpstreamKeyCooldownScalarFieldEnum]
 
 
 export const ModelCatalogScalarFieldEnum = {

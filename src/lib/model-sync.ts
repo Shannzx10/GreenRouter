@@ -10,7 +10,6 @@ import { decryptSecret } from "./crypto";
 
 type UpstreamModel = {
   id?: unknown;
-  supported_endpoint_types?: unknown;
   display_name?: unknown;
   context_window?: unknown;
   max_output_tokens?: unknown;
@@ -78,15 +77,6 @@ export async function syncModelsFromUpstream(): Promise<SyncResult> {
     for (const um of list) {
       const modelId = strOrUndef(um.id);
       if (!modelId) continue;
-      // Lewati model non-chat: sebagian hulu (mis. Yeta) mencampur model
-      // gambar/video di /models; model chat selalu mendukung endpoint
-      // anthropic di daftar supported_endpoint_types-nya.
-      if (
-        Array.isArray(um.supported_endpoint_types) &&
-        !um.supported_endpoint_types.includes("anthropic")
-      ) {
-        continue;
-      }
       result.total++;
 
       const capsRaw =

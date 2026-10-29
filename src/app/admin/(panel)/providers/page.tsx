@@ -8,15 +8,7 @@ export default async function ProvidersPage() {
   const providers = await prisma.provider.findMany({
     orderBy: { createdAt: "asc" },
     include: {
-      upstreamKeys: {
-        orderBy: { createdAt: "asc" },
-        include: {
-          cooldowns: {
-            where: { until: { gt: new Date() } },
-            orderBy: { until: "asc" },
-          },
-        },
-      },
+      upstreamKeys: { orderBy: { createdAt: "asc" } },
       _count: { select: { routes: true } },
     },
   });
@@ -34,10 +26,6 @@ export default async function ProvidersPage() {
       cooldownUntil: k.cooldownUntil?.toISOString() ?? null,
       failCount: k.failCount,
       createdAt: k.createdAt.toISOString(),
-      rateLimits: k.cooldowns.map((c) => ({
-        modelId: c.modelId,
-        until: c.until.toISOString(),
-      })),
     })),
   }));
   return <ProvidersManager providers={data} />;

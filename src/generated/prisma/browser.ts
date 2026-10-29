@@ -38,11 +38,6 @@ export type Provider = Prisma.ProviderModel
  */
 export type UpstreamKey = Prisma.UpstreamKeyModel
 /**
- * Model UpstreamKeyCooldown
- * 
- */
-export type UpstreamKeyCooldown = Prisma.UpstreamKeyCooldownModel
-/**
  * Model ModelCatalog
  * 
  */

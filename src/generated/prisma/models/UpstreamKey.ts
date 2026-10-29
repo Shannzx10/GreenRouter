@@ -258,7 +258,6 @@ export type UpstreamKeyWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"UpstreamKey"> | Date | string
   provider?: Prisma.XOR<Prisma.ProviderScalarRelationFilter, Prisma.ProviderWhereInput>
   usageLogs?: Prisma.UsageLogListRelationFilter
-  cooldowns?: Prisma.UpstreamKeyCooldownListRelationFilter
 }
 
 export type UpstreamKeyOrderByWithRelationInput = {
@@ -274,7 +273,6 @@ export type UpstreamKeyOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   provider?: Prisma.ProviderOrderByWithRelationInput
   usageLogs?: Prisma.UsageLogOrderByRelationAggregateInput
-  cooldowns?: Prisma.UpstreamKeyCooldownOrderByRelationAggregateInput
 }
 
 export type UpstreamKeyWhereUniqueInput = Prisma.AtLeast<{
@@ -293,7 +291,6 @@ export type UpstreamKeyWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"UpstreamKey"> | Date | string
   provider?: Prisma.XOR<Prisma.ProviderScalarRelationFilter, Prisma.ProviderWhereInput>
   usageLogs?: Prisma.UsageLogListRelationFilter
-  cooldowns?: Prisma.UpstreamKeyCooldownListRelationFilter
 }, "id">
 
 export type UpstreamKeyOrderByWithAggregationInput = {
@@ -342,7 +339,6 @@ export type UpstreamKeyCreateInput = {
   updatedAt?: Date | string
   provider: Prisma.ProviderCreateNestedOneWithoutUpstreamKeysInput
   usageLogs?: Prisma.UsageLogCreateNestedManyWithoutUpstreamKeyInput
-  cooldowns?: Prisma.UpstreamKeyCooldownCreateNestedManyWithoutUpstreamKeyInput
 }
 
 export type UpstreamKeyUncheckedCreateInput = {
@@ -357,7 +353,6 @@ export type UpstreamKeyUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   usageLogs?: Prisma.UsageLogUncheckedCreateNestedManyWithoutUpstreamKeyInput
-  cooldowns?: Prisma.UpstreamKeyCooldownUncheckedCreateNestedManyWithoutUpstreamKeyInput
 }
 
 export type UpstreamKeyUpdateInput = {
@@ -372,7 +367,6 @@ export type UpstreamKeyUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   provider?: Prisma.ProviderUpdateOneRequiredWithoutUpstreamKeysNestedInput
   usageLogs?: Prisma.UsageLogUpdateManyWithoutUpstreamKeyNestedInput
-  cooldowns?: Prisma.UpstreamKeyCooldownUpdateManyWithoutUpstreamKeyNestedInput
 }
 
 export type UpstreamKeyUncheckedUpdateInput = {
@@ -387,7 +381,6 @@ export type UpstreamKeyUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usageLogs?: Prisma.UsageLogUncheckedUpdateManyWithoutUpstreamKeyNestedInput
-  cooldowns?: Prisma.UpstreamKeyCooldownUncheckedUpdateManyWithoutUpstreamKeyNestedInput
 }
 
 export type UpstreamKeyCreateManyInput = {
@@ -485,11 +478,6 @@ export type UpstreamKeySumOrderByAggregateInput = {
   failCount?: Prisma.SortOrder
 }
 
-export type UpstreamKeyScalarRelationFilter = {
-  is?: Prisma.UpstreamKeyWhereInput
-  isNot?: Prisma.UpstreamKeyWhereInput
-}
-
 export type UpstreamKeyNullableScalarRelationFilter = {
   is?: Prisma.UpstreamKeyWhereInput | null
   isNot?: Prisma.UpstreamKeyWhereInput | null
@@ -545,20 +533,6 @@ export type IntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type UpstreamKeyCreateNestedOneWithoutCooldownsInput = {
-  create?: Prisma.XOR<Prisma.UpstreamKeyCreateWithoutCooldownsInput, Prisma.UpstreamKeyUncheckedCreateWithoutCooldownsInput>
-  connectOrCreate?: Prisma.UpstreamKeyCreateOrConnectWithoutCooldownsInput
-  connect?: Prisma.UpstreamKeyWhereUniqueInput
-}
-
-export type UpstreamKeyUpdateOneRequiredWithoutCooldownsNestedInput = {
-  create?: Prisma.XOR<Prisma.UpstreamKeyCreateWithoutCooldownsInput, Prisma.UpstreamKeyUncheckedCreateWithoutCooldownsInput>
-  connectOrCreate?: Prisma.UpstreamKeyCreateOrConnectWithoutCooldownsInput
-  upsert?: Prisma.UpstreamKeyUpsertWithoutCooldownsInput
-  connect?: Prisma.UpstreamKeyWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UpstreamKeyUpdateToOneWithWhereWithoutCooldownsInput, Prisma.UpstreamKeyUpdateWithoutCooldownsInput>, Prisma.UpstreamKeyUncheckedUpdateWithoutCooldownsInput>
-}
-
 export type UpstreamKeyCreateNestedOneWithoutUsageLogsInput = {
   create?: Prisma.XOR<Prisma.UpstreamKeyCreateWithoutUsageLogsInput, Prisma.UpstreamKeyUncheckedCreateWithoutUsageLogsInput>
   connectOrCreate?: Prisma.UpstreamKeyCreateOrConnectWithoutUsageLogsInput
@@ -586,7 +560,6 @@ export type UpstreamKeyCreateWithoutProviderInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   usageLogs?: Prisma.UsageLogCreateNestedManyWithoutUpstreamKeyInput
-  cooldowns?: Prisma.UpstreamKeyCooldownCreateNestedManyWithoutUpstreamKeyInput
 }
 
 export type UpstreamKeyUncheckedCreateWithoutProviderInput = {
@@ -600,7 +573,6 @@ export type UpstreamKeyUncheckedCreateWithoutProviderInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   usageLogs?: Prisma.UsageLogUncheckedCreateNestedManyWithoutUpstreamKeyInput
-  cooldowns?: Prisma.UpstreamKeyCooldownUncheckedCreateNestedManyWithoutUpstreamKeyInput
 }
 
 export type UpstreamKeyCreateOrConnectWithoutProviderInput = {
@@ -645,78 +617,6 @@ export type UpstreamKeyScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"UpstreamKey"> | Date | string
 }
 
-export type UpstreamKeyCreateWithoutCooldownsInput = {
-  id?: string
-  label: string
-  encryptedKey: string
-  keyHint: string
-  status?: string
-  cooldownUntil?: Date | string | null
-  failCount?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  provider: Prisma.ProviderCreateNestedOneWithoutUpstreamKeysInput
-  usageLogs?: Prisma.UsageLogCreateNestedManyWithoutUpstreamKeyInput
-}
-
-export type UpstreamKeyUncheckedCreateWithoutCooldownsInput = {
-  id?: string
-  providerId: string
-  label: string
-  encryptedKey: string
-  keyHint: string
-  status?: string
-  cooldownUntil?: Date | string | null
-  failCount?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  usageLogs?: Prisma.UsageLogUncheckedCreateNestedManyWithoutUpstreamKeyInput
-}
-
-export type UpstreamKeyCreateOrConnectWithoutCooldownsInput = {
-  where: Prisma.UpstreamKeyWhereUniqueInput
-  create: Prisma.XOR<Prisma.UpstreamKeyCreateWithoutCooldownsInput, Prisma.UpstreamKeyUncheckedCreateWithoutCooldownsInput>
-}
-
-export type UpstreamKeyUpsertWithoutCooldownsInput = {
-  update: Prisma.XOR<Prisma.UpstreamKeyUpdateWithoutCooldownsInput, Prisma.UpstreamKeyUncheckedUpdateWithoutCooldownsInput>
-  create: Prisma.XOR<Prisma.UpstreamKeyCreateWithoutCooldownsInput, Prisma.UpstreamKeyUncheckedCreateWithoutCooldownsInput>
-  where?: Prisma.UpstreamKeyWhereInput
-}
-
-export type UpstreamKeyUpdateToOneWithWhereWithoutCooldownsInput = {
-  where?: Prisma.UpstreamKeyWhereInput
-  data: Prisma.XOR<Prisma.UpstreamKeyUpdateWithoutCooldownsInput, Prisma.UpstreamKeyUncheckedUpdateWithoutCooldownsInput>
-}
-
-export type UpstreamKeyUpdateWithoutCooldownsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  label?: Prisma.StringFieldUpdateOperationsInput | string
-  encryptedKey?: Prisma.StringFieldUpdateOperationsInput | string
-  keyHint?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  cooldownUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  failCount?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  provider?: Prisma.ProviderUpdateOneRequiredWithoutUpstreamKeysNestedInput
-  usageLogs?: Prisma.UsageLogUpdateManyWithoutUpstreamKeyNestedInput
-}
-
-export type UpstreamKeyUncheckedUpdateWithoutCooldownsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  providerId?: Prisma.StringFieldUpdateOperationsInput | string
-  label?: Prisma.StringFieldUpdateOperationsInput | string
-  encryptedKey?: Prisma.StringFieldUpdateOperationsInput | string
-  keyHint?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  cooldownUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  failCount?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  usageLogs?: Prisma.UsageLogUncheckedUpdateManyWithoutUpstreamKeyNestedInput
-}
-
 export type UpstreamKeyCreateWithoutUsageLogsInput = {
   id?: string
   label: string
@@ -728,7 +628,6 @@ export type UpstreamKeyCreateWithoutUsageLogsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   provider: Prisma.ProviderCreateNestedOneWithoutUpstreamKeysInput
-  cooldowns?: Prisma.UpstreamKeyCooldownCreateNestedManyWithoutUpstreamKeyInput
 }
 
 export type UpstreamKeyUncheckedCreateWithoutUsageLogsInput = {
@@ -742,7 +641,6 @@ export type UpstreamKeyUncheckedCreateWithoutUsageLogsInput = {
   failCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  cooldowns?: Prisma.UpstreamKeyCooldownUncheckedCreateNestedManyWithoutUpstreamKeyInput
 }
 
 export type UpstreamKeyCreateOrConnectWithoutUsageLogsInput = {
@@ -772,7 +670,6 @@ export type UpstreamKeyUpdateWithoutUsageLogsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   provider?: Prisma.ProviderUpdateOneRequiredWithoutUpstreamKeysNestedInput
-  cooldowns?: Prisma.UpstreamKeyCooldownUpdateManyWithoutUpstreamKeyNestedInput
 }
 
 export type UpstreamKeyUncheckedUpdateWithoutUsageLogsInput = {
@@ -786,7 +683,6 @@ export type UpstreamKeyUncheckedUpdateWithoutUsageLogsInput = {
   failCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  cooldowns?: Prisma.UpstreamKeyCooldownUncheckedUpdateManyWithoutUpstreamKeyNestedInput
 }
 
 export type UpstreamKeyCreateManyProviderInput = {
@@ -812,7 +708,6 @@ export type UpstreamKeyUpdateWithoutProviderInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usageLogs?: Prisma.UsageLogUpdateManyWithoutUpstreamKeyNestedInput
-  cooldowns?: Prisma.UpstreamKeyCooldownUpdateManyWithoutUpstreamKeyNestedInput
 }
 
 export type UpstreamKeyUncheckedUpdateWithoutProviderInput = {
@@ -826,7 +721,6 @@ export type UpstreamKeyUncheckedUpdateWithoutProviderInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usageLogs?: Prisma.UsageLogUncheckedUpdateManyWithoutUpstreamKeyNestedInput
-  cooldowns?: Prisma.UpstreamKeyCooldownUncheckedUpdateManyWithoutUpstreamKeyNestedInput
 }
 
 export type UpstreamKeyUncheckedUpdateManyWithoutProviderInput = {
@@ -848,12 +742,10 @@ export type UpstreamKeyUncheckedUpdateManyWithoutProviderInput = {
 
 export type UpstreamKeyCountOutputType = {
   usageLogs: number
-  cooldowns: number
 }
 
 export type UpstreamKeyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   usageLogs?: boolean | UpstreamKeyCountOutputTypeCountUsageLogsArgs
-  cooldowns?: boolean | UpstreamKeyCountOutputTypeCountCooldownsArgs
 }
 
 /**
@@ -873,13 +765,6 @@ export type UpstreamKeyCountOutputTypeCountUsageLogsArgs<ExtArgs extends runtime
   where?: Prisma.UsageLogWhereInput
 }
 
-/**
- * UpstreamKeyCountOutputType without action
- */
-export type UpstreamKeyCountOutputTypeCountCooldownsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.UpstreamKeyCooldownWhereInput
-}
-
 
 export type UpstreamKeySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -894,7 +779,6 @@ export type UpstreamKeySelect<ExtArgs extends runtime.Types.Extensions.InternalA
   updatedAt?: boolean
   provider?: boolean | Prisma.ProviderDefaultArgs<ExtArgs>
   usageLogs?: boolean | Prisma.UpstreamKey$usageLogsArgs<ExtArgs>
-  cooldowns?: boolean | Prisma.UpstreamKey$cooldownsArgs<ExtArgs>
   _count?: boolean | Prisma.UpstreamKeyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["upstreamKey"]>
 
@@ -943,7 +827,6 @@ export type UpstreamKeyOmit<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type UpstreamKeyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   provider?: boolean | Prisma.ProviderDefaultArgs<ExtArgs>
   usageLogs?: boolean | Prisma.UpstreamKey$usageLogsArgs<ExtArgs>
-  cooldowns?: boolean | Prisma.UpstreamKey$cooldownsArgs<ExtArgs>
   _count?: boolean | Prisma.UpstreamKeyCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UpstreamKeyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -958,7 +841,6 @@ export type $UpstreamKeyPayload<ExtArgs extends runtime.Types.Extensions.Interna
   objects: {
     provider: Prisma.$ProviderPayload<ExtArgs>
     usageLogs: Prisma.$UsageLogPayload<ExtArgs>[]
-    cooldowns: Prisma.$UpstreamKeyCooldownPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1367,7 +1249,6 @@ export interface Prisma__UpstreamKeyClient<T, Null = never, ExtArgs extends runt
   readonly [Symbol.toStringTag]: "PrismaPromise"
   provider<T extends Prisma.ProviderDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProviderDefaultArgs<ExtArgs>>): Prisma.Prisma__ProviderClient<runtime.Types.Result.GetResult<Prisma.$ProviderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   usageLogs<T extends Prisma.UpstreamKey$usageLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UpstreamKey$usageLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UsageLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  cooldowns<T extends Prisma.UpstreamKey$cooldownsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UpstreamKey$cooldownsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UpstreamKeyCooldownPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1829,30 +1710,6 @@ export type UpstreamKey$usageLogsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.UsageLogScalarFieldEnum | Prisma.UsageLogScalarFieldEnum[]
-}
-
-/**
- * UpstreamKey.cooldowns
- */
-export type UpstreamKey$cooldownsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the UpstreamKeyCooldown
-   */
-  select?: Prisma.UpstreamKeyCooldownSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the UpstreamKeyCooldown
-   */
-  omit?: Prisma.UpstreamKeyCooldownOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UpstreamKeyCooldownInclude<ExtArgs> | null
-  where?: Prisma.UpstreamKeyCooldownWhereInput
-  orderBy?: Prisma.UpstreamKeyCooldownOrderByWithRelationInput | Prisma.UpstreamKeyCooldownOrderByWithRelationInput[]
-  cursor?: Prisma.UpstreamKeyCooldownWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.UpstreamKeyCooldownScalarFieldEnum | Prisma.UpstreamKeyCooldownScalarFieldEnum[]
 }
 
 /**

@@ -401,7 +401,6 @@ export const ModelName = {
   ApiKey: 'ApiKey',
   Provider: 'Provider',
   UpstreamKey: 'UpstreamKey',
-  UpstreamKeyCooldown: 'UpstreamKeyCooldown',
   ModelCatalog: 'ModelCatalog',
   ModelRoute: 'ModelRoute',
   Announcement: 'Announcement',
@@ -421,7 +420,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "apiKey" | "provider" | "upstreamKey" | "upstreamKeyCooldown" | "modelCatalog" | "modelRoute" | "announcement" | "usageLog"
+    modelProps: "user" | "apiKey" | "provider" | "upstreamKey" | "modelCatalog" | "modelRoute" | "announcement" | "usageLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -718,80 +717,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UpstreamKeyCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UpstreamKeyCountAggregateOutputType> | number
-        }
-      }
-    }
-    UpstreamKeyCooldown: {
-      payload: Prisma.$UpstreamKeyCooldownPayload<ExtArgs>
-      fields: Prisma.UpstreamKeyCooldownFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.UpstreamKeyCooldownFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UpstreamKeyCooldownPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.UpstreamKeyCooldownFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UpstreamKeyCooldownPayload>
-        }
-        findFirst: {
-          args: Prisma.UpstreamKeyCooldownFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UpstreamKeyCooldownPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.UpstreamKeyCooldownFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UpstreamKeyCooldownPayload>
-        }
-        findMany: {
-          args: Prisma.UpstreamKeyCooldownFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UpstreamKeyCooldownPayload>[]
-        }
-        create: {
-          args: Prisma.UpstreamKeyCooldownCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UpstreamKeyCooldownPayload>
-        }
-        createMany: {
-          args: Prisma.UpstreamKeyCooldownCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.UpstreamKeyCooldownCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UpstreamKeyCooldownPayload>[]
-        }
-        delete: {
-          args: Prisma.UpstreamKeyCooldownDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UpstreamKeyCooldownPayload>
-        }
-        update: {
-          args: Prisma.UpstreamKeyCooldownUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UpstreamKeyCooldownPayload>
-        }
-        deleteMany: {
-          args: Prisma.UpstreamKeyCooldownDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.UpstreamKeyCooldownUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.UpstreamKeyCooldownUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UpstreamKeyCooldownPayload>[]
-        }
-        upsert: {
-          args: Prisma.UpstreamKeyCooldownUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UpstreamKeyCooldownPayload>
-        }
-        aggregate: {
-          args: Prisma.UpstreamKeyCooldownAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateUpstreamKeyCooldown>
-        }
-        groupBy: {
-          args: Prisma.UpstreamKeyCooldownGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.UpstreamKeyCooldownGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.UpstreamKeyCooldownCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.UpstreamKeyCooldownCountAggregateOutputType> | number
         }
       }
     }
@@ -1191,18 +1116,6 @@ export const UpstreamKeyScalarFieldEnum = {
 export type UpstreamKeyScalarFieldEnum = (typeof UpstreamKeyScalarFieldEnum)[keyof typeof UpstreamKeyScalarFieldEnum]
 
 
-export const UpstreamKeyCooldownScalarFieldEnum = {
-  id: 'id',
-  upstreamKeyId: 'upstreamKeyId',
-  modelId: 'modelId',
-  until: 'until',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type UpstreamKeyCooldownScalarFieldEnum = (typeof UpstreamKeyCooldownScalarFieldEnum)[keyof typeof UpstreamKeyCooldownScalarFieldEnum]
-
-
 export const ModelCatalogScalarFieldEnum = {
   id: 'id',
   modelId: 'modelId',
@@ -1510,7 +1423,6 @@ export type GlobalOmitConfig = {
   apiKey?: Prisma.ApiKeyOmit
   provider?: Prisma.ProviderOmit
   upstreamKey?: Prisma.UpstreamKeyOmit
-  upstreamKeyCooldown?: Prisma.UpstreamKeyCooldownOmit
   modelCatalog?: Prisma.ModelCatalogOmit
   modelRoute?: Prisma.ModelRouteOmit
   announcement?: Prisma.AnnouncementOmit

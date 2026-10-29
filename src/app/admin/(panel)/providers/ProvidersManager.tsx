@@ -14,7 +14,6 @@ type UpKey = {
   cooldownUntil: string | null;
   failCount: number;
   createdAt: string;
-  rateLimits: { modelId: string; until: string }[];
 };
 type Prov = {
   id: string;
@@ -214,15 +213,6 @@ export default function ProvidersManager({ providers }: { providers: Prov[] }) {
                       <span className="text-sm font-medium">{k.label}</span>
                       <code className="font-mono text-xs text-zinc-400">{k.keyHint}</code>
                       {statusBadge(k)}
-                      {k.rateLimits.map((rl) => (
-                        <span
-                          key={rl.modelId}
-                          className="rounded-full bg-amber-500/15 px-2 py-0.5 font-mono text-xs text-amber-300"
-                          title="Key ini sedang kena rate-limit khusus model ini"
-                        >
-                          429 {rl.modelId} s.d. {new Date(rl.until).toLocaleTimeString("id-ID")}
-                        </span>
-                      ))}
                       {k.failCount > 0 && <span className="text-xs text-zinc-500">gagal: {k.failCount}×</span>}
                       <div className="ml-auto flex items-center gap-1">
                         {k.status !== "ACTIVE" && (

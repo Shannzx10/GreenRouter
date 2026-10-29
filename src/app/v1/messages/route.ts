@@ -54,20 +54,11 @@ export async function POST(req: Request) {
     }
   }
 
-  const { catalog, candidates, retryAfterSec } = await getCandidates(model);
+  const { catalog, candidates } = await getCandidates(model);
   if (!catalog) {
     return anthropicError(404, `Model '${model}' tidak ditemukan`, "not_found_error");
   }
   if (!candidates.length) {
-    if (retryAfterSec) {
-      const res = anthropicError(
-        429,
-        "Terlalu banyak request dalam waktu singkat. Silakan coba lagi dalam beberapa saat.",
-        "rate_limit_error",
-      );
-      res.headers.set("Retry-After", String(retryAfterSec));
-      return res;
-    }
     return anthropicError(503, `Tidak ada penyedia aktif untuk model '${model}'`, "api_error");
   }
 
