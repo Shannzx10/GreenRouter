@@ -202,7 +202,6 @@ export default async function UserLogsPage({
                   >
                     {l.status}
                   </span>
-                  {l.error && <p className="mt-1 max-w-56 text-xs break-words text-red-300/80">{l.error}</p>}
                 </td>
               </tr>
             ))}
