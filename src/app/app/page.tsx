@@ -91,6 +91,7 @@ export default async function UserOverviewPage() {
     perfLogs,
     catalog,
     healthChecks,
+    healthPerf,
   ] = await Promise.all([
     prisma.apiKey.count({ where: { userId: session.uid, isActive: true } }),
     prisma.usageLog.count({ where: { ...mine, createdAt: { gte: startOfDay } } }),
@@ -118,6 +119,10 @@ export default async function UserOverviewPage() {
     prisma.modelHealthCheck.findMany({
       orderBy: { checkedAt: "desc" },
       distinct: ["modelId"],
+    }),
+    prisma.modelHealthCheck.findMany({
+      where: { checkedAt: { gte: perfStart } },
+      select: { modelId: true, status: true, latencyMs: true, checkedAt: true },
     }),
   ]);
 
@@ -181,6 +186,30 @@ export default async function UserOverviewPage() {
       if (log.status === "SUCCESS") agg.success24 += 1;
     }
     aggByModel.set(log.modelId, agg);
+  }
+  // Tes kesehatan harian ikut terhitung di tabel performa global ini
+  // (request, sukses, latensi, status 24 jam), walau tidak tercatat
+  // sebagai log pemakaian user.
+  for (const h of healthPerf) {
+    const agg = aggByModel.get(h.modelId) ?? {
+      total: 0,
+      success: 0,
+      latencySum: 0,
+      latencyCount: 0,
+      lastAt: null,
+      count24: 0,
+      success24: 0,
+    };
+    agg.total += 1;
+    if (h.status === "SUCCESS") agg.success += 1;
+    agg.latencySum += h.latencyMs;
+    agg.latencyCount += 1;
+    if (!agg.lastAt || h.checkedAt > agg.lastAt) agg.lastAt = h.checkedAt;
+    if (h.checkedAt >= dayAgo) {
+      agg.count24 += 1;
+      if (h.status === "SUCCESS") agg.success24 += 1;
+    }
+    aggByModel.set(h.modelId, agg);
   }
   const healthByModel = new Map(healthChecks.map((h) => [h.modelId, h]));
   const modelRows = catalog
@@ -369,7 +398,8 @@ export default async function UserOverviewPage() {
             <SectionHead eyebrow="Katalog Model" title="Performa dan Status Model">
               Dari seluruh request di GreenRouter selama 30 hari terakhir. {healthyCount} dari{" "}
               {modelRows.length} model berstatus sehat dalam 24 jam terakhir. Setiap model juga
-              dites otomatis sekali sehari, hasilnya ada di kolom Tes Terakhir.
+              dites otomatis sekali sehari dan hasil tesnya ikut terhitung sebagai request di
+              tabel ini, dengan rincian terakhir di kolom Tes Terakhir.
             </SectionHead>
             <div className="mt-5 overflow-x-auto glass rounded-3xl">
               <table className="w-full min-w-[760px] text-left text-sm">
