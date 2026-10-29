@@ -46,7 +46,7 @@ function strOrUndef(v: unknown): string | undefined {
 export async function syncModelsFromUpstream(): Promise<SyncResult> {
   const result: SyncResult = { providers: 0, added: 0, updated: 0, total: 0, errors: [] };
   const providers = await prisma.provider.findMany({
-    where: { isActive: true },
+    where: { isActive: true, autoSync: true },
     include: { upstreamKeys: true },
   });
 

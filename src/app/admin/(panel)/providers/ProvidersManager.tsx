@@ -21,6 +21,8 @@ type Prov = {
   baseUrl: string;
   isActive: boolean;
   routeCount: number;
+  quotaCheckUrl: string | null;
+  supportsAnthropic: boolean;
   keys: UpKey[];
 };
 
@@ -177,6 +179,16 @@ export default function ProvidersManager({ providers }: { providers: Prov[] }) {
                       <span className="rounded-full bg-white/[0.06] px-2.5 py-0.5 text-xs text-zinc-400">
                         {p.routeCount} route model
                       </span>
+                      {p.quotaCheckUrl && (
+                        <span className="rounded-full bg-lime-400/10 px-2.5 py-0.5 text-xs font-medium text-lime-300" title="Sisa token tiap key dicek sebelum setiap request diteruskan">
+                          Cek limit per request
+                        </span>
+                      )}
+                      {!p.supportsAnthropic && (
+                        <span className="rounded-full bg-white/[0.06] px-2.5 py-0.5 text-xs text-zinc-400" title="Provider ini tidak melayani endpoint Anthropic /messages">
+                          OpenAI saja
+                        </span>
+                      )}
                     </div>
                     <code className="mt-0.5 block break-all font-mono text-xs text-zinc-400">{p.baseUrl}</code>
                   </div>

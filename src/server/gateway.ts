@@ -75,12 +75,22 @@ const cursors = new Map<string, number>();
 
 export async function getCandidates(
   modelId: string,
+  format: "openai" | "anthropic" = "openai",
 ): Promise<{ catalog: ModelCatalog | null; candidates: Candidate[] }> {
   const catalog = await prisma.modelCatalog.findUnique({ where: { modelId } });
   if (!catalog) return { catalog: null, candidates: [] };
 
   const routes = await prisma.modelRoute.findMany({
-    where: { modelId: catalog.id, isActive: true, provider: { isActive: true } },
+    where: {
+      modelId: catalog.id,
+      isActive: true,
+      provider: {
+        isActive: true,
+        // Jalur Anthropic hanya boleh memakai provider yang memang
+        // melayani endpoint /messages.
+        ...(format === "anthropic" ? { supportsAnthropic: true } : {}),
+      },
+    },
     orderBy: [{ priority: "asc" }, { createdAt: "asc" }],
     include: { provider: { include: { upstreamKeys: true } } },
   });
@@ -243,6 +253,27 @@ function parseRetryAfter(headers: Headers): number | null {
   return null;
 }
 
+// Provider ber-quotaCheckUrl (Dahl): sisa token key dicek sebelum request
+// diteruskan. Sisa habis (available_tokens <= 0) berarti key LIMITED.
+// Pengecekan yang gagal (jaringan, HTTP error, bentuk respons asing)
+// bersifat fail-open: request tetap jalan agar endpoint kuota yang
+// gangguan tidak ikut mematikan layanan.
+async function keyQuotaExhausted(cand: Candidate): Promise<boolean> {
+  const url = cand.provider.quotaCheckUrl;
+  if (!url) return false;
+  try {
+    const res = await fetch(url, {
+      headers: { authorization: `Bearer ${decryptSecret(cand.key.encryptedKey)}` },
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!res.ok) return false;
+    const json = (await res.json()) as { available_tokens?: unknown };
+    return typeof json.available_tokens === "number" && json.available_tokens <= 0;
+  } catch {
+    return false;
+  }
+}
+
 // ---------- Status kesehatan key ----------
 async function markKeyFailure(key: UpstreamKey, status: number): Promise<void> {
   try {
@@ -326,6 +357,16 @@ export async function forwardChatCompletion(args: {
   let minRetryAfter: number | null = null;
 
   for (const cand of args.candidates) {
+    // Cek limit per request untuk provider yang mewajibkannya (Dahl):
+    // key yang sisa tokennya habis langsung ditandai LIMITED (perlakuan
+    // sama seperti 402) dan dilewati tanpa meneruskan request.
+    if (await keyQuotaExhausted(cand)) {
+      await markKeyFailure(cand.key, 402);
+      lastStatus = 402;
+      lastBody = "quota key habis (cek limit per request)";
+      lastCand = cand;
+      continue;
+    }
     const outBody: Record<string, unknown> = {
       ...args.body,
       model: cand.route.upstreamModelId,
@@ -494,6 +535,16 @@ export async function forwardAnthropicMessages(args: {
   let minRetryAfter: number | null = null;
 
   for (const cand of args.candidates) {
+    // Cek limit per request untuk provider yang mewajibkannya (Dahl):
+    // key yang sisa tokennya habis langsung ditandai LIMITED (perlakuan
+    // sama seperti 402) dan dilewati tanpa meneruskan request.
+    if (await keyQuotaExhausted(cand)) {
+      await markKeyFailure(cand.key, 402);
+      lastStatus = 402;
+      lastBody = "quota key habis (cek limit per request)";
+      lastCand = cand;
+      continue;
+    }
     const outBody: Record<string, unknown> = {
       ...args.body,
       model: cand.route.upstreamModelId,

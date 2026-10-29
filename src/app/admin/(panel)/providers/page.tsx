@@ -18,6 +18,8 @@ export default async function ProvidersPage() {
     baseUrl: p.baseUrl,
     isActive: p.isActive,
     routeCount: p._count.routes,
+    quotaCheckUrl: p.quotaCheckUrl,
+    supportsAnthropic: p.supportsAnthropic,
     keys: p.upstreamKeys.map((k) => ({
       id: k.id,
       label: k.label,
