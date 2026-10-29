@@ -20,6 +20,8 @@ const MODELS = [
   { id: "glm-5.3-flash-dhl", label: "GLM 5.3 Flash DHL" },
   { id: "minimax-m2.7", label: "MiniMax M2.7" },
   { id: "deepseek-v4-flash-0731", label: "DeepSeek V4 Flash 0731" },
+  { id: "mimo-v2.6-flash", label: "MiMo V2.6 Flash" },
+  { id: "minicpm-v-4.7-35b-a3b", label: "MiniCPM-V 4.7 35B" },
 ];
 
 const FEATURES = [

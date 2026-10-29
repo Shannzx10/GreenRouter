@@ -4,13 +4,15 @@ import { Bot } from "lucide-react";
 // di-host sendiri di public/assets/providers; MiniMax digambar sebagai SVG.
 export function modelFamily(
   modelId: string,
-): "deepseek" | "zai" | "minimax" | "kimi" | "qwen" | "generic" {
+): "deepseek" | "zai" | "minimax" | "kimi" | "qwen" | "mimo" | "minicpm" | "generic" {
   const id = modelId.toLowerCase();
   if (id.startsWith("deepseek")) return "deepseek";
   if (id.startsWith("glm")) return "zai";
   if (id.startsWith("minimax")) return "minimax";
   if (id.startsWith("kimi")) return "kimi";
   if (id.startsWith("qwen")) return "qwen";
+  if (id.startsWith("mimo")) return "mimo";
+  if (id.startsWith("minicpm")) return "minicpm";
   return "generic";
 }
 
@@ -26,6 +28,10 @@ export function familyLabel(modelId: string): string {
       return "Kimi";
     case "qwen":
       return "Qwen";
+    case "mimo":
+      return "MiMo";
+    case "minicpm":
+      return "MiniCPM";
     default:
       return "Model";
   }
@@ -50,7 +56,7 @@ export default function ProviderIcon({
       </span>
     );
   }
-  if (family === "generic") {
+  if (family === "generic" || family === "mimo" || family === "minicpm") {
     return (
       <span
         className={`flex shrink-0 items-center justify-center rounded-[12px] bg-white/[0.05] text-lime-300 ring-1 ring-white/10 ${className}`}
