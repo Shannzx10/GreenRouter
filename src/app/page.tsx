@@ -460,10 +460,9 @@ export default function Home() {
             <div>
               <p className="text-sm font-semibold">Model Populer</p>
               <ul className="mt-3 space-y-2.5 font-mono text-[13px] text-zinc-400">
-                <li>deepseek-v4.1-flash</li>
-                <li>glm-5.3</li>
-                <li>glm-5.3-flash</li>
-                <li>minimax-m3.1-flash</li>
+                {MODELS.map((m) => (
+                  <li key={m.id}>{m.id}</li>
+                ))}
               </ul>
             </div>
           </div>
