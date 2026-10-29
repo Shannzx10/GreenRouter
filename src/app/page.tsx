@@ -17,6 +17,7 @@ import SmoothAnchors from "./SmoothAnchors";
 const MODELS = [
   { id: "deepseek-v4.1-flash", label: "DeepSeek V4.1 Flash" },
   { id: "glm-5.3-flash", label: "GLM 5.3 Flash" },
+  { id: "glm-5.3-flash-dhl", label: "GLM 5.3 Flash DHL" },
   { id: "minimax-m2.7", label: "MiniMax M2.7" },
   { id: "deepseek-v4-flash-0731", label: "DeepSeek V4 Flash 0731" },
 ];
