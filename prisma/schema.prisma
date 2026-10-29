@@ -124,6 +124,20 @@ model Announcement {
   updatedAt DateTime @updatedAt
 }
 
+// Hasil tes kesehatan otomatis: satu chat sederhana ke tiap model katalog
+// sekali per 24 jam (dipicu watchdog). Sengaja BUKAN UsageLog: tes ini
+// bukan pemakaian user, tidak boleh mengotori statistik maupun kuota.
+model ModelHealthCheck {
+  id        String   @id @default(cuid())
+  modelId   String
+  status    String // "SUCCESS" | "ERROR"
+  latencyMs Int
+  error     String?
+  checkedAt DateTime @default(now())
+
+  @@index([modelId, checkedAt])
+}
+
 model UsageLog {
   id               String       @id @default(cuid())
   // Pemilik key saat request terjadi — ditulis permanen (denormal) agar

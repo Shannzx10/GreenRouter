@@ -838,3 +838,89 @@ export async function forwardAnthropicMessages(args: {
   });
   return clientErrorResponse("anthropic", lastStatus, lastStatus === 429 ? minRetryAfter : undefined);
 }
+
+// ---------- Tes kesehatan model otomatis (1x per 24 jam) ----------
+// Satu chat sederhana ke setiap model katalog lewat kandidat yang sama
+// seperti request sungguhan (termasuk cek kuota per request untuk Dahl
+// dan penandaan key yang gagal), TAPI tanpa UsageLog: hasilnya disimpan
+// ke ModelHealthCheck agar statistik pemakaian dan kuota user tidak
+// terkotori tes internal. Dipanggil skrip scripts/health-check.ts yang
+// dipicu watchdog maksimal sekali sehari.
+export async function runModelHealthChecks(): Promise<
+  { modelId: string; ok: boolean; latencyMs: number; error?: string }[]
+> {
+  const models = await prisma.modelCatalog.findMany({
+    select: { modelId: true },
+    orderBy: { modelId: "asc" },
+  });
+  const results: { modelId: string; ok: boolean; latencyMs: number; error?: string }[] = [];
+  for (const m of models) {
+    const started = Date.now();
+    let ok = false;
+    let errMsg: string | undefined;
+    const { candidates } = await getCandidates(m.modelId);
+    if (!candidates.length) errMsg = "tidak ada kandidat aktif";
+    for (const cand of candidates) {
+      if (ok) break;
+      if (await keyQuotaExhausted(cand)) {
+        await markKeyFailure(cand.key, 402);
+        errMsg = "kuota key habis (cek limit per request)";
+        continue;
+      }
+      try {
+        const upstream = await fetch(
+          `${cand.provider.baseUrl.replace(/\/$/, "")}/chat/completions`,
+          {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+              authorization: `Bearer ${decryptSecret(cand.key.encryptedKey)}`,
+            },
+            body: JSON.stringify({
+              model: cand.route.upstreamModelId,
+              messages: [{ role: "user", content: "Jawab dengan satu kata: ok" }],
+              max_tokens: 16,
+            }),
+            signal: AbortSignal.timeout(120_000),
+          },
+        );
+        if (upstream.ok) {
+          await upstream.text().catch(() => "");
+          await markKeySuccess(cand.key);
+          ok = true;
+          errMsg = undefined;
+        } else {
+          errMsg = `upstream ${upstream.status}: ${(await upstream.text().catch(() => "")).slice(0, 120)}`;
+          if (isFailoverStatus(upstream.status)) {
+            await markKeyFailure(cand.key, upstream.status);
+            continue;
+          }
+          break;
+        }
+      } catch (e) {
+        errMsg = e instanceof Error ? e.message : "network error";
+        await markKeyFailure(cand.key, 502);
+        continue;
+      }
+    }
+    const latencyMs = Date.now() - started;
+    try {
+      await prisma.modelHealthCheck.create({
+        data: {
+          modelId: m.modelId,
+          status: ok ? "SUCCESS" : "ERROR",
+          latencyMs,
+          error: ok ? null : (errMsg ?? "gagal").slice(0, 200),
+        },
+      });
+    } catch {}
+    results.push({ modelId: m.modelId, ok, latencyMs, error: errMsg });
+  }
+  // Jaga tabel tetap ramping: buang hasil yang lebih tua dari 30 hari.
+  try {
+    await prisma.modelHealthCheck.deleteMany({
+      where: { checkedAt: { lt: new Date(Date.now() - 30 * 86_400_000) } },
+    });
+  } catch {}
+  return results;
+}

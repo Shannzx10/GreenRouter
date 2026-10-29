@@ -90,6 +90,7 @@ export default async function UserOverviewPage() {
     trendLogs,
     perfLogs,
     catalog,
+    healthChecks,
   ] = await Promise.all([
     prisma.apiKey.count({ where: { userId: session.uid, isActive: true } }),
     prisma.usageLog.count({ where: { ...mine, createdAt: { gte: startOfDay } } }),
@@ -114,6 +115,10 @@ export default async function UserOverviewPage() {
       select: { modelId: true, status: true, latencyMs: true, createdAt: true },
     }),
     prisma.modelCatalog.findMany({ orderBy: { displayName: "asc" } }),
+    prisma.modelHealthCheck.findMany({
+      orderBy: { checkedAt: "desc" },
+      distinct: ["modelId"],
+    }),
   ]);
 
   const cards = [
@@ -177,12 +182,14 @@ export default async function UserOverviewPage() {
     }
     aggByModel.set(log.modelId, agg);
   }
+  const healthByModel = new Map(healthChecks.map((h) => [h.modelId, h]));
   const modelRows = catalog
     .map((m) => {
       const agg = aggByModel.get(m.modelId);
       return {
         modelId: m.modelId,
         displayName: m.displayName,
+        health: healthByModel.get(m.modelId) ?? null,
         total: agg?.total ?? 0,
         successRate: agg && agg.total > 0 ? (agg.success / agg.total) * 100 : null,
         avgLatency:
@@ -361,14 +368,16 @@ export default async function UserOverviewPage() {
           <div className="mt-14">
             <SectionHead eyebrow="Katalog Model" title="Performa dan Status Model">
               Dari seluruh request di GreenRouter selama 30 hari terakhir. {healthyCount} dari{" "}
-              {modelRows.length} model berstatus sehat dalam 24 jam terakhir.
+              {modelRows.length} model berstatus sehat dalam 24 jam terakhir. Setiap model juga
+              dites otomatis sekali sehari, hasilnya ada di kolom Tes Terakhir.
             </SectionHead>
             <div className="mt-5 overflow-x-auto glass rounded-3xl">
-              <table className="w-full min-w-[680px] text-left text-sm">
+              <table className="w-full min-w-[760px] text-left text-sm">
                 <thead className="bg-white/[0.04] text-zinc-400">
                   <tr>
                     <th className="px-4 py-3 font-medium">Model</th>
                     <th className="px-4 py-3 font-medium">Status</th>
+                    <th className="px-4 py-3 font-medium">Tes Terakhir</th>
                     <th className="px-4 py-3 font-medium">Request</th>
                     <th className="px-4 py-3 font-medium">Sukses</th>
                     <th className="px-4 py-3 font-medium">Latensi Rata-rata</th>
@@ -392,6 +401,35 @@ export default async function UserOverviewPage() {
                           <span className={`h-1.5 w-1.5 rounded-full ${r.status.dot}`} />
                           {r.status.label}
                         </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        {r.health ? (
+                          <>
+                            <span
+                              className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs ${
+                                r.health.status === "SUCCESS"
+                                  ? "bg-lime-400/10 text-lime-300"
+                                  : "bg-red-500/15 text-red-300"
+                              }`}
+                            >
+                              <span
+                                className={`h-1.5 w-1.5 rounded-full ${
+                                  r.health.status === "SUCCESS" ? "bg-lime-300" : "bg-red-400"
+                                }`}
+                              />
+                              {r.health.status === "SUCCESS" ? "Berhasil" : "Gagal"}
+                            </span>
+                            <p className="mt-1 whitespace-nowrap text-[11px] text-zinc-500">
+                              {r.health.checkedAt.toLocaleString("id-ID", {
+                                dateStyle: "medium",
+                                timeStyle: "short",
+                              })}{" "}
+                              · {r.health.latencyMs.toLocaleString("id-ID")} ms
+                            </p>
+                          </>
+                        ) : (
+                          <span className="text-zinc-500">Belum dites</span>
+                        )}
                       </td>
                       <td className="px-4 py-3">{r.total.toLocaleString("id-ID")}</td>
                       <td className="px-4 py-3">

@@ -77,6 +77,11 @@ export type ModelRoute = Prisma.ModelRouteModel
  */
 export type Announcement = Prisma.AnnouncementModel
 /**
+ * Model ModelHealthCheck
+ * 
+ */
+export type ModelHealthCheck = Prisma.ModelHealthCheckModel
+/**
  * Model UsageLog
  * 
  */

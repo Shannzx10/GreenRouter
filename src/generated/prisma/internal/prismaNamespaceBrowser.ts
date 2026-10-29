@@ -58,6 +58,7 @@ export const ModelName = {
   ModelCatalog: 'ModelCatalog',
   ModelRoute: 'ModelRoute',
   Announcement: 'Announcement',
+  ModelHealthCheck: 'ModelHealthCheck',
   UsageLog: 'UsageLog'
 } as const
 
@@ -179,6 +180,18 @@ export const AnnouncementScalarFieldEnum = {
 } as const
 
 export type AnnouncementScalarFieldEnum = (typeof AnnouncementScalarFieldEnum)[keyof typeof AnnouncementScalarFieldEnum]
+
+
+export const ModelHealthCheckScalarFieldEnum = {
+  id: 'id',
+  modelId: 'modelId',
+  status: 'status',
+  latencyMs: 'latencyMs',
+  error: 'error',
+  checkedAt: 'checkedAt'
+} as const
+
+export type ModelHealthCheckScalarFieldEnum = (typeof ModelHealthCheckScalarFieldEnum)[keyof typeof ModelHealthCheckScalarFieldEnum]
 
 
 export const UsageLogScalarFieldEnum = {

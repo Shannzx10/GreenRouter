@@ -404,6 +404,7 @@ export const ModelName = {
   ModelCatalog: 'ModelCatalog',
   ModelRoute: 'ModelRoute',
   Announcement: 'Announcement',
+  ModelHealthCheck: 'ModelHealthCheck',
   UsageLog: 'UsageLog'
 } as const
 
@@ -420,7 +421,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "apiKey" | "provider" | "upstreamKey" | "modelCatalog" | "modelRoute" | "announcement" | "usageLog"
+    modelProps: "user" | "apiKey" | "provider" | "upstreamKey" | "modelCatalog" | "modelRoute" | "announcement" | "modelHealthCheck" | "usageLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -942,6 +943,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ModelHealthCheck: {
+      payload: Prisma.$ModelHealthCheckPayload<ExtArgs>
+      fields: Prisma.ModelHealthCheckFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ModelHealthCheckFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelHealthCheckPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ModelHealthCheckFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelHealthCheckPayload>
+        }
+        findFirst: {
+          args: Prisma.ModelHealthCheckFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelHealthCheckPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ModelHealthCheckFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelHealthCheckPayload>
+        }
+        findMany: {
+          args: Prisma.ModelHealthCheckFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelHealthCheckPayload>[]
+        }
+        create: {
+          args: Prisma.ModelHealthCheckCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelHealthCheckPayload>
+        }
+        createMany: {
+          args: Prisma.ModelHealthCheckCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ModelHealthCheckCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelHealthCheckPayload>[]
+        }
+        delete: {
+          args: Prisma.ModelHealthCheckDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelHealthCheckPayload>
+        }
+        update: {
+          args: Prisma.ModelHealthCheckUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelHealthCheckPayload>
+        }
+        deleteMany: {
+          args: Prisma.ModelHealthCheckDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ModelHealthCheckUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ModelHealthCheckUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelHealthCheckPayload>[]
+        }
+        upsert: {
+          args: Prisma.ModelHealthCheckUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelHealthCheckPayload>
+        }
+        aggregate: {
+          args: Prisma.ModelHealthCheckAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateModelHealthCheck>
+        }
+        groupBy: {
+          args: Prisma.ModelHealthCheckGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModelHealthCheckGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ModelHealthCheckCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModelHealthCheckCountAggregateOutputType> | number
+        }
+      }
+    }
     UsageLog: {
       payload: Prisma.$UsageLogPayload<ExtArgs>
       fields: Prisma.UsageLogFieldRefs
@@ -1157,6 +1232,18 @@ export const AnnouncementScalarFieldEnum = {
 } as const
 
 export type AnnouncementScalarFieldEnum = (typeof AnnouncementScalarFieldEnum)[keyof typeof AnnouncementScalarFieldEnum]
+
+
+export const ModelHealthCheckScalarFieldEnum = {
+  id: 'id',
+  modelId: 'modelId',
+  status: 'status',
+  latencyMs: 'latencyMs',
+  error: 'error',
+  checkedAt: 'checkedAt'
+} as const
+
+export type ModelHealthCheckScalarFieldEnum = (typeof ModelHealthCheckScalarFieldEnum)[keyof typeof ModelHealthCheckScalarFieldEnum]
 
 
 export const UsageLogScalarFieldEnum = {
@@ -1428,6 +1515,7 @@ export type GlobalOmitConfig = {
   modelCatalog?: Prisma.ModelCatalogOmit
   modelRoute?: Prisma.ModelRouteOmit
   announcement?: Prisma.AnnouncementOmit
+  modelHealthCheck?: Prisma.ModelHealthCheckOmit
   usageLog?: Prisma.UsageLogOmit
 }
 
