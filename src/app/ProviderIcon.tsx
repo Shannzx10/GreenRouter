@@ -56,7 +56,7 @@ export default function ProviderIcon({
       </span>
     );
   }
-  if (family === "generic" || family === "mimo" || family === "minicpm") {
+  if (family === "generic") {
     return (
       <span
         className={`flex shrink-0 items-center justify-center rounded-[12px] bg-white/[0.05] text-lime-300 ring-1 ring-white/10 ${className}`}

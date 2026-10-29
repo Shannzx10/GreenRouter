@@ -90,6 +90,8 @@ const PROVIDERS = [
   { name: "DeepSeek", kind: "deepseek" },
   { name: "Z.ai", kind: "zai" },
   { name: "MiniMax", kind: "minimax" },
+  { name: "MiMo", kind: "mimo" },
+  { name: "MiniCPM", kind: "minicpm" },
 ] as const;
 
 function ProviderTile({ kind }: { kind: (typeof PROVIDERS)[number]["kind"] }) {
