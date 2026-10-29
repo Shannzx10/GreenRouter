@@ -129,7 +129,13 @@ function isFailoverStatus(status: number): boolean {
 
 type ClientError = { status: number; type: string; code: string; message: string };
 
-function mapUpstreamError(status: number): ClientError {
+function modelMaintenanceMessage(modelId?: string): string {
+  return modelId
+    ? `Model '${modelId}' sedang dalam pemeliharaan sementara. Silakan coba model lain atau coba lagi nanti.`
+    : "Model sedang dalam pemeliharaan sementara. Silakan coba model lain atau coba lagi nanti.";
+}
+
+function mapUpstreamError(status: number, modelId?: string): ClientError {
   switch (status) {
     case 400:
       return {
@@ -147,7 +153,7 @@ function mapUpstreamError(status: number): ClientError {
         status: 503,
         type: "api_error",
         code: "service_unavailable",
-        message: "Layanan AI sedang tidak tersedia untuk sementara. Silakan coba lagi nanti.",
+        message: modelMaintenanceMessage(modelId),
       };
     case 404:
       return {
@@ -184,7 +190,7 @@ function mapUpstreamError(status: number): ClientError {
         status: 503,
         type: "api_error",
         code: "service_unavailable",
-        message: "Layanan AI sedang tidak tersedia untuk sementara. Silakan coba lagi nanti.",
+        message: modelMaintenanceMessage(modelId),
       };
     case 422:
       return {
@@ -221,9 +227,10 @@ function mapUpstreamError(status: number): ClientError {
 function clientErrorResponse(
   format: "openai" | "anthropic",
   upstreamStatus: number,
+  modelId?: string,
   retryAfterSec?: number | null,
 ): Response {
-  const m = mapUpstreamError(upstreamStatus);
+  const m = mapUpstreamError(upstreamStatus, modelId);
   let res: Response;
   if (format === "anthropic") {
     const type =
@@ -424,7 +431,7 @@ export async function forwardChatCompletion(args: {
         status: "ERROR",
         error: `upstream ${upstream.status}`,
       });
-      return clientErrorResponse("openai", upstream.status);
+      return clientErrorResponse("openai", upstream.status, args.modelId);
     }
 
     await markKeySuccess(cand.key);
@@ -509,7 +516,7 @@ export async function forwardChatCompletion(args: {
     status: "ERROR",
     error: `upstream ${lastStatus}: ${lastBody.slice(0, 200)}`,
   });
-  return clientErrorResponse("openai", lastStatus, lastStatus === 429 ? minRetryAfter : undefined);
+  return clientErrorResponse("openai", lastStatus, args.modelId, lastStatus === 429 ? minRetryAfter : undefined);
 }
 
 
@@ -580,7 +587,7 @@ async function tryTranslatedCandidate(
       status: "ERROR",
       error: `upstream ${upstream.status}`,
     });
-    return { kind: "response", response: clientErrorResponse("anthropic", upstream.status) };
+    return { kind: "response", response: clientErrorResponse("anthropic", upstream.status, args.modelId) };
   }
 
   await markKeySuccess(cand.key);
@@ -741,7 +748,7 @@ export async function forwardAnthropicMessages(args: {
         status: "ERROR",
         error: `upstream ${upstream.status}`,
       });
-      return clientErrorResponse("anthropic", upstream.status);
+      return clientErrorResponse("anthropic", upstream.status, args.modelId);
     }
 
     await markKeySuccess(cand.key);
@@ -836,7 +843,7 @@ export async function forwardAnthropicMessages(args: {
     status: "ERROR",
     error: `upstream ${lastStatus}: ${lastBody.slice(0, 200)}`,
   });
-  return clientErrorResponse("anthropic", lastStatus, lastStatus === 429 ? minRetryAfter : undefined);
+  return clientErrorResponse("anthropic", lastStatus, args.modelId, lastStatus === 429 ? minRetryAfter : undefined);
 }
 
 // ---------- Tes kesehatan model otomatis (1x per 24 jam) ----------

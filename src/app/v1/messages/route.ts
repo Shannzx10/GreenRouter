@@ -59,7 +59,7 @@ export async function POST(req: Request) {
     return anthropicError(404, `Model '${model}' tidak ditemukan`, "not_found_error");
   }
   if (!candidates.length) {
-    return anthropicError(503, `Tidak ada penyedia aktif untuk model '${model}'`, "api_error");
+    return anthropicError(503, `Model '${model}' sedang dalam pemeliharaan sementara. Silakan coba model lain atau coba lagi nanti.`, "api_error");
   }
 
   return forwardAnthropicMessages({

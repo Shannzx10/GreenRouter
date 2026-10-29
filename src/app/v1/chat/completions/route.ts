@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     return openAiError(404, `Model '${model}' tidak ditemukan`, "invalid_request_error", "model_not_found");
   }
   if (!candidates.length) {
-    return openAiError(503, `Tidak ada penyedia aktif untuk model '${model}'`, "upstream_error");
+    return openAiError(503, `Model '${model}' sedang dalam pemeliharaan sementara. Silakan coba model lain atau coba lagi nanti.`, "api_error", "service_unavailable");
   }
 
   return forwardChatCompletion({
