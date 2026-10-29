@@ -31,7 +31,6 @@ export type ProviderMinAggregateOutputType = {
   isActive: boolean | null
   quotaCheckUrl: string | null
   supportsAnthropic: boolean | null
-  autoSync: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -43,7 +42,6 @@ export type ProviderMaxAggregateOutputType = {
   isActive: boolean | null
   quotaCheckUrl: string | null
   supportsAnthropic: boolean | null
-  autoSync: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -55,7 +53,6 @@ export type ProviderCountAggregateOutputType = {
   isActive: number
   quotaCheckUrl: number
   supportsAnthropic: number
-  autoSync: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -69,7 +66,6 @@ export type ProviderMinAggregateInputType = {
   isActive?: true
   quotaCheckUrl?: true
   supportsAnthropic?: true
-  autoSync?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -81,7 +77,6 @@ export type ProviderMaxAggregateInputType = {
   isActive?: true
   quotaCheckUrl?: true
   supportsAnthropic?: true
-  autoSync?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -93,7 +88,6 @@ export type ProviderCountAggregateInputType = {
   isActive?: true
   quotaCheckUrl?: true
   supportsAnthropic?: true
-  autoSync?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -178,7 +172,6 @@ export type ProviderGroupByOutputType = {
   isActive: boolean
   quotaCheckUrl: string | null
   supportsAnthropic: boolean
-  autoSync: boolean
   createdAt: Date
   updatedAt: Date
   _count: ProviderCountAggregateOutputType | null
@@ -211,7 +204,6 @@ export type ProviderWhereInput = {
   isActive?: Prisma.BoolFilter<"Provider"> | boolean
   quotaCheckUrl?: Prisma.StringNullableFilter<"Provider"> | string | null
   supportsAnthropic?: Prisma.BoolFilter<"Provider"> | boolean
-  autoSync?: Prisma.BoolFilter<"Provider"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Provider"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Provider"> | Date | string
   upstreamKeys?: Prisma.UpstreamKeyListRelationFilter
@@ -226,7 +218,6 @@ export type ProviderOrderByWithRelationInput = {
   isActive?: Prisma.SortOrder
   quotaCheckUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   supportsAnthropic?: Prisma.SortOrder
-  autoSync?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   upstreamKeys?: Prisma.UpstreamKeyOrderByRelationAggregateInput
@@ -244,7 +235,6 @@ export type ProviderWhereUniqueInput = Prisma.AtLeast<{
   isActive?: Prisma.BoolFilter<"Provider"> | boolean
   quotaCheckUrl?: Prisma.StringNullableFilter<"Provider"> | string | null
   supportsAnthropic?: Prisma.BoolFilter<"Provider"> | boolean
-  autoSync?: Prisma.BoolFilter<"Provider"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Provider"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Provider"> | Date | string
   upstreamKeys?: Prisma.UpstreamKeyListRelationFilter
@@ -259,7 +249,6 @@ export type ProviderOrderByWithAggregationInput = {
   isActive?: Prisma.SortOrder
   quotaCheckUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   supportsAnthropic?: Prisma.SortOrder
-  autoSync?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProviderCountOrderByAggregateInput
@@ -277,7 +266,6 @@ export type ProviderScalarWhereWithAggregatesInput = {
   isActive?: Prisma.BoolWithAggregatesFilter<"Provider"> | boolean
   quotaCheckUrl?: Prisma.StringNullableWithAggregatesFilter<"Provider"> | string | null
   supportsAnthropic?: Prisma.BoolWithAggregatesFilter<"Provider"> | boolean
-  autoSync?: Prisma.BoolWithAggregatesFilter<"Provider"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Provider"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Provider"> | Date | string
 }
@@ -289,7 +277,6 @@ export type ProviderCreateInput = {
   isActive?: boolean
   quotaCheckUrl?: string | null
   supportsAnthropic?: boolean
-  autoSync?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   upstreamKeys?: Prisma.UpstreamKeyCreateNestedManyWithoutProviderInput
@@ -304,7 +291,6 @@ export type ProviderUncheckedCreateInput = {
   isActive?: boolean
   quotaCheckUrl?: string | null
   supportsAnthropic?: boolean
-  autoSync?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   upstreamKeys?: Prisma.UpstreamKeyUncheckedCreateNestedManyWithoutProviderInput
@@ -319,7 +305,6 @@ export type ProviderUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  autoSync?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   upstreamKeys?: Prisma.UpstreamKeyUpdateManyWithoutProviderNestedInput
@@ -334,7 +319,6 @@ export type ProviderUncheckedUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  autoSync?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   upstreamKeys?: Prisma.UpstreamKeyUncheckedUpdateManyWithoutProviderNestedInput
@@ -349,7 +333,6 @@ export type ProviderCreateManyInput = {
   isActive?: boolean
   quotaCheckUrl?: string | null
   supportsAnthropic?: boolean
-  autoSync?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -361,7 +344,6 @@ export type ProviderUpdateManyMutationInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  autoSync?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -373,7 +355,6 @@ export type ProviderUncheckedUpdateManyInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  autoSync?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -385,7 +366,6 @@ export type ProviderCountOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   quotaCheckUrl?: Prisma.SortOrder
   supportsAnthropic?: Prisma.SortOrder
-  autoSync?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -397,7 +377,6 @@ export type ProviderMaxOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   quotaCheckUrl?: Prisma.SortOrder
   supportsAnthropic?: Prisma.SortOrder
-  autoSync?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -409,7 +388,6 @@ export type ProviderMinOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   quotaCheckUrl?: Prisma.SortOrder
   supportsAnthropic?: Prisma.SortOrder
-  autoSync?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -475,7 +453,6 @@ export type ProviderCreateWithoutUpstreamKeysInput = {
   isActive?: boolean
   quotaCheckUrl?: string | null
   supportsAnthropic?: boolean
-  autoSync?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   routes?: Prisma.ModelRouteCreateNestedManyWithoutProviderInput
@@ -489,7 +466,6 @@ export type ProviderUncheckedCreateWithoutUpstreamKeysInput = {
   isActive?: boolean
   quotaCheckUrl?: string | null
   supportsAnthropic?: boolean
-  autoSync?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   routes?: Prisma.ModelRouteUncheckedCreateNestedManyWithoutProviderInput
@@ -519,7 +495,6 @@ export type ProviderUpdateWithoutUpstreamKeysInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  autoSync?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   routes?: Prisma.ModelRouteUpdateManyWithoutProviderNestedInput
@@ -533,7 +508,6 @@ export type ProviderUncheckedUpdateWithoutUpstreamKeysInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  autoSync?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   routes?: Prisma.ModelRouteUncheckedUpdateManyWithoutProviderNestedInput
@@ -547,7 +521,6 @@ export type ProviderCreateWithoutRoutesInput = {
   isActive?: boolean
   quotaCheckUrl?: string | null
   supportsAnthropic?: boolean
-  autoSync?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   upstreamKeys?: Prisma.UpstreamKeyCreateNestedManyWithoutProviderInput
@@ -561,7 +534,6 @@ export type ProviderUncheckedCreateWithoutRoutesInput = {
   isActive?: boolean
   quotaCheckUrl?: string | null
   supportsAnthropic?: boolean
-  autoSync?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   upstreamKeys?: Prisma.UpstreamKeyUncheckedCreateNestedManyWithoutProviderInput
@@ -591,7 +563,6 @@ export type ProviderUpdateWithoutRoutesInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  autoSync?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   upstreamKeys?: Prisma.UpstreamKeyUpdateManyWithoutProviderNestedInput
@@ -605,7 +576,6 @@ export type ProviderUncheckedUpdateWithoutRoutesInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  autoSync?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   upstreamKeys?: Prisma.UpstreamKeyUncheckedUpdateManyWithoutProviderNestedInput
@@ -619,7 +589,6 @@ export type ProviderCreateWithoutUsageLogsInput = {
   isActive?: boolean
   quotaCheckUrl?: string | null
   supportsAnthropic?: boolean
-  autoSync?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   upstreamKeys?: Prisma.UpstreamKeyCreateNestedManyWithoutProviderInput
@@ -633,7 +602,6 @@ export type ProviderUncheckedCreateWithoutUsageLogsInput = {
   isActive?: boolean
   quotaCheckUrl?: string | null
   supportsAnthropic?: boolean
-  autoSync?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   upstreamKeys?: Prisma.UpstreamKeyUncheckedCreateNestedManyWithoutProviderInput
@@ -663,7 +631,6 @@ export type ProviderUpdateWithoutUsageLogsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  autoSync?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   upstreamKeys?: Prisma.UpstreamKeyUpdateManyWithoutProviderNestedInput
@@ -677,7 +644,6 @@ export type ProviderUncheckedUpdateWithoutUsageLogsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  autoSync?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   upstreamKeys?: Prisma.UpstreamKeyUncheckedUpdateManyWithoutProviderNestedInput
@@ -740,7 +706,6 @@ export type ProviderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   isActive?: boolean
   quotaCheckUrl?: boolean
   supportsAnthropic?: boolean
-  autoSync?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   upstreamKeys?: boolean | Prisma.Provider$upstreamKeysArgs<ExtArgs>
@@ -756,7 +721,6 @@ export type ProviderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   isActive?: boolean
   quotaCheckUrl?: boolean
   supportsAnthropic?: boolean
-  autoSync?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["provider"]>
@@ -768,7 +732,6 @@ export type ProviderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   isActive?: boolean
   quotaCheckUrl?: boolean
   supportsAnthropic?: boolean
-  autoSync?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["provider"]>
@@ -780,12 +743,11 @@ export type ProviderSelectScalar = {
   isActive?: boolean
   quotaCheckUrl?: boolean
   supportsAnthropic?: boolean
-  autoSync?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProviderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "baseUrl" | "isActive" | "quotaCheckUrl" | "supportsAnthropic" | "autoSync" | "createdAt" | "updatedAt", ExtArgs["result"]["provider"]>
+export type ProviderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "baseUrl" | "isActive" | "quotaCheckUrl" | "supportsAnthropic" | "createdAt" | "updatedAt", ExtArgs["result"]["provider"]>
 export type ProviderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   upstreamKeys?: boolean | Prisma.Provider$upstreamKeysArgs<ExtArgs>
   routes?: boolean | Prisma.Provider$routesArgs<ExtArgs>
@@ -809,7 +771,6 @@ export type $ProviderPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     isActive: boolean
     quotaCheckUrl: string | null
     supportsAnthropic: boolean
-    autoSync: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["provider"]>
@@ -1244,7 +1205,6 @@ export interface ProviderFieldRefs {
   readonly isActive: Prisma.FieldRef<"Provider", 'Boolean'>
   readonly quotaCheckUrl: Prisma.FieldRef<"Provider", 'String'>
   readonly supportsAnthropic: Prisma.FieldRef<"Provider", 'Boolean'>
-  readonly autoSync: Prisma.FieldRef<"Provider", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Provider", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Provider", 'DateTime'>
 }

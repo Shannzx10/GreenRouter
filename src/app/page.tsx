@@ -16,12 +16,9 @@ import SmoothAnchors from "./SmoothAnchors";
 
 const MODELS = [
   { id: "deepseek-v4.1-flash", label: "DeepSeek V4.1 Flash" },
-  { id: "deepseek-v4.1-flash-fast", label: "DeepSeek V4.1 Flash Fast" },
-  { id: "glm-5.3", label: "GLM 5.3" },
   { id: "glm-5.3-flash", label: "GLM 5.3 Flash" },
-  { id: "minimax-m3.1-flash", label: "MiniMax M3.1 Flash" },
-  { id: "deepseek-v4.1-flash-1017-abliterated", label: "DeepSeek 1017 Abliterated" },
-  { id: "deepseek-v4.1-flash-1017-non-abliterated", label: "DeepSeek 1017 Non-Abliterated" },
+  { id: "minimax-m2.7", label: "MiniMax M2.7" },
+  { id: "deepseek-v4-flash-0731", label: "DeepSeek V4 Flash 0731" },
 ];
 
 const FEATURES = [
@@ -90,8 +87,6 @@ const PROVIDERS = [
   { name: "DeepSeek", kind: "deepseek" },
   { name: "Z.ai", kind: "zai" },
   { name: "MiniMax", kind: "minimax" },
-  { name: "Kimi", kind: "kimi" },
-  { name: "Qwen", kind: "qwen" },
 ] as const;
 
 function ProviderTile({ kind }: { kind: (typeof PROVIDERS)[number]["kind"] }) {

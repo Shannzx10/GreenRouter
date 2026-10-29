@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Network, Plus, RefreshCw, SlidersHorizontal, Trash2 } from "lucide-react";
+import { Network, Plus, SlidersHorizontal, Trash2 } from "lucide-react";
 import ProviderIcon from "@/app/ProviderIcon";
 import ConfirmModal from "@/app/ConfirmModal";
 import Reveal from "@/app/Reveal";
@@ -168,8 +168,6 @@ export default function ModelsManager({
   const [modelId, setModelId] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [err, setErr] = useState("");
-  const [syncBusy, setSyncBusy] = useState(false);
-  const [syncMsg, setSyncMsg] = useState("");
   const [openMeta, setOpenMeta] = useState<string | null>(null);
   const [confirmState, setConfirmState] = useState<
     | { kind: "model"; m: ModelRow }
@@ -214,29 +212,6 @@ export default function ModelsManager({
     return res;
   }
 
-  async function syncNow() {
-    setSyncBusy(true);
-    setSyncMsg("");
-    setErr("");
-    try {
-      const res = await call("/api/admin/models/sync", "POST");
-      const d = (await res.json()) as {
-        added: number;
-        updated: number;
-        total: number;
-        errors: string[];
-      };
-      setSyncMsg(
-        `Sinkron selesai: ${d.added} model baru ditambahkan, ${d.updated} diperbarui, dari ${d.total} model di hulu.` +
-          (d.errors.length ? ` Ada kegagalan: ${d.errors.join("; ")}` : ""),
-      );
-      router.refresh();
-    } catch (e2) {
-      setErr(e2 instanceof Error ? e2.message : "Gagal menyinkronkan model");
-    } finally {
-      setSyncBusy(false);
-    }
-  }
 
   async function addModel(e: React.FormEvent) {
     e.preventDefault();
@@ -287,27 +262,6 @@ export default function ModelsManager({
       {err && (
         <p className="mt-4 rounded-xl border border-red-400/25 bg-red-500/10 px-3.5 py-2.5 text-sm text-red-300">
           {err}
-        </p>
-      )}
-
-      <div className="mt-8 flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={syncNow}
-          disabled={syncBusy}
-          className="inline-flex items-center gap-2 rounded-full border border-lime-300/30 px-4 py-2 text-sm font-medium text-lime-200 transition hover:bg-lime-400/10 disabled:opacity-50"
-        >
-          <RefreshCw size={15} className={syncBusy ? "animate-spin" : ""} />
-          {syncBusy ? "Menyinkronkan..." : "Sinkronkan dari Hulu"}
-        </button>
-        <p className="text-sm text-zinc-500">
-          Model baru dari provider otomatis ditambahkan lengkap dengan route-nya. Berjalan juga
-          otomatis tiap 6 jam.
-        </p>
-      </div>
-      {syncMsg && (
-        <p className="mt-3 rounded-xl border border-lime-300/25 bg-lime-400/[0.07] px-3.5 py-2.5 text-sm text-lime-200">
-          {syncMsg}
         </p>
       )}
 

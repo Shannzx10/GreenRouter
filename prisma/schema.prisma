@@ -59,10 +59,6 @@ model Provider {
   // false bila hulu tidak melayani endpoint Anthropic /messages (mis. Dahl);
   // kandidat provider ini dilewati khusus jalur Anthropic.
   supportsAnthropic Boolean @default(true)
-  // false menonaktifkan sinkronisasi katalog otomatis untuk provider ini
-  // (mis. Dahl memakai ID model ber-namespace yang tidak cocok dengan
-  // katalog, route-nya dikelola manual).
-  autoSync     Boolean       @default(true)
   upstreamKeys UpstreamKey[]
   routes       ModelRoute[]
   usageLogs    UsageLog[]
