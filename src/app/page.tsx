@@ -27,6 +27,7 @@ const MODELS = [
   { id: "glm-5.3", label: "GLM 5.3" },
   { id: "qwen3.5", label: "Qwen3.5" },
   { id: "atria-dawn", label: "Atria Dawn" },
+  { id: "mercury-3", label: "Mercury 3" },
 ];
 
 const FEATURES = [
