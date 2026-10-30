@@ -26,7 +26,6 @@ const MODELS = [
   { id: "kimi-k2.6", label: "Kimi K2.6" },
   { id: "glm-5.3", label: "GLM 5.3" },
   { id: "agents-a1", label: "Agents A1" },
-  { id: "sage-a1.5", label: "Sage A1.5" },
   { id: "atria-dawn", label: "Atria Dawn" },
 ];
 
