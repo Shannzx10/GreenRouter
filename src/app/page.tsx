@@ -25,7 +25,7 @@ const MODELS = [
   { id: "qwen3.8-27b", label: "Qwen3.8 27B" },
   { id: "kimi-k2.6", label: "Kimi K2.6" },
   { id: "glm-5.3", label: "GLM 5.3" },
-  { id: "agents-a1", label: "Agents A1" },
+  { id: "qwen3.5", label: "Qwen3.5" },
   { id: "atria-dawn", label: "Atria Dawn" },
 ];
 
