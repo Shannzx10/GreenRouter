@@ -274,7 +274,7 @@ export default function ModelsManager({
             <p className="font-semibold sm:text-lg">Model Baru</p>
           </div>
           <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_auto]">
-            <input className={inputCls} placeholder="ID model (mis. deepseek-v4.1-flash)" value={modelId} onChange={(e) => setModelId(e.target.value)} required />
+            <input className={inputCls} placeholder="ID model (mis. deepseek-v4-flash-0731)" value={modelId} onChange={(e) => setModelId(e.target.value)} required />
             <input className={inputCls} placeholder="Nama tampilan (opsional)" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
             <button type="submit" className={btnCls}>
               <Plus size={16} /> Tambah Model

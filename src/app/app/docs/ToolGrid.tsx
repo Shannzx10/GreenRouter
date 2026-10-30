@@ -39,8 +39,8 @@ const TOOLS: Tool[] = [
         "apiKey": "gr-..."
       },
       "models": {
-        "deepseek-v4.1-flash": {},
-        "glm-5.3-flash": {}
+        "deepseek-v4-flash-0731": {},
+        "glm-5.3-flash-dhl": {}
       }
     }
   }
@@ -64,7 +64,7 @@ const TOOLS: Tool[] = [
         title: "terminal · konfigurasi",
         code: `export ANTHROPIC_BASE_URL="${BASE}"
 export ANTHROPIC_API_KEY="gr-..."
-export ANTHROPIC_MODEL="deepseek-v4.1-flash"
+export ANTHROPIC_MODEL="deepseek-v4-flash-0731"
 
 claude`,
       },
@@ -84,7 +84,7 @@ claude`,
       { title: "terminal · instalasi", code: "npm install -g @openai/codex" },
       {
         title: "~/.codex/config.toml",
-        code: `model = "deepseek-v4.1-flash"
+        code: `model = "deepseek-v4-flash-0731"
 model_provider = "greenrouter"
 
 [model_providers.greenrouter]
@@ -105,14 +105,14 @@ wire_api = "chat"`,
       "Buka Cursor, masuk ke Settings lalu bagian Models.",
       "Pada bagian OpenAI API Key, tempel API key GreenRouter milikmu.",
       "Aktifkan Override OpenAI Base URL dan isi dengan URL di bawah.",
-      "Tambahkan model secara manual lewat Add model, misalnya deepseek-v4.1-flash, lalu pilih model itu saat memakai chat atau composer.",
+      "Tambahkan model secara manual lewat Add model, misalnya deepseek-v4-flash-0731, lalu pilih model itu saat memakai chat atau composer.",
     ],
     blocks: [
       {
         title: "nilai yang diisi",
         code: `OpenAI Base URL : ${BASE}/v1
 API Key         : gr-...
-Model           : deepseek-v4.1-flash`,
+Model           : deepseek-v4-flash-0731`,
       },
     ],
   },
@@ -131,7 +131,7 @@ Model           : deepseek-v4.1-flash`,
         title: "nilai yang diisi",
         code: `Base URL  : ${BASE}/v1
 API Key   : gr-...
-Model ID  : deepseek-v4.1-flash`,
+Model ID  : deepseek-v4-flash-0731`,
       },
     ],
   },
@@ -154,7 +154,7 @@ schema: v1
 models:
   - name: DeepSeek V4.1 Flash
     provider: openai
-    model: deepseek-v4.1-flash
+    model: deepseek-v4-flash-0731
     apiBase: ${BASE}/v1
     apiKey: gr-...`,
       },
@@ -176,7 +176,7 @@ models:
         code: `export OPENAI_API_BASE="${BASE}/v1"
 export OPENAI_API_KEY="gr-..."
 
-aider --model openai/deepseek-v4.1-flash`,
+aider --model openai/deepseek-v4-flash-0731`,
       },
     ],
   },
