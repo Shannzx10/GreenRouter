@@ -18,7 +18,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="deepseek-v4.1-flash",
+    model="deepseek-v4-flash-0731",
     messages=[{"role": "user", "content": "Halo!"}],
 )
 
@@ -31,7 +31,7 @@ client = anthropic.Anthropic(
 )
 
 message = client.messages.create(
-    model="deepseek-v4.1-flash",
+    model="deepseek-v4-flash-0731",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Halo!"}],
 )
@@ -45,7 +45,7 @@ const client = new OpenAI({
 });
 
 const response = await client.chat.completions.create({
-  model: "deepseek-v4.1-flash",
+  model: "deepseek-v4-flash-0731",
   messages: [{ role: "user", content: "Halo!" }],
 });
 
@@ -54,7 +54,7 @@ console.log(response.choices[0].message.content);`,
   -H "Authorization: Bearer gr-key-kamu" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "model": "deepseek-v4.1-flash",
+    "model": "deepseek-v4-flash-0731",
     "messages": [
       { "role": "user", "content": "Halo!" }
     ]
@@ -99,7 +99,7 @@ function PythonCode() {
       {"\n    "}
       <span className={nm}>model</span>
       <span className={pn}>=</span>
-      <span className={st}>"deepseek-v4.1-flash"</span>
+      <span className={st}>"deepseek-v4-flash-0731"</span>
       <span className={pn}>,</span>
       {"\n    "}
       <span className={nm}>messages</span>
@@ -160,7 +160,7 @@ function AnthropicCode() {
       {"\n    "}
       <span className={nm}>model</span>
       <span className={pn}>=</span>
-      <span className={st}>"deepseek-v4.1-flash"</span>
+      <span className={st}>"deepseek-v4-flash-0731"</span>
       <span className={pn}>,</span>
       {"\n    "}
       <span className={nm}>max_tokens</span>
@@ -222,7 +222,7 @@ function NodeCode() {
       <span className={pn}>({"{"}</span>
       {"\n  "}
       <span className={nm}>model</span>
-      <span className={pn}>:</span> <span className={st}>"deepseek-v4.1-flash"</span>
+      <span className={pn}>:</span> <span className={st}>"deepseek-v4-flash-0731"</span>
       <span className={pn}>,</span>
       {"\n  "}
       <span className={nm}>messages</span>
@@ -262,7 +262,7 @@ function CurlCode() {
       {"\n  "}
       <span className={pn}>-d</span> <span className={st}>'{"{"}</span>
       {"\n    "}
-      <span className={st}>"model": "deepseek-v4.1-flash",</span>
+      <span className={st}>"model": "deepseek-v4-flash-0731",</span>
       {"\n    "}
       <span className={st}>"messages": [</span>
       {"\n      "}

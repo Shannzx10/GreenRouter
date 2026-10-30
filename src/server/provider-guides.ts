@@ -8,7 +8,8 @@ export type ProviderGuide = {
 };
 
 const GUIDES: Record<string, ProviderGuide> = {
-  larprouter: {
+  // Entri LarpRouter dihapus 30 Okt 2026 bersama eliminasi providernya.
+  _larprouter_dihapus: {
     mechanism: [
       "Dua kantong terpisah: saldo berbayar dan Free Allowance. Saldo berbayar akun saat ini $0,00, jadi pemakaian bertumpu pada allowance.",
       "Free Allowance 2.000.000 token dan reset berkala (harian). Hanya model yang tercakup allowance yang memotong jatah ini; model di luar cakupan membalas 402.",

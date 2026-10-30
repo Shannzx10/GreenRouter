@@ -104,7 +104,7 @@ export default async function AppDocsPage() {
   -H "Authorization: Bearer gr-..." \\
   -H "Content-Type: application/json" \\
   -d '{
-    "model": "deepseek-v4.1-flash",
+    "model": "deepseek-v4-flash-0731",
     "messages": [{"role": "user", "content": "Halo!"}]
   }'`}
           />
@@ -114,7 +114,7 @@ export default async function AppDocsPage() {
             code={`{
   "id": "chatcmpl-...",
   "object": "chat.completion",
-  "model": "deepseek-v4.1-flash",
+  "model": "deepseek-v4-flash-0731",
   "choices": [
     {
       "index": 0,
@@ -244,7 +244,7 @@ export default async function AppDocsPage() {
               </thead>
               <tbody>
                 {[
-                  ["model", "Ya", "ID model persis seperti di katalog, misalnya deepseek-v4.1-flash"],
+                  ["model", "Ya", "ID model persis seperti di katalog, misalnya deepseek-v4-flash-0731"],
                   ["messages", "Ya", "Daftar pesan berisi role (system, user, assistant) dan content"],
                   ["stream", "Tidak", "true untuk menerima jawaban sebagai stream SSE"],
                   ["temperature", "Tidak", "Kreativitas jawaban, umumnya 0 sampai 2"],
@@ -304,7 +304,7 @@ client = OpenAI(
 )
 
 res = client.chat.completions.create(
-    model="deepseek-v4.1-flash",
+    model="deepseek-v4-flash-0731",
     messages=[{"role": "user", "content": "Halo, apa kabar?"}],
 )
 print(res.choices[0].message.content)`,
@@ -321,7 +321,7 @@ client = Anthropic(
 )
 
 msg = client.messages.create(
-    model="deepseek-v4.1-flash",
+    model="deepseek-v4-flash-0731",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Halo, apa kabar?"}],
 )
@@ -339,7 +339,7 @@ const client = new OpenAI({
 });
 
 const res = await client.chat.completions.create({
-  model: "deepseek-v4.1-flash",
+  model: "deepseek-v4-flash-0731",
   messages: [{ role: "user", content: "Halo, apa kabar?" }],
 });
 console.log(res.choices[0].message.content);`,
@@ -409,7 +409,7 @@ console.log(res.choices[0].message.content);`,
           <CodeBlock
             title="python · streaming"
             code={`stream = client.chat.completions.create(
-    model="deepseek-v4.1-flash",
+    model="deepseek-v4-flash-0731",
     messages=[{"role": "user", "content": "Ceritakan tentang Jakarta"}],
     stream=True,
 )
