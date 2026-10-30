@@ -4,7 +4,7 @@ import { Bot } from "lucide-react";
 // di-host sendiri di public/assets/providers; MiniMax digambar sebagai SVG.
 export function modelFamily(
   modelId: string,
-): "deepseek" | "zai" | "minimax" | "kimi" | "qwen" | "mimo" | "minicpm" | "atria" | "generic" {
+): "deepseek" | "zai" | "minimax" | "kimi" | "qwen" | "mimo" | "minicpm" | "atria" | "mercury" | "generic" {
   const id = modelId.toLowerCase();
   if (id.startsWith("deepseek")) return "deepseek";
   if (id.startsWith("glm")) return "zai";
@@ -14,6 +14,7 @@ export function modelFamily(
   if (id.startsWith("mimo")) return "mimo";
   if (id.startsWith("minicpm")) return "minicpm";
   if (id.startsWith("atria")) return "atria";
+  if (id.startsWith("mercury")) return "mercury";
   return "generic";
 }
 
@@ -35,6 +36,8 @@ export function familyLabel(modelId: string): string {
       return "MiniCPM";
     case "atria":
       return "Atria";
+    case "mercury":
+      return "Mercury";
     default:
       return "Model";
   }

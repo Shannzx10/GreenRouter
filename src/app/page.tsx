@@ -99,6 +99,7 @@ const PROVIDERS = [
   { name: "MiMo", kind: "mimo" },
   { name: "MiniCPM", kind: "minicpm" },
   { name: "Kimi", kind: "kimi" },
+  { name: "Mercury", kind: "mercury" },
 ] as const;
 
 function ProviderTile({ kind }: { kind: (typeof PROVIDERS)[number]["kind"] }) {
