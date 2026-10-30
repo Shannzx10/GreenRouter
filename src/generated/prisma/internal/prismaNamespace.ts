@@ -1169,6 +1169,11 @@ export const ProviderScalarFieldEnum = {
   baseUrl: 'baseUrl',
   isActive: 'isActive',
   quotaCheckUrl: 'quotaCheckUrl',
+  quotaKind: 'quotaKind',
+  quotaAmount: 'quotaAmount',
+  quotaReset: 'quotaReset',
+  rateLimitNote: 'rateLimitNote',
+  notes: 'notes',
   supportsAnthropic: 'supportsAnthropic',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

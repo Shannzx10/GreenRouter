@@ -67,7 +67,7 @@ export default async function OverviewPage() {
       prisma.upstreamKey.findMany({
         where: { status: { in: ["LIMITED", "DISABLED"] } },
         orderBy: { updatedAt: "desc" },
-        include: { provider: { select: { name: true } } },
+        include: { provider: { select: { name: true, id: true } } },
       }),
     ]);
 
@@ -133,16 +133,13 @@ export default async function OverviewPage() {
                       <span className="font-mono text-xs">{k.keyHint}</span>){" "}
                       {k.status === "LIMITED"
                         ? "terkena limit token (402 dari hulu) dan sudah dinonaktifkan otomatis. Key ini tidak akan dipakai lagi sampai kamu mengaktifkannya kembali."
-                        : "dinonaktifkan karena ditolak hulu (401/403). Periksa key-nya, lalu aktifkan kembali bila sudah benar."}
+                        : "dinonaktifkan karena ditolak hulu (401/403). Periksa key-nya, lalu aktifkan kembali bila sudah benar."}{" "}
+                      <Link href={`/admin/providers/${k.provider.id}`} className="font-medium text-red-100 underline decoration-red-300/40 underline-offset-2 transition hover:decoration-red-100">
+                        Buka diagnosis {k.provider.name}
+                      </Link>
                     </li>
                   ))}
                 </ul>
-                <Link
-                  href="/admin/providers"
-                  className="mt-3.5 inline-flex rounded-full border border-red-300/30 px-4 py-2 text-sm font-medium text-red-100 transition hover:bg-red-500/10"
-                >
-                  Periksa di halaman Provider
-                </Link>
               </div>
             </div>
           </div>

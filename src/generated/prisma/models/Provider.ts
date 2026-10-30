@@ -30,6 +30,11 @@ export type ProviderMinAggregateOutputType = {
   baseUrl: string | null
   isActive: boolean | null
   quotaCheckUrl: string | null
+  quotaKind: string | null
+  quotaAmount: string | null
+  quotaReset: string | null
+  rateLimitNote: string | null
+  notes: string | null
   supportsAnthropic: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -41,6 +46,11 @@ export type ProviderMaxAggregateOutputType = {
   baseUrl: string | null
   isActive: boolean | null
   quotaCheckUrl: string | null
+  quotaKind: string | null
+  quotaAmount: string | null
+  quotaReset: string | null
+  rateLimitNote: string | null
+  notes: string | null
   supportsAnthropic: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -52,6 +62,11 @@ export type ProviderCountAggregateOutputType = {
   baseUrl: number
   isActive: number
   quotaCheckUrl: number
+  quotaKind: number
+  quotaAmount: number
+  quotaReset: number
+  rateLimitNote: number
+  notes: number
   supportsAnthropic: number
   createdAt: number
   updatedAt: number
@@ -65,6 +80,11 @@ export type ProviderMinAggregateInputType = {
   baseUrl?: true
   isActive?: true
   quotaCheckUrl?: true
+  quotaKind?: true
+  quotaAmount?: true
+  quotaReset?: true
+  rateLimitNote?: true
+  notes?: true
   supportsAnthropic?: true
   createdAt?: true
   updatedAt?: true
@@ -76,6 +96,11 @@ export type ProviderMaxAggregateInputType = {
   baseUrl?: true
   isActive?: true
   quotaCheckUrl?: true
+  quotaKind?: true
+  quotaAmount?: true
+  quotaReset?: true
+  rateLimitNote?: true
+  notes?: true
   supportsAnthropic?: true
   createdAt?: true
   updatedAt?: true
@@ -87,6 +112,11 @@ export type ProviderCountAggregateInputType = {
   baseUrl?: true
   isActive?: true
   quotaCheckUrl?: true
+  quotaKind?: true
+  quotaAmount?: true
+  quotaReset?: true
+  rateLimitNote?: true
+  notes?: true
   supportsAnthropic?: true
   createdAt?: true
   updatedAt?: true
@@ -171,6 +201,11 @@ export type ProviderGroupByOutputType = {
   baseUrl: string
   isActive: boolean
   quotaCheckUrl: string | null
+  quotaKind: string | null
+  quotaAmount: string | null
+  quotaReset: string | null
+  rateLimitNote: string | null
+  notes: string | null
   supportsAnthropic: boolean
   createdAt: Date
   updatedAt: Date
@@ -203,6 +238,11 @@ export type ProviderWhereInput = {
   baseUrl?: Prisma.StringFilter<"Provider"> | string
   isActive?: Prisma.BoolFilter<"Provider"> | boolean
   quotaCheckUrl?: Prisma.StringNullableFilter<"Provider"> | string | null
+  quotaKind?: Prisma.StringNullableFilter<"Provider"> | string | null
+  quotaAmount?: Prisma.StringNullableFilter<"Provider"> | string | null
+  quotaReset?: Prisma.StringNullableFilter<"Provider"> | string | null
+  rateLimitNote?: Prisma.StringNullableFilter<"Provider"> | string | null
+  notes?: Prisma.StringNullableFilter<"Provider"> | string | null
   supportsAnthropic?: Prisma.BoolFilter<"Provider"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Provider"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Provider"> | Date | string
@@ -217,6 +257,11 @@ export type ProviderOrderByWithRelationInput = {
   baseUrl?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   quotaCheckUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  quotaKind?: Prisma.SortOrderInput | Prisma.SortOrder
+  quotaAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  quotaReset?: Prisma.SortOrderInput | Prisma.SortOrder
+  rateLimitNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  notes?: Prisma.SortOrderInput | Prisma.SortOrder
   supportsAnthropic?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -234,6 +279,11 @@ export type ProviderWhereUniqueInput = Prisma.AtLeast<{
   baseUrl?: Prisma.StringFilter<"Provider"> | string
   isActive?: Prisma.BoolFilter<"Provider"> | boolean
   quotaCheckUrl?: Prisma.StringNullableFilter<"Provider"> | string | null
+  quotaKind?: Prisma.StringNullableFilter<"Provider"> | string | null
+  quotaAmount?: Prisma.StringNullableFilter<"Provider"> | string | null
+  quotaReset?: Prisma.StringNullableFilter<"Provider"> | string | null
+  rateLimitNote?: Prisma.StringNullableFilter<"Provider"> | string | null
+  notes?: Prisma.StringNullableFilter<"Provider"> | string | null
   supportsAnthropic?: Prisma.BoolFilter<"Provider"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Provider"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Provider"> | Date | string
@@ -248,6 +298,11 @@ export type ProviderOrderByWithAggregationInput = {
   baseUrl?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   quotaCheckUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  quotaKind?: Prisma.SortOrderInput | Prisma.SortOrder
+  quotaAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  quotaReset?: Prisma.SortOrderInput | Prisma.SortOrder
+  rateLimitNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  notes?: Prisma.SortOrderInput | Prisma.SortOrder
   supportsAnthropic?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -265,6 +320,11 @@ export type ProviderScalarWhereWithAggregatesInput = {
   baseUrl?: Prisma.StringWithAggregatesFilter<"Provider"> | string
   isActive?: Prisma.BoolWithAggregatesFilter<"Provider"> | boolean
   quotaCheckUrl?: Prisma.StringNullableWithAggregatesFilter<"Provider"> | string | null
+  quotaKind?: Prisma.StringNullableWithAggregatesFilter<"Provider"> | string | null
+  quotaAmount?: Prisma.StringNullableWithAggregatesFilter<"Provider"> | string | null
+  quotaReset?: Prisma.StringNullableWithAggregatesFilter<"Provider"> | string | null
+  rateLimitNote?: Prisma.StringNullableWithAggregatesFilter<"Provider"> | string | null
+  notes?: Prisma.StringNullableWithAggregatesFilter<"Provider"> | string | null
   supportsAnthropic?: Prisma.BoolWithAggregatesFilter<"Provider"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Provider"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Provider"> | Date | string
@@ -276,6 +336,11 @@ export type ProviderCreateInput = {
   baseUrl: string
   isActive?: boolean
   quotaCheckUrl?: string | null
+  quotaKind?: string | null
+  quotaAmount?: string | null
+  quotaReset?: string | null
+  rateLimitNote?: string | null
+  notes?: string | null
   supportsAnthropic?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -290,6 +355,11 @@ export type ProviderUncheckedCreateInput = {
   baseUrl: string
   isActive?: boolean
   quotaCheckUrl?: string | null
+  quotaKind?: string | null
+  quotaAmount?: string | null
+  quotaReset?: string | null
+  rateLimitNote?: string | null
+  notes?: string | null
   supportsAnthropic?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -304,6 +374,11 @@ export type ProviderUpdateInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaAmount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rateLimitNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -318,6 +393,11 @@ export type ProviderUncheckedUpdateInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaAmount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rateLimitNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -332,6 +412,11 @@ export type ProviderCreateManyInput = {
   baseUrl: string
   isActive?: boolean
   quotaCheckUrl?: string | null
+  quotaKind?: string | null
+  quotaAmount?: string | null
+  quotaReset?: string | null
+  rateLimitNote?: string | null
+  notes?: string | null
   supportsAnthropic?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -343,6 +428,11 @@ export type ProviderUpdateManyMutationInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaAmount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rateLimitNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -354,6 +444,11 @@ export type ProviderUncheckedUpdateManyInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaAmount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rateLimitNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -365,6 +460,11 @@ export type ProviderCountOrderByAggregateInput = {
   baseUrl?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   quotaCheckUrl?: Prisma.SortOrder
+  quotaKind?: Prisma.SortOrder
+  quotaAmount?: Prisma.SortOrder
+  quotaReset?: Prisma.SortOrder
+  rateLimitNote?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
   supportsAnthropic?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -376,6 +476,11 @@ export type ProviderMaxOrderByAggregateInput = {
   baseUrl?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   quotaCheckUrl?: Prisma.SortOrder
+  quotaKind?: Prisma.SortOrder
+  quotaAmount?: Prisma.SortOrder
+  quotaReset?: Prisma.SortOrder
+  rateLimitNote?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
   supportsAnthropic?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -387,6 +492,11 @@ export type ProviderMinOrderByAggregateInput = {
   baseUrl?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   quotaCheckUrl?: Prisma.SortOrder
+  quotaKind?: Prisma.SortOrder
+  quotaAmount?: Prisma.SortOrder
+  quotaReset?: Prisma.SortOrder
+  rateLimitNote?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
   supportsAnthropic?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -452,6 +562,11 @@ export type ProviderCreateWithoutUpstreamKeysInput = {
   baseUrl: string
   isActive?: boolean
   quotaCheckUrl?: string | null
+  quotaKind?: string | null
+  quotaAmount?: string | null
+  quotaReset?: string | null
+  rateLimitNote?: string | null
+  notes?: string | null
   supportsAnthropic?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -465,6 +580,11 @@ export type ProviderUncheckedCreateWithoutUpstreamKeysInput = {
   baseUrl: string
   isActive?: boolean
   quotaCheckUrl?: string | null
+  quotaKind?: string | null
+  quotaAmount?: string | null
+  quotaReset?: string | null
+  rateLimitNote?: string | null
+  notes?: string | null
   supportsAnthropic?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -494,6 +614,11 @@ export type ProviderUpdateWithoutUpstreamKeysInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaAmount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rateLimitNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -507,6 +632,11 @@ export type ProviderUncheckedUpdateWithoutUpstreamKeysInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaAmount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rateLimitNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -520,6 +650,11 @@ export type ProviderCreateWithoutRoutesInput = {
   baseUrl: string
   isActive?: boolean
   quotaCheckUrl?: string | null
+  quotaKind?: string | null
+  quotaAmount?: string | null
+  quotaReset?: string | null
+  rateLimitNote?: string | null
+  notes?: string | null
   supportsAnthropic?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -533,6 +668,11 @@ export type ProviderUncheckedCreateWithoutRoutesInput = {
   baseUrl: string
   isActive?: boolean
   quotaCheckUrl?: string | null
+  quotaKind?: string | null
+  quotaAmount?: string | null
+  quotaReset?: string | null
+  rateLimitNote?: string | null
+  notes?: string | null
   supportsAnthropic?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -562,6 +702,11 @@ export type ProviderUpdateWithoutRoutesInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaAmount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rateLimitNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -575,6 +720,11 @@ export type ProviderUncheckedUpdateWithoutRoutesInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaAmount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rateLimitNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -588,6 +738,11 @@ export type ProviderCreateWithoutUsageLogsInput = {
   baseUrl: string
   isActive?: boolean
   quotaCheckUrl?: string | null
+  quotaKind?: string | null
+  quotaAmount?: string | null
+  quotaReset?: string | null
+  rateLimitNote?: string | null
+  notes?: string | null
   supportsAnthropic?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -601,6 +756,11 @@ export type ProviderUncheckedCreateWithoutUsageLogsInput = {
   baseUrl: string
   isActive?: boolean
   quotaCheckUrl?: string | null
+  quotaKind?: string | null
+  quotaAmount?: string | null
+  quotaReset?: string | null
+  rateLimitNote?: string | null
+  notes?: string | null
   supportsAnthropic?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -630,6 +790,11 @@ export type ProviderUpdateWithoutUsageLogsInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaAmount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rateLimitNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -643,6 +808,11 @@ export type ProviderUncheckedUpdateWithoutUsageLogsInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotaCheckUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaAmount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotaReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rateLimitNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsAnthropic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -705,6 +875,11 @@ export type ProviderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   baseUrl?: boolean
   isActive?: boolean
   quotaCheckUrl?: boolean
+  quotaKind?: boolean
+  quotaAmount?: boolean
+  quotaReset?: boolean
+  rateLimitNote?: boolean
+  notes?: boolean
   supportsAnthropic?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -720,6 +895,11 @@ export type ProviderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   baseUrl?: boolean
   isActive?: boolean
   quotaCheckUrl?: boolean
+  quotaKind?: boolean
+  quotaAmount?: boolean
+  quotaReset?: boolean
+  rateLimitNote?: boolean
+  notes?: boolean
   supportsAnthropic?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -731,6 +911,11 @@ export type ProviderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   baseUrl?: boolean
   isActive?: boolean
   quotaCheckUrl?: boolean
+  quotaKind?: boolean
+  quotaAmount?: boolean
+  quotaReset?: boolean
+  rateLimitNote?: boolean
+  notes?: boolean
   supportsAnthropic?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -742,12 +927,17 @@ export type ProviderSelectScalar = {
   baseUrl?: boolean
   isActive?: boolean
   quotaCheckUrl?: boolean
+  quotaKind?: boolean
+  quotaAmount?: boolean
+  quotaReset?: boolean
+  rateLimitNote?: boolean
+  notes?: boolean
   supportsAnthropic?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProviderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "baseUrl" | "isActive" | "quotaCheckUrl" | "supportsAnthropic" | "createdAt" | "updatedAt", ExtArgs["result"]["provider"]>
+export type ProviderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "baseUrl" | "isActive" | "quotaCheckUrl" | "quotaKind" | "quotaAmount" | "quotaReset" | "rateLimitNote" | "notes" | "supportsAnthropic" | "createdAt" | "updatedAt", ExtArgs["result"]["provider"]>
 export type ProviderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   upstreamKeys?: boolean | Prisma.Provider$upstreamKeysArgs<ExtArgs>
   routes?: boolean | Prisma.Provider$routesArgs<ExtArgs>
@@ -770,6 +960,11 @@ export type $ProviderPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     baseUrl: string
     isActive: boolean
     quotaCheckUrl: string | null
+    quotaKind: string | null
+    quotaAmount: string | null
+    quotaReset: string | null
+    rateLimitNote: string | null
+    notes: string | null
     supportsAnthropic: boolean
     createdAt: Date
     updatedAt: Date
@@ -1204,6 +1399,11 @@ export interface ProviderFieldRefs {
   readonly baseUrl: Prisma.FieldRef<"Provider", 'String'>
   readonly isActive: Prisma.FieldRef<"Provider", 'Boolean'>
   readonly quotaCheckUrl: Prisma.FieldRef<"Provider", 'String'>
+  readonly quotaKind: Prisma.FieldRef<"Provider", 'String'>
+  readonly quotaAmount: Prisma.FieldRef<"Provider", 'String'>
+  readonly quotaReset: Prisma.FieldRef<"Provider", 'String'>
+  readonly rateLimitNote: Prisma.FieldRef<"Provider", 'String'>
+  readonly notes: Prisma.FieldRef<"Provider", 'String'>
   readonly supportsAnthropic: Prisma.FieldRef<"Provider", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Provider", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Provider", 'DateTime'>

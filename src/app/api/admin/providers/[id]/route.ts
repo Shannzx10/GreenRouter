@@ -10,18 +10,40 @@ export async function PATCH(req: Request, { params }: Ctx) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { id } = await params;
-  let body: { name?: string; baseUrl?: string; isActive?: boolean };
+  let body: {
+    name?: string;
+    baseUrl?: string;
+    isActive?: boolean;
+    quotaKind?: string | null;
+    quotaAmount?: string | null;
+    quotaReset?: string | null;
+    rateLimitNote?: string | null;
+    notes?: string | null;
+  };
   try {
     body = await req.json();
   } catch {
     return Response.json({ error: "Body tidak valid" }, { status: 400 });
   }
-  const data: { name?: string; baseUrl?: string; isActive?: boolean } = {};
+  const data: {
+    name?: string;
+    baseUrl?: string;
+    isActive?: boolean;
+    quotaKind?: string | null;
+    quotaAmount?: string | null;
+    quotaReset?: string | null;
+    rateLimitNote?: string | null;
+    notes?: string | null;
+  } = {};
   if (typeof body.name === "string" && body.name.trim()) data.name = body.name.trim();
   if (typeof body.baseUrl === "string" && body.baseUrl.trim()) {
     data.baseUrl = body.baseUrl.trim().replace(/\/$/, "");
   }
   if (typeof body.isActive === "boolean") data.isActive = body.isActive;
+  // Profil kapasitas halaman diagnosis: string kosong berarti kosongkan.
+  for (const f of ["quotaKind", "quotaAmount", "quotaReset", "rateLimitNote", "notes"] as const) {
+    if (typeof body[f] === "string") data[f] = body[f].trim() ? body[f].trim() : null;
+  }
   try {
     const provider = await prisma.provider.update({ where: { id }, data });
     return Response.json({ provider });

@@ -99,7 +99,7 @@ export async function getCandidates(
   for (const route of routes) {
     const usable = route.provider.upstreamKeys.filter(
       (k) =>
-        k.status === "ACTIVE" ||
+        (k.status === "ACTIVE" && (k.cooldownUntil === null || k.cooldownUntil <= now)) ||
         (k.status === "COOLDOWN" && k.cooldownUntil !== null && k.cooldownUntil <= now),
     );
     if (!usable.length) continue;
@@ -281,7 +281,7 @@ async function keyQuotaExhausted(cand: Candidate): Promise<boolean> {
 }
 
 // ---------- Status kesehatan key ----------
-async function markKeyFailure(key: UpstreamKey, status: number): Promise<void> {
+async function markKeyFailure(key: UpstreamKey, status: number, retryAfterSec?: number | null): Promise<void> {
   try {
     if (status === 401 || status === 403) {
       // Key tidak valid atau tidak berhak: nonaktifkan permanen sampai
@@ -299,11 +299,14 @@ async function markKeyFailure(key: UpstreamKey, status: number): Promise<void> {
         data: { status: "LIMITED", cooldownUntil: null, failCount: { increment: 1 } },
       });
     } else if (status === 429) {
-      // Rate-limit hulu bersifat sementara; cukup catat kegagalannya,
-      // key tidak diblokir dan tetap ikut rotasi.
+      // Rate-limit itu urusan menunggu, BUKAN key mati: status tetap ACTIVE,
+      // key hanya dilewati rotasi sampai masa tunggu berakhir (Retry-After
+      // dari hulu bila ada, bawaan 60 detik, dibatasi 5..300 detik), lalu
+      // pulih sendiri tanpa tindakan admin.
+      const wait = Math.min(300, Math.max(5, retryAfterSec ?? 60));
       await prisma.upstreamKey.update({
         where: { id: key.id },
-        data: { failCount: { increment: 1 } },
+        data: { failCount: { increment: 1 }, cooldownUntil: new Date(Date.now() + wait * 1000) },
       });
     } else {
       await prisma.upstreamKey.update({
@@ -409,14 +412,16 @@ export async function forwardChatCompletion(args: {
       // Badan error hanya dibaca untuk log internal, tidak diteruskan.
       lastBody = await upstream.text().catch(() => "");
       if (isFailoverStatus(upstream.status)) {
+        let failWait: number | null = null;
         if (upstream.status === 429) {
           // Rate-limit hulu: simpan Retry-After tersingkat untuk disampaikan
           // ke klien bila semua kandidat ikut gagal.
           const ra = parseRetryAfter(upstream.headers);
           const wait = ra ?? 60;
+          failWait = wait;
           if (minRetryAfter === null || wait < minRetryAfter) minRetryAfter = wait;
         }
-        await markKeyFailure(cand.key, upstream.status);
+        await markKeyFailure(cand.key, upstream.status, failWait);
         continue; // coba kandidat berikutnya
       }
       // Error lain (400 dsb.) berasal dari request klien; jawab dengan
@@ -569,7 +574,7 @@ async function tryTranslatedCandidate(
   if (!upstream.ok) {
     const text = await upstream.text().catch(() => "");
     if (isFailoverStatus(upstream.status)) {
-      await markKeyFailure(cand.key, upstream.status);
+      await markKeyFailure(cand.key, upstream.status, upstream.status === 429 ? parseRetryAfter(upstream.headers) : null);
       return {
         kind: "failover",
         status: upstream.status,
@@ -730,12 +735,14 @@ export async function forwardAnthropicMessages(args: {
       // Badan error hanya dibaca untuk log internal, tidak diteruskan.
       lastBody = await upstream.text().catch(() => "");
       if (isFailoverStatus(upstream.status)) {
+        let failWait: number | null = null;
         if (upstream.status === 429) {
           const ra = parseRetryAfter(upstream.headers);
           const wait = ra ?? 60;
+          failWait = wait;
           if (minRetryAfter === null || wait < minRetryAfter) minRetryAfter = wait;
         }
-        await markKeyFailure(cand.key, upstream.status);
+        await markKeyFailure(cand.key, upstream.status, failWait);
         continue;
       }
       await logUsage({
@@ -899,7 +906,7 @@ export async function runModelHealthChecks(): Promise<
         } else {
           errMsg = `upstream ${upstream.status}: ${(await upstream.text().catch(() => "")).slice(0, 120)}`;
           if (isFailoverStatus(upstream.status)) {
-            await markKeyFailure(cand.key, upstream.status);
+            await markKeyFailure(cand.key, upstream.status, upstream.status === 429 ? parseRetryAfter(upstream.headers) : null);
             continue;
           }
           break;

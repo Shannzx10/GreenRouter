@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { KeyRound, Plus, RotateCcw, Server, Trash2 } from "lucide-react";
+import { Activity, Plus, Server, Trash2 } from "lucide-react";
 import ConfirmModal from "@/app/ConfirmModal";
 import Reveal from "@/app/Reveal";
 
@@ -29,56 +30,13 @@ const inputCls =
 const btnCls =
   "inline-flex items-center justify-center gap-1.5 rounded-full bg-lime-400 px-3.5 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-lime-300 disabled:opacity-50";
 
-function statusBadge(k: UpKey) {
-  if (k.status === "ACTIVE")
-    return <span className="rounded-full bg-lime-400/10 px-2 py-0.5 text-xs text-lime-300">AKTIF</span>;
-  if (k.status === "LIMITED")
-    return (
-      <span className="rounded-full bg-red-500/15 px-2 py-0.5 text-xs font-medium text-red-300">
-        LIMIT TOKEN (402)
-      </span>
-    );
-  if (k.status === "COOLDOWN")
-    return (
-      <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-xs text-amber-300">
-        COOLDOWN{k.cooldownUntil ? ` s.d. ${new Date(k.cooldownUntil).toLocaleTimeString("id-ID")}` : ""}
-      </span>
-    );
-  return <span className="rounded-full bg-zinc-500/15 px-2 py-0.5 text-xs text-zinc-400">NONAKTIF</span>;
-}
-
 export default function ProvidersManager({ providers }: { providers: Prov[] }) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
   const [err, setErr] = useState("");
-  const [keyForms, setKeyForms] = useState<Record<string, { label: string; key: string }>>({});
-  const [confirmState, setConfirmState] = useState<
-    | { kind: "provider"; p: Prov }
-    | { kind: "key"; p: Prov; k: UpKey }
-    | null
-  >(null);
+  const [confirmProv, setConfirmProv] = useState<Prov | null>(null);
   const [confirmBusy, setConfirmBusy] = useState(false);
-
-  async function doConfirmDelete() {
-    if (!confirmState) return;
-    setConfirmBusy(true);
-    setErr("");
-    try {
-      if (confirmState.kind === "provider") {
-        await call(`/api/admin/providers/${confirmState.p.id}`, "DELETE");
-      } else {
-        await call(`/api/admin/upstream-keys/${confirmState.k.id}`, "DELETE");
-      }
-      setConfirmState(null);
-      router.refresh();
-    } catch (e2) {
-      setErr(e2 instanceof Error ? e2.message : "Gagal menghapus");
-      setConfirmState(null);
-    } finally {
-      setConfirmBusy(false);
-    }
-  }
 
   async function call(url: string, method: string, body?: unknown) {
     const res = await fetch(url, {
@@ -106,16 +64,19 @@ export default function ProvidersManager({ providers }: { providers: Prov[] }) {
     }
   }
 
-  async function addKey(providerId: string) {
-    const f = keyForms[providerId] ?? { label: "", key: "" };
-    if (!f.key.trim()) return;
+  async function doConfirmDelete() {
+    if (!confirmProv) return;
+    setConfirmBusy(true);
     setErr("");
     try {
-      await call(`/api/admin/providers/${providerId}/keys`, "POST", f);
-      setKeyForms((s) => ({ ...s, [providerId]: { label: "", key: "" } }));
+      await call(`/api/admin/providers/${confirmProv.id}`, "DELETE");
+      setConfirmProv(null);
       router.refresh();
     } catch (e2) {
-      setErr(e2 instanceof Error ? e2.message : "Gagal menambah key");
+      setErr(e2 instanceof Error ? e2.message : "Gagal menghapus");
+      setConfirmProv(null);
+    } finally {
+      setConfirmBusy(false);
     }
   }
 
@@ -127,8 +88,8 @@ export default function ProvidersManager({ providers }: { providers: Prov[] }) {
         </p>
         <h1 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Provider</h1>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-400 sm:text-base">
-          Layanan hulu (upstream) beserta API key-nya. Key tersimpan terenkripsi dan tidak
-          pernah ditampilkan utuh lagi.
+          Layanan hulu (upstream) yang melayani GreenRouter. Detail key, kapasitas, dan
+          diagnosis tiap provider ada di halaman diagnosisnya masing-masing.
         </p>
       </Reveal>
 
@@ -163,7 +124,8 @@ export default function ProvidersManager({ providers }: { providers: Prov[] }) {
           </p>
         )}
         {providers.map((p, pi) => {
-          const f = keyForms[p.id] ?? { label: "", key: "" };
+          const active = p.keys.filter((k) => k.status === "ACTIVE").length;
+          const problem = p.keys.filter((k) => k.status === "LIMITED" || k.status === "DISABLED").length;
           return (
             <Reveal key={p.id} delay={pi * 80}>
               <div className="glass rounded-3xl p-5 sm:p-6">
@@ -193,7 +155,7 @@ export default function ProvidersManager({ providers }: { providers: Prov[] }) {
                       {p.isActive ? "AKTIF" : "NONAKTIF"}
                     </button>
                     <button
-                      onClick={() => setConfirmState({ kind: "provider", p })}
+                      onClick={() => setConfirmProv(p)}
                       className="rounded-lg p-1.5 text-zinc-500 transition hover:bg-white/[0.06] hover:text-red-300"
                       title="Hapus provider"
                     >
@@ -202,59 +164,21 @@ export default function ProvidersManager({ providers }: { providers: Prov[] }) {
                   </div>
                 </div>
 
-                <p className="mt-6 text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-500">
-                  Key Hulu ({p.keys.length})
-                </p>
-                <div className="mt-3 flex flex-col gap-2">
-                  {p.keys.length === 0 && <p className="text-sm text-zinc-500">Belum ada key untuk provider ini.</p>}
-                  {p.keys.map((k) => (
-                    <div key={k.id} className="flex flex-wrap items-center gap-3 rounded-xl border border-white/[0.05] bg-black/30 px-3.5 py-2.5">
-                      <KeyRound size={15} className="text-zinc-500" />
-                      <span className="text-sm font-medium">{k.label}</span>
-                      <code className="font-mono text-xs text-zinc-400">{k.keyHint}</code>
-                      {statusBadge(k)}
-                      {k.failCount > 0 && <span className="text-xs text-zinc-500">gagal: {k.failCount}×</span>}
-                      <div className="ml-auto flex items-center gap-1">
-                        {k.status !== "ACTIVE" && (
-                          <button
-                            onClick={async () => {
-                              await call(`/api/admin/upstream-keys/${k.id}`, "PATCH", { status: "ACTIVE" });
-                              router.refresh();
-                            }}
-                            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-lime-300 transition hover:bg-white/[0.06]"
-                          >
-                            <RotateCcw size={13} /> Aktifkan
-                          </button>
-                        )}
-                        <button
-                          onClick={() => setConfirmState({ kind: "key", p, k })}
-                          className="rounded-lg p-1.5 text-zinc-500 transition hover:bg-white/[0.06] hover:text-red-300"
-                          title="Hapus key"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-5 grid grid-cols-1 gap-2 border-t border-white/[0.05] pt-5 sm:grid-cols-[1fr_1.5fr_auto]">
-                  <input
-                    className={inputCls}
-                    placeholder="Label key (opsional)"
-                    value={f.label}
-                    onChange={(e) => setKeyForms((s) => ({ ...s, [p.id]: { ...f, label: e.target.value } }))}
-                  />
-                  <input
-                    className={inputCls}
-                    type="password"
-                    placeholder="API key baru untuk provider ini"
-                    value={f.key}
-                    onChange={(e) => setKeyForms((s) => ({ ...s, [p.id]: { ...f, key: e.target.value } }))}
-                  />
-                  <button onClick={() => addKey(p.id)} className={btnCls} disabled={!f.key.trim()}>
-                    <Plus size={16} /> Tambah Key
-                  </button>
+                <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-white/[0.05] pt-5">
+                  <p className="text-sm text-zinc-400">
+                    {p.keys.length} key hulu · <span className="text-lime-300">{active} aktif</span>
+                    {problem > 0 && (
+                      <>
+                        {" "}· <span className="text-red-300">{problem} butuh tindakan</span>
+                      </>
+                    )}
+                  </p>
+                  <Link
+                    href={`/admin/providers/${p.id}`}
+                    className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-lime-300/25 px-4 py-2 text-sm font-medium text-lime-200 transition hover:bg-lime-400/10"
+                  >
+                    <Activity size={15} /> Diagnosis
+                  </Link>
                 </div>
               </div>
             </Reveal>
@@ -262,27 +186,20 @@ export default function ProvidersManager({ providers }: { providers: Prov[] }) {
         })}
       </div>
 
-      {confirmState && (
+      {confirmProv && (
         <ConfirmModal
           icon={Trash2}
           tone="danger"
-          title={confirmState.kind === "provider" ? "Hapus provider ini?" : "Hapus key hulu ini?"}
+          title="Hapus provider ini?"
           description={
-            confirmState.kind === "provider" ? (
-              <>
-                Provider <span className="font-medium text-zinc-200">{confirmState.p.name}</span> akan dihapus
-                permanen. Semua key hulu dan route model milik provider ini ikut terhapus.
-              </>
-            ) : (
-              <>
-                Key <span className="font-medium text-zinc-200">{confirmState.k.label}</span> dari provider{" "}
-                {confirmState.p.name} akan dihapus permanen dan tidak dipakai lagi untuk melayani request.
-              </>
-            )
+            <>
+              Provider <span className="font-medium text-zinc-200">{confirmProv.name}</span> akan dihapus
+              permanen. Semua key hulu dan route model milik provider ini ikut terhapus.
+            </>
           }
           confirmLabel="Ya, Hapus"
           busy={confirmBusy}
-          onCancel={() => setConfirmState(null)}
+          onCancel={() => setConfirmProv(null)}
           onConfirm={doConfirmDelete}
         />
       )}
