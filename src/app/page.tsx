@@ -22,6 +22,12 @@ const MODELS = [
   { id: "deepseek-v4-flash-0731", label: "DeepSeek V4 Flash 0731" },
   { id: "mimo-v2.6-flash", label: "MiMo V2.6 Flash" },
   { id: "minicpm-v-4.7-35b-a3b", label: "MiniCPM-V 4.7 35B" },
+  { id: "qwen3.8-27b", label: "Qwen3.8 27B" },
+  { id: "kimi-k2.6", label: "Kimi K2.6" },
+  { id: "glm-5.3", label: "GLM 5.3" },
+  { id: "agents-a1", label: "Agents A1" },
+  { id: "sage-a1.5", label: "Sage A1.5" },
+  { id: "atria-dawn", label: "Atria Dawn" },
 ];
 
 const FEATURES = [
@@ -92,6 +98,7 @@ const PROVIDERS = [
   { name: "MiniMax", kind: "minimax" },
   { name: "MiMo", kind: "mimo" },
   { name: "MiniCPM", kind: "minicpm" },
+  { name: "Kimi", kind: "kimi" },
 ] as const;
 
 function ProviderTile({ kind }: { kind: (typeof PROVIDERS)[number]["kind"] }) {
