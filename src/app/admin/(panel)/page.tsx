@@ -1,9 +1,8 @@
 import { connection } from "next/server";
-import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import Reveal from "../../Reveal";
-import { Activity, KeyRound, Network, Server, TicketCheck, Coins, TriangleAlert } from "lucide-react";
+import { Activity, Network, TicketCheck, Coins } from "lucide-react";
 
 /** Angka ringkas untuk kartu statistik: 999, 1,5K, 2,3M, 1B. */
 function fmtCompact(n: number): string {
@@ -42,7 +41,7 @@ export default async function OverviewPage() {
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
-  const [me, providers, upstreamKeys, models, clientKeys, requestsToday, tokensToday, recent, problemKeys] =
+  const [me, models, clientKeys, requestsToday, tokensToday, recent] =
     await Promise.all([
       session
         ? prisma.user.findUnique({
@@ -50,8 +49,6 @@ export default async function OverviewPage() {
             select: { name: true, image: true },
           })
         : Promise.resolve(null),
-      prisma.provider.count(),
-      prisma.upstreamKey.count(),
       prisma.modelCatalog.count(),
       prisma.apiKey.count({ where: { isActive: true } }),
       prisma.usageLog.count({ where: { createdAt: { gte: startOfDay } } }),
@@ -64,18 +61,20 @@ export default async function OverviewPage() {
         take: 10,
         include: { provider: { select: { name: true } }, apiKey: { select: { prefix: true } } },
       }),
-      prisma.upstreamKey.findMany({
-        where: { status: { in: ["LIMITED", "DISABLED"] } },
-        orderBy: { updatedAt: "desc" },
-        include: { provider: { select: { name: true, id: true } } },
-      }),
     ]);
+
+  // Status hulu tunggal: 9Router lokal (semua provider dikelola di sana).
+  let routerHealthy = false;
+  try {
+    const r = await fetch("http://127.0.0.1:20128/v1/models", {
+      signal: AbortSignal.timeout(2500),
+    });
+    routerHealthy = r.status === 200 || r.status === 401;
+  } catch {}
 
   const displayName = me?.name ?? session?.email.split("@")[0] ?? "Admin";
 
   const cards = [
-    { label: "Provider", value: providers, icon: Server },
-    { label: "Key Hulu", value: upstreamKeys, icon: KeyRound },
     { label: "Model", value: models, icon: Network },
     { label: "Key Klien Aktif", value: clientKeys, icon: TicketCheck },
     { label: "Request Hari Ini", value: requestsToday, icon: Activity },
@@ -117,34 +116,17 @@ export default async function OverviewPage() {
         </p>
       </Reveal>
 
-      {problemKeys.length > 0 && (
-        <Reveal>
-          <div className="mt-8 rounded-3xl border border-red-400/25 bg-red-500/[0.07] p-5 sm:p-6">
-            <div className="flex items-start gap-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-red-500/10 text-red-300 ring-1 ring-red-400/25">
-                <TriangleAlert size={19} />
-              </span>
-              <div className="min-w-0">
-                <p className="font-semibold text-red-200 sm:text-lg">Key hulu butuh tindakan kamu</p>
-                <ul className="mt-2 space-y-1.5 text-sm leading-relaxed text-red-200/80">
-                  {problemKeys.map((k) => (
-                    <li key={k.id}>
-                      Key <span className="font-medium text-red-100">{k.label}</span> ({k.provider.name},{" "}
-                      <span className="font-mono text-xs">{k.keyHint}</span>){" "}
-                      {k.status === "LIMITED"
-                        ? "terkena limit token (402 dari hulu) dan sudah dinonaktifkan otomatis. Key ini tidak akan dipakai lagi sampai kamu mengaktifkannya kembali."
-                        : "dinonaktifkan karena ditolak hulu (401/403). Periksa key-nya, lalu aktifkan kembali bila sudah benar."}{" "}
-                      <Link href={`/admin/providers/${k.provider.id}`} className="font-medium text-red-100 underline decoration-red-300/40 underline-offset-2 transition hover:decoration-red-100">
-                        Buka diagnosis {k.provider.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </Reveal>
-      )}
+      <Reveal>
+        <div className="mt-8 flex flex-wrap items-center gap-3 rounded-3xl border border-white/[0.06] bg-white/[0.03] px-5 py-4">
+          <span className={`h-2.5 w-2.5 rounded-full ${routerHealthy ? "bg-lime-400" : "bg-red-400"}`} />
+          <p className="text-sm text-zinc-300">
+            Hulu 9Router {routerHealthy ? "terhubung" : "tidak terjangkau"}. Semua provider dan key hulu dikelola di dashboard 9Router.
+          </p>
+          <a href="https://manager.greenrouter.eu.cc" target="_blank" rel="noreferrer" className="ml-auto text-sm font-medium text-lime-300 transition hover:text-lime-200">
+            Buka Dashboard 9Router
+          </a>
+        </div>
+      </Reveal>
 
       {/* ===== Statistik ===== */}
       <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-3">
