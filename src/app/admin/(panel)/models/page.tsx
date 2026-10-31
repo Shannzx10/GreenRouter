@@ -20,6 +20,13 @@ export default async function ModelsPage() {
 
   // Daftar model yang tersedia di 9Router untuk pemilih sasaran. Nilai penuh
   // (dengan awalan) hanya dipakai sebagai data; label tampil tanpa awalan.
+  // Daftar mentah 9Router juga memuat model dari provider tanpa koneksi yang
+  // tidak pernah dipakai GreenRouter (roster gratisan yang berganti-ganti),
+  // jadi pemilih hanya menampilkan model yang awalannya benar-benar terpakai
+  // oleh salah satu sasaran katalog saat ini.
+  const usedPrefixes = new Set(
+    models.flatMap((m) => m.routes.map((r) => r.upstreamModelId.split("/")[0])),
+  );
   let routerModels: string[] = [];
   if (routerProvider?.upstreamKeys[0]) {
     try {
@@ -29,7 +36,9 @@ export default async function ModelsPage() {
       });
       if (res.ok) {
         const j = (await res.json()) as { data?: { id: string }[] };
-        routerModels = (j.data ?? []).map((m) => m.id);
+        routerModels = (j.data ?? [])
+          .map((m) => m.id)
+          .filter((id) => usedPrefixes.has(id.split("/")[0]));
       }
     } catch {}
   }
