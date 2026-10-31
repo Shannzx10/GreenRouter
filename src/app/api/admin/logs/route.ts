@@ -6,10 +6,19 @@ export async function GET() {
   if (!(await getAdminSession())) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
+  // Sama seperti halaman log admin: error mentah hulu tidak diambil sama sekali.
   const logs = await prisma.usageLog.findMany({
     orderBy: { createdAt: "desc" },
     take: 100,
-    include: {
+    select: {
+      id: true,
+      createdAt: true,
+      modelId: true,
+      promptTokens: true,
+      completionTokens: true,
+      totalTokens: true,
+      latencyMs: true,
+      status: true,
       provider: { select: { name: true } },
       apiKey: { select: { prefix: true, name: true } },
     },
@@ -25,7 +34,6 @@ export async function GET() {
       totalTokens: l.totalTokens,
       latencyMs: l.latencyMs,
       status: l.status,
-      error: l.error,
       createdAt: l.createdAt,
     })),
   });
