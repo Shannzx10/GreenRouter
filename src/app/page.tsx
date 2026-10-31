@@ -28,6 +28,9 @@ const MODELS = [
   { id: "mercury-3", label: "Mercury 3" },
 ];
 
+// Lima model terpopuler berdasarkan nama, untuk daftar di footer.
+const POPULAR_IDS = ["deepseek-v4-flash-0731", "qwen3.8-27b", "kimi-k2.6", "glm-5.3", "minimax-m2.7"];
+
 const FEATURES = [
   {
     icon: KeyRound,
@@ -98,6 +101,7 @@ const PROVIDERS = [
   { name: "MiniCPM", kind: "minicpm" },
   { name: "Kimi", kind: "kimi" },
   { name: "Mercury", kind: "mercury" },
+  { name: "Atria", kind: "atria" },
 ] as const;
 
 function ProviderTile({ kind }: { kind: (typeof PROVIDERS)[number]["kind"] }) {
@@ -466,8 +470,8 @@ export default function Home() {
             <div>
               <p className="text-sm font-semibold">Model Populer</p>
               <ul className="mt-3 space-y-2.5 font-mono text-[13px] text-zinc-400">
-                {MODELS.map((m) => (
-                  <li key={m.id}>{m.id}</li>
+                {POPULAR_IDS.map((id) => (
+                  <li key={id}>{id}</li>
                 ))}
               </ul>
             </div>
