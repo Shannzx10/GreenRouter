@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Reveal from "./Reveal";
 import CodeShowcase from "./CodeShowcase";
+import HubDiagram from "./HubDiagram";
 import ProviderIcon from "./ProviderIcon";
 import SmoothAnchors from "./SmoothAnchors";
 
@@ -258,6 +259,25 @@ export default function Home() {
       </section>
 
       <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
+        {/* Diagram hub */}
+        <section className="pt-16 sm:pt-24">
+          <Reveal className="text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-lime-300/80">Cara Kerja</p>
+            <h2 className="mx-auto mt-3 max-w-2xl text-3xl font-extrabold tracking-tight sm:text-4xl">
+              Dari model terbaik, langsung ke tool favoritmu
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-zinc-400 sm:text-base">
+              Model AI kelas atas dikumpulkan GreenRouter menjadi satu key, lalu diteruskan ke
+              aplikasi dan agen coding yang kamu pakai setiap hari.
+            </p>
+          </Reveal>
+          <Reveal delay={150}>
+            <div className="mt-10">
+              <HubDiagram />
+            </div>
+          </Reveal>
+        </section>
+
         {/* Fitur */}
         <section id="fitur" className="scroll-mt-28 pt-16 sm:pt-24">
           <Reveal className="text-center">
