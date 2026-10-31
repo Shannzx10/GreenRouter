@@ -56,6 +56,14 @@ model Provider {
   // gateway mengecek sisa token key SEBELUM setiap request diteruskan;
   // sisa 0 berarti key ditandai LIMITED dan dikeluarkan dari rotasi.
   quotaCheckUrl String?
+  // Profil kapasitas untuk halaman diagnosis (diisi manual oleh admin):
+  // jenis jatah (mis. "Allowance gratis", "Stok token", "Jatah USD harian"),
+  // besaran, pola reset, catatan rate limit, dan catatan bebas.
+  quotaKind     String?
+  quotaAmount   String?
+  quotaReset    String?
+  rateLimitNote String?
+  notes         String?
   // false bila hulu tidak melayani endpoint Anthropic /messages secara
   // native (mis. Dahl); jalur Anthropic untuk provider ini diterjemahkan
   // GreenRouter lewat endpoint OpenAI-nya (lihat anthropic-translate.ts).

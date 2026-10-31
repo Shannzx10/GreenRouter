@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  ArrowLeftRight,
   ChevronsLeft,
   ChevronsRight,
   KeyRound,
@@ -21,9 +22,8 @@ import ConfirmModal from "@/app/ConfirmModal";
 const NAV = [
   { href: "/admin", label: "Ringkasan", short: "Ringkasan", icon: LayoutDashboard, exact: true },
   { href: "/admin/announcements", label: "Pengumuman", short: "Info", icon: Megaphone, exact: false },
-  { href: "/admin/providers", label: "Provider", short: "Provider", icon: Server, exact: false },
   { href: "/admin/users", label: "Pengguna", short: "User", icon: Users, exact: false },
-  { href: "/admin/models", label: "Model & Route", short: "Model", icon: Network, exact: false },
+  { href: "/admin/models", label: "Model", short: "Model", icon: Network, exact: false },
   { href: "/admin/api-keys", label: "Key Klien", short: "Key", icon: KeyRound, exact: false },
   { href: "/admin/logs", label: "Log Pemakaian", short: "Log", icon: ScrollText, exact: false },
 ];
@@ -116,6 +116,15 @@ export default function Sidebar({ email }: { email: string }) {
               </Link>
             );
           })}
+          <Link
+            href="/app"
+            title={min ? "Area Pengguna" : undefined}
+            className={`flex items-center gap-3 whitespace-nowrap rounded-2xl py-2.5 text-sm text-zinc-400 transition hover:bg-white/[0.04] hover:text-zinc-100 ${
+              min ? "justify-center px-0" : "px-3.5"
+            }`}
+          >
+            <ArrowLeftRight size={18} className="shrink-0" /> {!min && "Area Pengguna"}
+          </Link>
         </nav>
         <div className="mt-auto border-t border-white/[0.06] pt-4">
           <button
@@ -188,6 +197,16 @@ export default function Sidebar({ email }: { email: string }) {
                 </Link>
               );
             })}
+            <Link
+              href="/app"
+              onClick={() => setMoreOpen(false)}
+              className="flex items-center gap-3.5 rounded-2xl px-3 py-3 text-sm text-zinc-300 transition hover:bg-white/[0.04]"
+            >
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-zinc-400 ring-1 ring-white/[0.06]">
+                <ArrowLeftRight size={17} />
+              </span>
+              Area Pengguna
+            </Link>
             <div className="mx-3 my-2 border-t border-white/[0.06]" />
             <button
               onClick={() => {

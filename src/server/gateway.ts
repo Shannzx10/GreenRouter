@@ -99,7 +99,7 @@ export async function getCandidates(
   for (const route of routes) {
     const usable = route.provider.upstreamKeys.filter(
       (k) =>
-        k.status === "ACTIVE" ||
+        (k.status === "ACTIVE" && (k.cooldownUntil === null || k.cooldownUntil <= now)) ||
         (k.status === "COOLDOWN" && k.cooldownUntil !== null && k.cooldownUntil <= now),
     );
     if (!usable.length) continue;
@@ -259,6 +259,45 @@ function parseRetryAfter(headers: Headers): number | null {
   return null;
 }
 
+// Hulu tertentu (9Router) membungkus respons non-stream sebagai SSE: satu
+// objek JSON utuh diikuti penanda "data: [DONE]". Potong penandanya supaya
+// badan yang diteruskan ke klien JSON bersih dan usage bisa terbaca.
+function stripSseTrailer(text: string): string {
+  // Penanda bisa menempel langsung sesudah } tanpa newline lebih dulu.
+  // Potong hanya bila sesudah penanda tinggal whitespace, jadi teks serupa
+  // di dalam konten JSON tidak ikut terpotong.
+  const at = text.lastIndexOf("data: [DONE]");
+  if (at > 0 && text.slice(at + "data: [DONE]".length).trim() === "") {
+    return text.slice(0, at);
+  }
+  return text;
+}
+
+// Ekstrak objek usage TERAKHIR dari ekor stream dengan penyeimbangan kurung,
+// karena usage asli bisa berisi objek bersarang (prompt_tokens_details)
+// yang tidak tertangkap regex datar.
+function extractLastUsage(tail: string): Usage | undefined {
+  const key = tail.lastIndexOf('"usage"');
+  if (key < 0) return undefined;
+  const start = tail.indexOf("{", key);
+  if (start < 0) return undefined;
+  let depth = 0;
+  for (let i = start; i < tail.length; i++) {
+    if (tail[i] === "{") depth++;
+    else if (tail[i] === "}") {
+      depth--;
+      if (depth === 0) {
+        try {
+          return JSON.parse(tail.slice(start, i + 1)) as Usage;
+        } catch {
+          return undefined;
+        }
+      }
+    }
+  }
+  return undefined;
+}
+
 // Provider ber-quotaCheckUrl (Dahl): sisa token key dicek sebelum request
 // diteruskan. Sisa habis (available_tokens <= 0) berarti key LIMITED.
 // Pengecekan yang gagal (jaringan, HTTP error, bentuk respons asing)
@@ -281,7 +320,7 @@ async function keyQuotaExhausted(cand: Candidate): Promise<boolean> {
 }
 
 // ---------- Status kesehatan key ----------
-async function markKeyFailure(key: UpstreamKey, status: number): Promise<void> {
+async function markKeyFailure(key: UpstreamKey, status: number, retryAfterSec?: number | null): Promise<void> {
   try {
     if (status === 401 || status === 403) {
       // Key tidak valid atau tidak berhak: nonaktifkan permanen sampai
@@ -299,11 +338,14 @@ async function markKeyFailure(key: UpstreamKey, status: number): Promise<void> {
         data: { status: "LIMITED", cooldownUntil: null, failCount: { increment: 1 } },
       });
     } else if (status === 429) {
-      // Rate-limit hulu bersifat sementara; cukup catat kegagalannya,
-      // key tidak diblokir dan tetap ikut rotasi.
+      // Rate-limit itu urusan menunggu, BUKAN key mati: status tetap ACTIVE,
+      // key hanya dilewati rotasi sampai masa tunggu berakhir (Retry-After
+      // dari hulu bila ada, bawaan 60 detik, dibatasi 5..300 detik), lalu
+      // pulih sendiri tanpa tindakan admin.
+      const wait = Math.min(300, Math.max(5, retryAfterSec ?? 60));
       await prisma.upstreamKey.update({
         where: { id: key.id },
-        data: { failCount: { increment: 1 } },
+        data: { failCount: { increment: 1 }, cooldownUntil: new Date(Date.now() + wait * 1000) },
       });
     } else {
       await prisma.upstreamKey.update({
@@ -409,14 +451,16 @@ export async function forwardChatCompletion(args: {
       // Badan error hanya dibaca untuk log internal, tidak diteruskan.
       lastBody = await upstream.text().catch(() => "");
       if (isFailoverStatus(upstream.status)) {
+        let failWait: number | null = null;
         if (upstream.status === 429) {
           // Rate-limit hulu: simpan Retry-After tersingkat untuk disampaikan
           // ke klien bila semua kandidat ikut gagal.
           const ra = parseRetryAfter(upstream.headers);
           const wait = ra ?? 60;
+          failWait = wait;
           if (minRetryAfter === null || wait < minRetryAfter) minRetryAfter = wait;
         }
-        await markKeyFailure(cand.key, upstream.status);
+        await markKeyFailure(cand.key, upstream.status, failWait);
         continue; // coba kandidat berikutnya
       }
       // Error lain (400 dsb.) berasal dari request klien; jawab dengan
@@ -437,7 +481,7 @@ export async function forwardChatCompletion(args: {
     await markKeySuccess(cand.key);
 
     if (!args.stream || !upstream.body) {
-      const text = await upstream.text();
+      const text = stripSseTrailer(await upstream.text());
       let usage: Usage | undefined;
       try {
         usage = (JSON.parse(text) as { usage?: Usage }).usage;
@@ -470,8 +514,7 @@ export async function forwardChatCompletion(args: {
         if (done) {
           let usage: Usage | undefined;
           try {
-            const m = tail.match(/"usage"\s*:\s*(\{[^{}]*\})/);
-            if (m) usage = JSON.parse(m[1]) as Usage;
+            usage = extractLastUsage(tail);
           } catch {}
           void logUsage({
             apiKeyId: args.apiKeyId,
@@ -569,7 +612,7 @@ async function tryTranslatedCandidate(
   if (!upstream.ok) {
     const text = await upstream.text().catch(() => "");
     if (isFailoverStatus(upstream.status)) {
-      await markKeyFailure(cand.key, upstream.status);
+      await markKeyFailure(cand.key, upstream.status, upstream.status === 429 ? parseRetryAfter(upstream.headers) : null);
       return {
         kind: "failover",
         status: upstream.status,
@@ -593,7 +636,7 @@ async function tryTranslatedCandidate(
   await markKeySuccess(cand.key);
 
   if (!args.stream || !upstream.body) {
-    const text = await upstream.text();
+    const text = stripSseTrailer(await upstream.text());
     let json: Record<string, any> | null = null;
     try {
       json = JSON.parse(text) as Record<string, any>;
@@ -730,12 +773,14 @@ export async function forwardAnthropicMessages(args: {
       // Badan error hanya dibaca untuk log internal, tidak diteruskan.
       lastBody = await upstream.text().catch(() => "");
       if (isFailoverStatus(upstream.status)) {
+        let failWait: number | null = null;
         if (upstream.status === 429) {
           const ra = parseRetryAfter(upstream.headers);
           const wait = ra ?? 60;
+          failWait = wait;
           if (minRetryAfter === null || wait < minRetryAfter) minRetryAfter = wait;
         }
-        await markKeyFailure(cand.key, upstream.status);
+        await markKeyFailure(cand.key, upstream.status, failWait);
         continue;
       }
       await logUsage({
@@ -899,7 +944,7 @@ export async function runModelHealthChecks(): Promise<
         } else {
           errMsg = `upstream ${upstream.status}: ${(await upstream.text().catch(() => "")).slice(0, 120)}`;
           if (isFailoverStatus(upstream.status)) {
-            await markKeyFailure(cand.key, upstream.status);
+            await markKeyFailure(cand.key, upstream.status, upstream.status === 429 ? parseRetryAfter(upstream.headers) : null);
             continue;
           }
           break;

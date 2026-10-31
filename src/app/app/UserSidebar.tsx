@@ -177,6 +177,18 @@ export default function UserSidebar({ email, role }: { email: string; role: stri
                 </Link>
               );
             })}
+            {role === "ADMIN" && (
+              <Link
+                href="/admin"
+                onClick={() => setMoreOpen(false)}
+                className="flex items-center gap-3.5 rounded-2xl px-3 py-3 text-sm text-zinc-300 transition hover:bg-white/[0.04]"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-zinc-400 ring-1 ring-white/[0.06]">
+                  <ShieldCheck size={17} />
+                </span>
+                Panel Admin
+              </Link>
+            )}
           </div>
         </>
       )}

@@ -2,20 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Network, Plus, SlidersHorizontal, Trash2 } from "lucide-react";
+import { Network, Plus, SlidersHorizontal, Target, Trash2 } from "lucide-react";
 import ProviderIcon from "@/app/ProviderIcon";
 import ConfirmModal from "@/app/ConfirmModal";
 import Reveal from "@/app/Reveal";
 
-type RouteRow = {
-  id: string;
-  providerId: string;
-  providerName: string;
-  providerActive: boolean;
-  upstreamModelId: string;
-  priority: number;
-  isActive: boolean;
-};
 type ModelRow = {
   id: string;
   modelId: string;
@@ -25,9 +16,9 @@ type ModelRow = {
   inputModalities: string | null;
   capabilities: string | null;
   knowledgeCutoff: string | null;
-  routes: RouteRow[];
+  routeId: string | null;
+  target: string | null;
 };
-type ProvOpt = { id: string; name: string };
 
 const MODALITY_OPTS = [
   { value: "text", label: "Teks" },
@@ -45,6 +36,13 @@ const CAPABILITY_OPTS = [
 
 function csvToList(value: string | null): string[] {
   return value ? value.split(",").map((s) => s.trim()).filter(Boolean) : [];
+}
+
+// Label tampil untuk sasaran 9Router: buang segmen awalan providernya,
+// yang terlihat cukup nama modelnya saja.
+function stripPrefix(id: string): string {
+  const at = id.indexOf("/");
+  return at > 0 ? id.slice(at + 1) : id;
 }
 
 const inputCls =
@@ -159,45 +157,25 @@ function MetaForm({ model, onDone }: { model: ModelRow; onDone: () => void }) {
 
 export default function ModelsManager({
   models,
-  providers,
+  routerProviderId,
+  routerModels,
+  routerOk,
 }: {
   models: ModelRow[];
-  providers: ProvOpt[];
+  routerProviderId: string | null;
+  routerModels: string[];
+  routerOk: boolean;
 }) {
   const router = useRouter();
   const [modelId, setModelId] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [newTarget, setNewTarget] = useState("");
   const [err, setErr] = useState("");
   const [openMeta, setOpenMeta] = useState<string | null>(null);
-  const [confirmState, setConfirmState] = useState<
-    | { kind: "model"; m: ModelRow }
-    | { kind: "route"; m: ModelRow; r: RouteRow }
-    | null
-  >(null);
+  const [confirmModel, setConfirmModel] = useState<ModelRow | null>(null);
   const [confirmBusy, setConfirmBusy] = useState(false);
-
-  async function doConfirmDelete() {
-    if (!confirmState) return;
-    setConfirmBusy(true);
-    setErr("");
-    try {
-      if (confirmState.kind === "model") {
-        await call(`/api/admin/models/${confirmState.m.id}`, "DELETE");
-      } else {
-        await call(`/api/admin/routes/${confirmState.r.id}`, "DELETE");
-      }
-      setConfirmState(null);
-      router.refresh();
-    } catch (e2) {
-      setErr(e2 instanceof Error ? e2.message : "Gagal menghapus");
-      setConfirmState(null);
-    } finally {
-      setConfirmBusy(false);
-    }
-  }
-  const [routeForms, setRouteForms] = useState<
-    Record<string, { providerId: string; upstreamModelId: string; priority: string }>
-  >({});
+  const [targetEdits, setTargetEdits] = useState<Record<string, string>>({});
+  const [targetBusy, setTargetBusy] = useState<string | null>(null);
 
   async function call(url: string, method: string, body?: unknown) {
     const res = await fetch(url, {
@@ -212,37 +190,63 @@ export default function ModelsManager({
     return res;
   }
 
-
   async function addModel(e: React.FormEvent) {
     e.preventDefault();
+    if (!routerProviderId || !newTarget) return;
     setErr("");
     try {
-      await call("/api/admin/models", "POST", { modelId, displayName });
+      const res = await call("/api/admin/models", "POST", { modelId, displayName });
+      const created = (await res.json()) as { model: { id: string } };
+      await call(`/api/admin/models/${created.model.id}/routes`, "POST", {
+        providerId: routerProviderId,
+        upstreamModelId: newTarget,
+        priority: 1,
+      });
       setModelId("");
       setDisplayName("");
+      setNewTarget("");
       router.refresh();
     } catch (e2) {
       setErr(e2 instanceof Error ? e2.message : "Gagal menambah model");
     }
   }
 
-  async function addRoute(m: ModelRow) {
-    const f = routeForms[m.id] ?? {
-      providerId: providers[0]?.id ?? "",
-      upstreamModelId: m.modelId,
-      priority: "0",
-    };
-    if (!f.providerId) return;
+  async function saveTarget(m: ModelRow) {
+    const chosen = targetEdits[m.id] ?? m.target ?? "";
+    if (!chosen || !routerProviderId) return;
+    setTargetBusy(m.id);
     setErr("");
     try {
-      await call(`/api/admin/models/${m.id}/routes`, "POST", {
-        providerId: f.providerId,
-        upstreamModelId: f.upstreamModelId,
-        priority: parseInt(f.priority || "0", 10) || 0,
-      });
+      if (m.routeId) {
+        await call(`/api/admin/routes/${m.routeId}`, "PATCH", { upstreamModelId: chosen });
+      } else {
+        await call(`/api/admin/models/${m.id}/routes`, "POST", {
+          providerId: routerProviderId,
+          upstreamModelId: chosen,
+          priority: 1,
+        });
+      }
       router.refresh();
     } catch (e2) {
-      setErr(e2 instanceof Error ? e2.message : "Gagal menambah route");
+      setErr(e2 instanceof Error ? e2.message : "Gagal menyimpan sasaran");
+    } finally {
+      setTargetBusy(null);
+    }
+  }
+
+  async function doConfirmDelete() {
+    if (!confirmModel) return;
+    setConfirmBusy(true);
+    setErr("");
+    try {
+      await call(`/api/admin/models/${confirmModel.id}`, "DELETE");
+      setConfirmModel(null);
+      router.refresh();
+    } catch (e2) {
+      setErr(e2 instanceof Error ? e2.message : "Gagal menghapus");
+      setConfirmModel(null);
+    } finally {
+      setConfirmBusy(false);
     }
   }
 
@@ -252,16 +256,22 @@ export default function ModelsManager({
         <p className="text-xs font-bold uppercase tracking-[0.3em] text-lime-300/80">
           Panel Admin
         </p>
-        <h1 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Model & Route</h1>
+        <h1 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Model</h1>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-400 sm:text-base">
-          Katalog model yang dilihat klien, dan provider mana saja yang melayaninya.
-          Prioritas kecil dicoba lebih dulu; key di dalam provider dirotasi.
+          Katalog model yang dilihat klien. Setiap model terhubung ke satu model di 9Router
+          sebagai sasarannya; urusan provider, key, dan fallback dikelola di dashboard 9Router.
         </p>
       </Reveal>
 
       {err && (
         <p className="mt-4 rounded-xl border border-red-400/25 bg-red-500/10 px-3.5 py-2.5 text-sm text-red-300">
           {err}
+        </p>
+      )}
+      {!routerOk && (
+        <p className="mt-4 rounded-xl border border-amber-400/25 bg-amber-500/10 px-3.5 py-2.5 text-sm text-amber-200">
+          Daftar model 9Router tidak terjangkau saat ini, jadi sasaran model belum bisa dipilih
+          atau diganti. Periksa layanan 9Router, lalu muat ulang halaman ini.
         </p>
       )}
 
@@ -273,10 +283,22 @@ export default function ModelsManager({
             </span>
             <p className="font-semibold sm:text-lg">Model Baru</p>
           </div>
-          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_auto]">
+          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <input className={inputCls} placeholder="ID model (mis. deepseek-v4-flash-0731)" value={modelId} onChange={(e) => setModelId(e.target.value)} required />
             <input className={inputCls} placeholder="Nama tampilan (opsional)" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
-            <button type="submit" className={btnCls}>
+          </div>
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto]">
+            <select className={inputCls} value={newTarget} onChange={(e) => setNewTarget(e.target.value)} required disabled={!routerOk}>
+              <option value="" disabled>
+                {routerOk ? "Pilih sasaran di 9Router" : "9Router tidak terjangkau"}
+              </option>
+              {routerModels.map((id) => (
+                <option key={id} value={id}>
+                  {stripPrefix(id)}
+                </option>
+              ))}
+            </select>
+            <button type="submit" className={btnCls} disabled={!routerOk || !newTarget}>
               <Plus size={16} /> Tambah Model
             </button>
           </div>
@@ -288,137 +310,100 @@ export default function ModelsManager({
           <p className="glass rounded-3xl px-4 py-8 text-center text-zinc-500">Belum ada model.</p>
         )}
         {models.map((m, mi) => {
-          const f = routeForms[m.id] ?? {
-            providerId: providers[0]?.id ?? "",
-            upstreamModelId: m.modelId,
-            priority: "0",
-          };
+          const chosen = targetEdits[m.id] ?? m.target ?? "";
+          const changed = chosen !== (m.target ?? "");
           return (
             <Reveal key={m.id} delay={mi * 80}>
-            <div className="glass rounded-3xl p-5 sm:p-6">
-              <div className="flex flex-wrap items-center gap-4">
-                <ProviderIcon modelId={m.modelId} className="h-11 w-11" />
-                <div className="min-w-0">
-                  <code className="block break-all font-mono text-sm font-semibold text-lime-300">{m.modelId}</code>
-                  <span className="mt-0.5 block text-sm text-zinc-400">{m.displayName}</span>
-                </div>
-                <div className="ml-auto flex items-center gap-1">
-                  <button
-                    onClick={() => setOpenMeta(openMeta === m.id ? null : m.id)}
-                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition ${
-                      openMeta === m.id
-                        ? "bg-lime-400/10 text-lime-200"
-                        : "bg-white/[0.04] text-zinc-300 hover:bg-white/[0.07]"
-                    }`}
-                  >
-                    <SlidersHorizontal size={13} /> Metadata
-                  </button>
-                  <button
-                    onClick={() => setConfirmState({ kind: "model", m })}
-                    className="rounded-lg p-1.5 text-zinc-500 transition hover:bg-white/[0.06] hover:text-red-300"
-                    title="Hapus model"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
-
-              {openMeta === m.id && <MetaForm model={m} onDone={() => setOpenMeta(null)} />}
-
-              <p className="mt-6 text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-500">
-                Route ({m.routes.length})
-              </p>
-              <div className="mt-3 flex flex-col gap-2">
-                {m.routes.length === 0 && (
-                  <p className="text-sm text-zinc-500">Belum ada route, model ini belum bisa dipakai klien.</p>
-                )}
-                {m.routes.map((r) => (
-                  <div key={r.id} className="flex flex-wrap items-center gap-3 rounded-xl border border-white/[0.05] bg-black/30 px-3.5 py-2.5 text-sm">
-                    <span className="font-medium">{r.providerName}</span>
-                    {!r.providerActive && <span className="text-xs text-zinc-500">(provider nonaktif)</span>}
-                    <span className="text-zinc-500">→</span>
-                    <code className="font-mono text-xs text-zinc-300">{r.upstreamModelId}</code>
-                    <span className="text-xs text-zinc-500">prioritas {r.priority}</span>
-                    <div className="ml-auto flex items-center gap-1">
-                      <button
-                        onClick={async () => {
-                          await call(`/api/admin/routes/${r.id}`, "PATCH", { isActive: !r.isActive });
-                          router.refresh();
-                        }}
-                        className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          r.isActive ? "bg-lime-400/10 text-lime-300" : "bg-zinc-500/15 text-zinc-400"
-                        }`}
-                      >
-                        {r.isActive ? "AKTIF" : "NONAKTIF"}
-                      </button>
-                      <button
-                        onClick={() => setConfirmState({ kind: "route", m, r })}
-                        className="rounded-lg p-1.5 text-zinc-500 transition hover:bg-white/[0.06] hover:text-red-300"
-                        title="Hapus route"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    </div>
+              <div className="glass rounded-3xl p-5 sm:p-6">
+                <div className="flex flex-wrap items-center gap-4">
+                  <ProviderIcon modelId={m.modelId} className="h-11 w-11" />
+                  <div className="min-w-0">
+                    <code className="block break-all font-mono text-sm font-semibold text-lime-300">{m.modelId}</code>
+                    <span className="mt-0.5 block text-sm text-zinc-400">{m.displayName}</span>
                   </div>
-                ))}
-              </div>
-
-              {providers.length > 0 && (
-                <div className="mt-5 grid grid-cols-1 gap-2 border-t border-white/[0.05] pt-5 sm:grid-cols-[1fr_1.5fr_0.5fr_auto]">
-                  <select
-                    className={inputCls}
-                    value={f.providerId}
-                    onChange={(e) => setRouteForms((s) => ({ ...s, [m.id]: { ...f, providerId: e.target.value } }))}
-                  >
-                    {providers.map((p) => (
-                      <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                  </select>
-                  <input
-                    className={inputCls}
-                    placeholder="ID model di provider (upstream)"
-                    value={f.upstreamModelId}
-                    onChange={(e) => setRouteForms((s) => ({ ...s, [m.id]: { ...f, upstreamModelId: e.target.value } }))}
-                  />
-                  <input
-                    className={inputCls}
-                    type="number"
-                    placeholder="Prioritas"
-                    value={f.priority}
-                    onChange={(e) => setRouteForms((s) => ({ ...s, [m.id]: { ...f, priority: e.target.value } }))}
-                  />
-                  <button onClick={() => addRoute(m)} className={btnCls}>
-                    <Plus size={16} /> Route
-                  </button>
+                  <div className="ml-auto flex items-center gap-1">
+                    <button
+                      onClick={() => setOpenMeta(openMeta === m.id ? null : m.id)}
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                        openMeta === m.id
+                          ? "bg-lime-400/10 text-lime-200"
+                          : "bg-white/[0.04] text-zinc-300 hover:bg-white/[0.07]"
+                      }`}
+                    >
+                      <SlidersHorizontal size={13} /> Metadata
+                    </button>
+                    <button
+                      onClick={() => setConfirmModel(m)}
+                      className="rounded-lg p-1.5 text-zinc-500 transition hover:bg-white/[0.06] hover:text-red-300"
+                      title="Hapus model"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
-              )}
-            </div>
+
+                {openMeta === m.id && <MetaForm model={m} onDone={() => setOpenMeta(null)} />}
+
+                <div className="mt-6 border-t border-white/[0.05] pt-5">
+                  <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-500">
+                    <Target size={13} /> Sasaran di 9Router
+                  </p>
+                  <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto]">
+                    <select
+                      className={inputCls}
+                      value={chosen}
+                      disabled={!routerOk}
+                      onChange={(e) => setTargetEdits((s) => ({ ...s, [m.id]: e.target.value }))}
+                    >
+                      {!m.target && (
+                        <option value="" disabled>
+                          Belum terhubung, pilih sasaran
+                        </option>
+                      )}
+                      {routerModels.map((id) => (
+                        <option key={id} value={id}>
+                          {stripPrefix(id)}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => saveTarget(m)}
+                      className={btnCls}
+                      disabled={!routerOk || !changed || targetBusy === m.id}
+                    >
+                      {targetBusy === m.id ? "Menyimpan..." : "Simpan Sasaran"}
+                    </button>
+                  </div>
+                  {m.target ? (
+                    <p className="mt-2 text-xs text-zinc-500">
+                      Terhubung ke <span className="font-mono text-zinc-300">{stripPrefix(m.target)}</span>
+                    </p>
+                  ) : (
+                    <p className="mt-2 text-xs text-amber-300/90">
+                      Model ini belum punya sasaran, klien belum bisa memakainya.
+                    </p>
+                  )}
+                </div>
+              </div>
             </Reveal>
           );
         })}
       </div>
 
-      {confirmState && (
+      {confirmModel && (
         <ConfirmModal
           icon={Trash2}
           tone="danger"
-          title={confirmState.kind === "model" ? "Hapus model ini?" : "Hapus route ini?"}
+          title="Hapus model ini?"
           description={
-            confirmState.kind === "model" ? (
-              <>
-                Model <span className="font-medium text-zinc-200">{confirmState.m.modelId}</span> akan dihapus
-                dari katalog beserta semua route-nya. Klien tidak bisa lagi memakai model ini.
-              </>
-            ) : (
-              <>
-                Route model <span className="font-medium text-zinc-200">{confirmState.m.modelId}</span> ke
-                provider {confirmState.r.providerName} akan dihapus permanen.
-              </>
-            )
+            <>
+              Model <span className="font-medium text-zinc-200">{confirmModel.modelId}</span> akan dihapus
+              dari katalog beserta sasarannya. Klien tidak bisa lagi memakai model ini.
+            </>
           }
           confirmLabel="Ya, Hapus"
           busy={confirmBusy}
-          onCancel={() => setConfirmState(null)}
+          onCancel={() => setConfirmModel(null)}
           onConfirm={doConfirmDelete}
         />
       )}
