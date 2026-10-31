@@ -64,12 +64,15 @@ export default async function OverviewPage() {
     ]);
 
   // Status hulu tunggal: 9Router lokal (semua provider dikelola di sana).
+  // Probe memakai akar dashboard yang murah; /v1/models lambat karena
+  // disusun langsung dari hulu sehingga tidak layak jadi penanda hidup.
   let routerHealthy = false;
   try {
-    const r = await fetch("http://127.0.0.1:20128/v1/models", {
+    const r = await fetch("http://127.0.0.1:20128/", {
       signal: AbortSignal.timeout(2500),
+      redirect: "manual",
     });
-    routerHealthy = r.status === 200 || r.status === 401;
+    routerHealthy = r.status > 0 && r.status < 500;
   } catch {}
 
   const displayName = me?.name ?? session?.email.split("@")[0] ?? "Admin";

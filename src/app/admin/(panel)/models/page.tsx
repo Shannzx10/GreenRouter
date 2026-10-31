@@ -32,7 +32,7 @@ export default async function ModelsPage() {
     try {
       const res = await fetch("http://127.0.0.1:20128/v1/models", {
         headers: { authorization: "Bearer ".concat(decryptSecret(routerProvider.upstreamKeys[0].encryptedKey)) },
-        signal: AbortSignal.timeout(3000),
+        signal: AbortSignal.timeout(8000),
       });
       if (res.ok) {
         const j = (await res.json()) as { data?: { id: string }[] };
