@@ -23,7 +23,7 @@ const NAV = [
   { href: "/admin", label: "Ringkasan", short: "Ringkasan", icon: LayoutDashboard, exact: true },
   { href: "/admin/announcements", label: "Pengumuman", short: "Info", icon: Megaphone, exact: false },
   { href: "/admin/users", label: "Pengguna", short: "User", icon: Users, exact: false },
-  { href: "/admin/models", label: "Model & Route", short: "Model", icon: Network, exact: false },
+  { href: "/admin/models", label: "Model", short: "Model", icon: Network, exact: false },
   { href: "/admin/api-keys", label: "Key Klien", short: "Key", icon: KeyRound, exact: false },
   { href: "/admin/logs", label: "Log Pemakaian", short: "Log", icon: ScrollText, exact: false },
 ];
