@@ -259,6 +259,45 @@ function parseRetryAfter(headers: Headers): number | null {
   return null;
 }
 
+// Hulu tertentu (9Router) membungkus respons non-stream sebagai SSE: satu
+// objek JSON utuh diikuti penanda "data: [DONE]". Potong penandanya supaya
+// badan yang diteruskan ke klien JSON bersih dan usage bisa terbaca.
+function stripSseTrailer(text: string): string {
+  // Penanda bisa menempel langsung sesudah } tanpa newline lebih dulu.
+  // Potong hanya bila sesudah penanda tinggal whitespace, jadi teks serupa
+  // di dalam konten JSON tidak ikut terpotong.
+  const at = text.lastIndexOf("data: [DONE]");
+  if (at > 0 && text.slice(at + "data: [DONE]".length).trim() === "") {
+    return text.slice(0, at);
+  }
+  return text;
+}
+
+// Ekstrak objek usage TERAKHIR dari ekor stream dengan penyeimbangan kurung,
+// karena usage asli bisa berisi objek bersarang (prompt_tokens_details)
+// yang tidak tertangkap regex datar.
+function extractLastUsage(tail: string): Usage | undefined {
+  const key = tail.lastIndexOf('"usage"');
+  if (key < 0) return undefined;
+  const start = tail.indexOf("{", key);
+  if (start < 0) return undefined;
+  let depth = 0;
+  for (let i = start; i < tail.length; i++) {
+    if (tail[i] === "{") depth++;
+    else if (tail[i] === "}") {
+      depth--;
+      if (depth === 0) {
+        try {
+          return JSON.parse(tail.slice(start, i + 1)) as Usage;
+        } catch {
+          return undefined;
+        }
+      }
+    }
+  }
+  return undefined;
+}
+
 // Provider ber-quotaCheckUrl (Dahl): sisa token key dicek sebelum request
 // diteruskan. Sisa habis (available_tokens <= 0) berarti key LIMITED.
 // Pengecekan yang gagal (jaringan, HTTP error, bentuk respons asing)
@@ -442,7 +481,7 @@ export async function forwardChatCompletion(args: {
     await markKeySuccess(cand.key);
 
     if (!args.stream || !upstream.body) {
-      const text = await upstream.text();
+      const text = stripSseTrailer(await upstream.text());
       let usage: Usage | undefined;
       try {
         usage = (JSON.parse(text) as { usage?: Usage }).usage;
@@ -475,8 +514,7 @@ export async function forwardChatCompletion(args: {
         if (done) {
           let usage: Usage | undefined;
           try {
-            const m = tail.match(/"usage"\s*:\s*(\{[^{}]*\})/);
-            if (m) usage = JSON.parse(m[1]) as Usage;
+            usage = extractLastUsage(tail);
           } catch {}
           void logUsage({
             apiKeyId: args.apiKeyId,
@@ -598,7 +636,7 @@ async function tryTranslatedCandidate(
   await markKeySuccess(cand.key);
 
   if (!args.stream || !upstream.body) {
-    const text = await upstream.text();
+    const text = stripSseTrailer(await upstream.text());
     let json: Record<string, any> | null = null;
     try {
       json = JSON.parse(text) as Record<string, any>;
