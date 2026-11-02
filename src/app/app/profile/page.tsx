@@ -222,8 +222,8 @@ export default async function ProfilePage() {
           Metode Masuk
         </h2>
         <p className="mt-3 text-sm text-zinc-400">
-          Metode lain dengan email yang sama harus dihubungkan dulu dari sini, tidak otomatis
-          digabung.
+          Hubungkan metode masuk lain ke akunmu. Setiap metode harus dihubungkan secara manual
+          demi keamanan.
         </p>
         <div className="mt-4 flex flex-col gap-2.5">
           {(["google", "github"] as const).map((p) => {
