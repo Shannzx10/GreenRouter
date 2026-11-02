@@ -2,7 +2,7 @@
 
 import { initializePaddle, type Paddle } from "@paddle/paddle-js";
 import { PLANS, formatIdNumber, type Plan } from "@/lib/plans";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Crown, Loader2, Sprout, Zap } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -190,14 +190,17 @@ export default function PricingGrid({
         {PLANS.map((plan) => {
           const featured = plan.id === "pro";
           const paid = plan.priceUsd > 0;
+          const isCurrent = viewerPlan !== "visitor" && viewerPlan === plan.id;
+          const Icon = plan.id === "pro" ? Zap : plan.id === "max" ? Crown : Sprout;
           return (
             <div
               key={plan.id}
               className={
                 "relative flex flex-col rounded-3xl p-7 " +
                 (featured
-                  ? "border border-lime-300/40 bg-lime-300/[0.06] shadow-[0_20px_60px_-20px_rgba(163,230,53,0.35)]"
-                  : "glass")
+                  ? "border border-lime-300/40 bg-lime-300/[0.06] shadow-[0_20px_60px_-20px_rgba(163,230,53,0.35)] lg:z-10 lg:scale-[1.03]"
+                  : "glass") +
+                (isCurrent ? " ring-1 ring-lime-300/60" : "")
               }
             >
               {featured && (
@@ -205,10 +208,13 @@ export default function PricingGrid({
                   Paling Populer
                 </span>
               )}
-              <h2 className="text-lg font-bold tracking-tight">{plan.name}</h2>
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
+                <Icon size={20} />
+              </span>
+              <h2 className="mt-4 text-lg font-bold tracking-tight">{plan.name}</h2>
               <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">{plan.tagline}</p>
               <p className="mt-6 flex items-baseline gap-1.5">
-                <span className="text-4xl font-extrabold tracking-tight">
+                <span className="text-5xl font-extrabold tracking-tight">
                   {paid ? `$${plan.priceUsd}` : "Rp0"}
                 </span>
                 <span className="text-sm text-zinc-500">/ bulan</span>
