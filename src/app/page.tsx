@@ -373,76 +373,6 @@ export default function Home() {
         </section>
 
         {/* Model */}
-        <section id="model" className="scroll-mt-28 pt-16 sm:pt-24">
-          <Reveal className="text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-lime-300/80">Katalog Model</p>
-            <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Semua model, satu key
-            </h2>
-            <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-zinc-400 sm:text-base">
-              Dari yang tercepat untuk tugas harian sampai yang paling cerdas untuk pekerjaan berat,
-              semua siap dipanggil kapan saja.
-            </p>
-          </Reveal>
-          <div className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {MODELS.map((m, i) => (
-              <Reveal key={m.id} delay={(i % 3) * 100} className="h-full">
-                <div className="glass group flex h-full items-center gap-3.5 rounded-3xl px-5 py-4 transition duration-300 hover:-translate-y-1 hover:border-lime-300/35">
-                  <ProviderIcon modelId={m.id} className="h-11 w-11" />
-                  <div className="min-w-0">
-                    <p className="font-semibold leading-snug">{m.label}</p>
-                    <p className="break-all font-mono text-xs leading-snug text-zinc-500">{m.id}</p>
-                  </div>
-                  <span className="ml-auto shrink-0 rounded-full bg-lime-400/10 px-2.5 py-1 text-[11px] font-medium text-lime-300">
-                    Siap pakai
-                  </span>
-                </div>
-              </Reveal>
-            ))}
-            <Reveal delay={300} className="h-full">
-              <Link
-                href="/register"
-                className="group flex h-full items-center gap-3.5 rounded-3xl border border-dashed border-lime-300/30 bg-lime-400/[0.04] px-5 py-4 transition duration-300 hover:-translate-y-1 hover:bg-lime-400/[0.08]"
-              >
-                <div>
-                  <p className="font-semibold text-lime-200">Dan Model Lainnya</p>
-                  <p className="text-xs text-zinc-400">Katalog lengkap tersedia di dashboard, semua langsung aktif dengan key yang sama.</p>
-                </div>
-                <ArrowRight size={18} className="ml-auto shrink-0 text-lime-300 transition group-hover:translate-x-1" />
-              </Link>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* Pita kuota */}
-        <section id="kuota" className="scroll-mt-28 pt-16 sm:pt-24">
-          <Reveal>
-            <div className="glass relative overflow-hidden rounded-[32px] px-6 py-12 text-center sm:py-16">
-              <div className="aurora left-1/2 top-[-120px] h-72 w-72 -translate-x-1/2 bg-lime-400/20" />
-              <p className="relative text-xs font-bold uppercase tracking-[0.3em] text-lime-300/80">
-                Untuk setiap akun baru
-              </p>
-              <p className="text-gradient-anim relative mt-4 bg-gradient-to-r from-lime-200 via-lime-300 to-emerald-300 bg-clip-text text-6xl font-extrabold tracking-tight text-transparent sm:text-8xl">
-                5.000.000
-              </p>
-              <p className="relative mt-3 text-lg font-medium text-zinc-200">
-                token gratis, diperbarui setiap siklus 7 hari
-              </p>
-              <p className="relative mx-auto mt-2 max-w-md text-sm leading-relaxed text-zinc-400">
-                Bukan trial sekali pakai. Kuotamu terisi penuh lagi setiap siklus,
-                dengan batas pemakaian 300 request per jam, dan progresnya bisa
-                kamu pantau transparan di dashboard.
-              </p>
-              <Link
-                href="/register"
-                className="btn-shine relative mt-8 inline-flex items-center gap-2 rounded-full bg-lime-400 px-7 py-3.5 font-semibold text-zinc-950 shadow-[0_10px_40px_-8px_rgba(163,230,53,0.55)] transition hover:bg-lime-300"
-              >
-                Klaim Kuotamu <ArrowRight size={17} />
-              </Link>
-            </div>
-          </Reveal>
-        </section>
-
         {/* Plan */}
         <section id="plan" className="scroll-mt-28 pt-16 sm:pt-24">
           <Reveal>
@@ -515,6 +445,76 @@ export default function Home() {
               <p className="mt-4 text-sm text-zinc-500">
                 Perbandingan lengkap, pertanyaan umum, dan pembelian ada di halaman harga.
               </p>
+            </div>
+          </Reveal>
+        </section>
+
+        <section id="model" className="scroll-mt-28 pt-16 sm:pt-24">
+          <Reveal className="text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-lime-300/80">Katalog Model</p>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+              Semua model, satu key
+            </h2>
+            <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-zinc-400 sm:text-base">
+              Dari yang tercepat untuk tugas harian sampai yang paling cerdas untuk pekerjaan berat,
+              semua siap dipanggil kapan saja.
+            </p>
+          </Reveal>
+          <div className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {MODELS.map((m, i) => (
+              <Reveal key={m.id} delay={(i % 3) * 100} className="h-full">
+                <div className="glass group flex h-full items-center gap-3.5 rounded-3xl px-5 py-4 transition duration-300 hover:-translate-y-1 hover:border-lime-300/35">
+                  <ProviderIcon modelId={m.id} className="h-11 w-11" />
+                  <div className="min-w-0">
+                    <p className="font-semibold leading-snug">{m.label}</p>
+                    <p className="break-all font-mono text-xs leading-snug text-zinc-500">{m.id}</p>
+                  </div>
+                  <span className="ml-auto shrink-0 rounded-full bg-lime-400/10 px-2.5 py-1 text-[11px] font-medium text-lime-300">
+                    Siap pakai
+                  </span>
+                </div>
+              </Reveal>
+            ))}
+            <Reveal delay={300} className="h-full">
+              <Link
+                href="/register"
+                className="group flex h-full items-center gap-3.5 rounded-3xl border border-dashed border-lime-300/30 bg-lime-400/[0.04] px-5 py-4 transition duration-300 hover:-translate-y-1 hover:bg-lime-400/[0.08]"
+              >
+                <div>
+                  <p className="font-semibold text-lime-200">Dan Model Lainnya</p>
+                  <p className="text-xs text-zinc-400">Katalog lengkap tersedia di dashboard, semua langsung aktif dengan key yang sama.</p>
+                </div>
+                <ArrowRight size={18} className="ml-auto shrink-0 text-lime-300 transition group-hover:translate-x-1" />
+              </Link>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* Pita kuota */}
+        <section id="kuota" className="scroll-mt-28 pt-16 sm:pt-24">
+          <Reveal>
+            <div className="glass relative overflow-hidden rounded-[32px] px-6 py-12 text-center sm:py-16">
+              <div className="aurora left-1/2 top-[-120px] h-72 w-72 -translate-x-1/2 bg-lime-400/20" />
+              <p className="relative text-xs font-bold uppercase tracking-[0.3em] text-lime-300/80">
+                Untuk setiap akun baru
+              </p>
+              <p className="text-gradient-anim relative mt-4 bg-gradient-to-r from-lime-200 via-lime-300 to-emerald-300 bg-clip-text text-6xl font-extrabold tracking-tight text-transparent sm:text-8xl">
+                5.000.000
+              </p>
+              <p className="relative mt-3 text-lg font-medium text-zinc-200">
+                token gratis, diperbarui setiap siklus 7 hari
+              </p>
+              <p className="relative mx-auto mt-2 max-w-md text-sm leading-relaxed text-zinc-400">
+                Bukan trial sekali pakai. Kuotamu terisi penuh lagi setiap siklus,
+                dengan batas pemakaian 300 request per jam, dan progresnya bisa
+                kamu pantau transparan di dashboard.
+              </p>
+              <Link
+                href="/register"
+                className="btn-shine relative mt-8 inline-flex items-center gap-2 rounded-full bg-lime-400 px-7 py-3.5 font-semibold text-zinc-950 shadow-[0_10px_40px_-8px_rgba(163,230,53,0.55)] transition hover:bg-lime-300"
+              >
+                Klaim Kuotamu <ArrowRight size={17} />
+              </Link>
             </div>
           </Reveal>
         </section>
