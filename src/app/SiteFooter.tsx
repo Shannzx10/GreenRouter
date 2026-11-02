@@ -12,9 +12,16 @@ const POPULAR_IDS = [
   "minimax-m2.7",
 ];
 
-export default function SiteFooter() {
+export default function SiteFooter({
+  topMargin = "mt-20 sm:mt-28",
+}: {
+  // Jarak dari konten di atasnya. Halaman yang konten terakhirnya
+  // sudah berjarak besar (mis. harga) memakai varian lebih rapat
+  // supaya ruang kosong sebelum footer tidak berlebihan.
+  topMargin?: string;
+}) {
   return (
-    <footer className="mt-20 border-t border-white/[0.06] pb-8 pt-12 sm:mt-28">
+    <footer className={`${topMargin} border-t border-white/[0.06] pb-8 pt-12`}>
       <div className="grid grid-cols-1 gap-10 sm:grid-cols-3">
         <div>
           <div className="flex items-center gap-2.5">

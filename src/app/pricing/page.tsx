@@ -185,7 +185,7 @@ export default async function PricingPage() {
           </section>
         )}
 
-        <SiteFooter />
+        <SiteFooter topMargin="mt-12 sm:mt-16" />
       </div>
     </main>
   );
