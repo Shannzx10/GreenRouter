@@ -160,32 +160,39 @@ export default async function PricingPage() {
 
         <PricingFaq />
 
-        {!loggedIn && (
-          <section className="mt-20 sm:mt-24">
-            <Reveal>
-              <div className="glass relative overflow-hidden rounded-[2rem] px-6 py-12 text-center sm:px-12">
-                <div className="aurora left-1/2 top-[-120px] h-64 w-[36rem] -translate-x-1/2 bg-lime-400/15" />
-                <div className="relative">
-                  <h2 className="mx-auto max-w-xl text-3xl font-bold tracking-tight sm:text-4xl">
-                    Mulai dari plan Gratis, naik kapan pun kamu siap
-                  </h2>
-                  <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-zinc-400">
-                    Buat akun, ambil key pertamamu, dan panggil model pertamamu
-                    dalam beberapa menit.
-                  </p>
-                  <Link
-                    href="/register"
-                    className="btn-shine mt-8 inline-flex items-center gap-2 rounded-full bg-lime-400 px-7 py-3.5 font-semibold text-zinc-950 transition hover:bg-lime-300"
-                  >
-                    Daftar Gratis Sekarang <ArrowRight size={18} />
-                  </Link>
-                </div>
-              </div>
-            </Reveal>
-          </section>
-        )}
+        {/* CTA penutup, struktur dan jarak sama persis dengan landing */}
+        <section className="pt-16 text-center sm:pt-24">
+          <Reveal>
+            <h2 className="text-4xl font-extrabold tracking-tight sm:text-6xl">
+              Work Fast,
+              <br />
+              <span className="text-gradient-anim bg-gradient-to-r from-lime-300 via-emerald-300 to-teal-300 bg-clip-text text-transparent">
+                Work Smart.
+              </span>
+            </h2>
+            <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-zinc-400">
+              Berhenti mengurus banyak key dan banyak langganan. Satu key GreenRouter,
+              dan kamu kembali fokus berkarya.
+            </p>
+            {loggedIn ? (
+              <Link
+                href="/app"
+                className="btn-shine mt-8 inline-flex items-center gap-2 rounded-full bg-lime-400 px-8 py-4 font-semibold text-zinc-950 shadow-[0_10px_40px_-8px_rgba(163,230,53,0.55)] transition hover:bg-lime-300"
+              >
+                Ke Dashboard <ArrowRight size={18} />
+              </Link>
+            ) : (
+              <Link
+                href="/register"
+                className="btn-shine mt-8 inline-flex items-center gap-2 rounded-full bg-lime-400 px-8 py-4 font-semibold text-zinc-950 shadow-[0_10px_40px_-8px_rgba(163,230,53,0.55)] transition hover:bg-lime-300"
+              >
+                Daftar Gratis Sekarang <ArrowRight size={18} />
+              </Link>
+            )}
+          </Reveal>
+        </section>
 
-        <SiteFooter topMargin="mt-12 sm:mt-16" />
+        <SiteFooter />
       </div>
     </main>
   );
