@@ -3,12 +3,16 @@ import {
   ArrowDown,
   ArrowRight,
   Blocks,
+  Check,
+  Crown,
   Gauge,
   KeyRound,
   ShieldCheck,
   Sparkles,
+  Sprout,
   Zap,
 } from "lucide-react";
+import { PLANS, formatIdNumber } from "@/lib/plans";
 import Reveal from "./Reveal";
 import SiteFooter from "./SiteFooter";
 import CodeShowcase from "./CodeShowcase";
@@ -435,6 +439,82 @@ export default function Home() {
               >
                 Klaim Kuotamu <ArrowRight size={17} />
               </Link>
+            </div>
+          </Reveal>
+        </section>
+
+        {/* Plan */}
+        <section id="plan" className="scroll-mt-28 pt-16 sm:pt-24">
+          <Reveal>
+            <div className="text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.3em] text-lime-300/80">
+                Plan dan Harga
+              </p>
+              <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-5xl">
+                Mulai gratis, naik kapan saja
+              </h2>
+              <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-zinc-400">
+                Semua plan membuka seluruh katalog model dengan key yang sama.
+                Yang membedakan hanya besar kuotanya.
+              </p>
+            </div>
+          </Reveal>
+          <div className="mt-12 grid grid-cols-1 items-stretch gap-6 md:grid-cols-3">
+            {PLANS.map((plan, i) => {
+              const featured = plan.id === "pro";
+              const Icon = plan.id === "pro" ? Zap : plan.id === "max" ? Crown : Sprout;
+              return (
+                <Reveal key={plan.id} delay={i * 90} className="h-full">
+                  <div
+                    className={
+                      "relative flex h-full flex-col rounded-3xl p-7 " +
+                      (featured
+                        ? "border border-lime-300/40 bg-lime-300/[0.06] shadow-[0_20px_60px_-20px_rgba(163,230,53,0.35)] lg:z-10 lg:scale-[1.03]"
+                        : "glass")
+                    }
+                  >
+                    {featured && (
+                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-lime-400 px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-zinc-950">
+                        Paling Populer
+                      </span>
+                    )}
+                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
+                      <Icon size={20} />
+                    </span>
+                    <h3 className="mt-4 text-lg font-bold tracking-tight">{plan.name}</h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">{plan.tagline}</p>
+                    <p className="mt-5 flex items-baseline gap-1.5">
+                      <span className="text-4xl font-extrabold tracking-tight">
+                        {plan.priceUsd > 0 ? `$${plan.priceUsd}` : "Rp0"}
+                      </span>
+                      <span className="text-sm text-zinc-500">/ bulan</span>
+                    </p>
+                    <ul className="mt-5 flex-1 space-y-2.5 text-sm text-zinc-300">
+                      <li className="flex gap-2.5">
+                        <Check size={16} className="mt-0.5 shrink-0 text-lime-300" />
+                        {formatIdNumber(plan.tokenLimit)} token per siklus 7 hari
+                      </li>
+                      <li className="flex gap-2.5">
+                        <Check size={16} className="mt-0.5 shrink-0 text-lime-300" />
+                        {formatIdNumber(plan.requestLimitHourly)} request per jam
+                      </li>
+                    </ul>
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
+          <Reveal delay={120}>
+            <div className="mt-10 text-center">
+              <Link
+                href="/pricing"
+                className="btn-shine inline-flex items-center gap-2 rounded-full bg-lime-400 px-8 py-4 font-semibold text-zinc-950 shadow-[0_10px_40px_-8px_rgba(163,230,53,0.55)] transition hover:bg-lime-300"
+              >
+                Lihat Semua Plan <ArrowRight size={18} />
+              </Link>
+              <p className="mt-4 text-sm text-zinc-500">
+                Perbandingan lengkap, pertanyaan umum, dan pembelian ada di halaman harga.
+              </p>
             </div>
           </Reveal>
         </section>
