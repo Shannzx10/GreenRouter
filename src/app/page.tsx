@@ -159,6 +159,7 @@ export default function Home() {
             <a href="#cara-mulai" className="transition hover:text-lime-200">Cara Mulai</a>
             <a href="#model" className="transition hover:text-lime-200">Model</a>
             <a href="#kuota" className="transition hover:text-lime-200">Kuota</a>
+            <Link href="/pricing" className="transition hover:text-lime-200">Harga</Link>
             <Link href="/app/docs" className="transition hover:text-lime-200">Dokumentasi</Link>
           </nav>
           <div className="flex items-center gap-2">
@@ -487,6 +488,7 @@ export default function Home() {
                 <li><Link href="/register" className="transition hover:text-lime-200">Daftar Gratis</Link></li>
                 <li><Link href="/login" className="transition hover:text-lime-200">Masuk</Link></li>
                 <li><Link href="/app/docs" className="transition hover:text-lime-200">Dokumentasi</Link></li>
+                <li><Link href="/pricing" className="transition hover:text-lime-200">Harga</Link></li>
                 <li><a href="#model" className="transition hover:text-lime-200">Katalog Model</a></li>
                 <li><a href="#kuota" className="transition hover:text-lime-200">Kuota Akun Baru</a></li>
               </ul>
