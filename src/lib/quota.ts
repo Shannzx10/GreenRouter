@@ -1,12 +1,13 @@
 import { prisma } from "@/lib/db";
+import {
+  CYCLE_DAYS,
+  DEFAULT_REQUEST_LIMIT_HOURLY,
+  DEFAULT_TOKEN_LIMIT,
+} from "@/lib/limits";
 
-// Kuota token per SIKLUS: jendela 7 hari berjangkar pada tanggal akun dibuat
-// (createdAt). Siklus bergulir otomatis — begitu jendela lewat, pemakaian
-// dihitung dari nol lagi untuk jendela berikutnya. Tanpa cron/penjadwal:
-// jendela selalu dihitung dari waktu saat ini.
-export const DEFAULT_TOKEN_LIMIT = 5_000_000;
-export const DEFAULT_REQUEST_LIMIT_HOURLY = 300;
-export const CYCLE_DAYS = 7;
+// Konstanta batas hidup di lib/limits (modul murni data) dan
+// diekspor ulang dari sini agar impor lama tetap bekerja.
+export { CYCLE_DAYS, DEFAULT_REQUEST_LIMIT_HOURLY, DEFAULT_TOKEN_LIMIT };
 
 const HOUR_MS = 3600 * 1000;
 

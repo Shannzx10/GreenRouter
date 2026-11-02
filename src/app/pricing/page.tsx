@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Check } from "lucide-react";
-import { PLANS, formatIdNumber, type Plan } from "@/lib/plans";
+import { connection } from "next/server";
+import { ArrowLeft } from "lucide-react";
+import { prisma } from "@/lib/db";
+import { getSession } from "@/lib/session";
+import PricingGrid, { type ViewerPlan } from "./PricingGrid";
 
 export const metadata: Metadata = {
   title: "Harga · GreenRouter",
@@ -9,72 +12,31 @@ export const metadata: Metadata = {
     "Plan GreenRouter: mulai gratis dengan kuota token per siklus, naik ke Pro dan Max untuk kuota yang jauh lebih besar. Satu key untuk semua model AI.",
 };
 
-function PlanCard({ plan, featured }: { plan: Plan; featured: boolean }) {
-  const paid = plan.priceUsd > 0;
-  return (
-    <div
-      className={
-        "relative flex flex-col rounded-3xl p-7 " +
-        (featured
-          ? "border border-lime-300/40 bg-lime-300/[0.06] shadow-[0_20px_60px_-20px_rgba(163,230,53,0.35)]"
-          : "glass")
-      }
-    >
-      {featured && (
-        <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-lime-400 px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-zinc-950">
-          Paling Populer
-        </span>
-      )}
-      <h2 className="text-lg font-bold tracking-tight">{plan.name}</h2>
-      <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">{plan.tagline}</p>
-      <p className="mt-6 flex items-baseline gap-1.5">
-        <span className="text-4xl font-extrabold tracking-tight">
-          {paid ? `$${plan.priceUsd}` : "Rp0"}
-        </span>
-        <span className="text-sm text-zinc-500">/ bulan</span>
-      </p>
-      <p className="mt-1 h-5 text-[13px] text-zinc-500">
-        {plan.priceIdrNote ? `${plan.priceIdrNote} per bulan` : "Tanpa kartu, langsung pakai"}
-      </p>
-      <ul className="mt-6 flex-1 space-y-3 text-sm text-zinc-300">
-        <li className="flex gap-2.5">
-          <Check size={16} className="mt-0.5 shrink-0 text-lime-300" />
-          {formatIdNumber(plan.tokenLimit)} token per siklus 7 hari
-        </li>
-        <li className="flex gap-2.5">
-          <Check size={16} className="mt-0.5 shrink-0 text-lime-300" />
-          {formatIdNumber(plan.requestLimitHourly)} request per jam
-        </li>
-        <li className="flex gap-2.5">
-          <Check size={16} className="mt-0.5 shrink-0 text-lime-300" />
-          Akses ke seluruh katalog model
-        </li>
-        <li className="flex gap-2.5">
-          <Check size={16} className="mt-0.5 shrink-0 text-lime-300" />
-          Dashboard, log pemakaian, dan dokumentasi
-        </li>
-      </ul>
-      <Link
-        href="/register"
-        className={
-          "mt-8 inline-flex items-center justify-center rounded-full px-6 py-3 font-semibold transition " +
-          (featured
-            ? "btn-shine bg-lime-400 text-zinc-950 hover:bg-lime-300"
-            : "glass text-zinc-100 hover:border-lime-300/40 hover:text-lime-200")
-        }
-      >
-        {paid ? "Daftar dan Berlangganan" : "Daftar Gratis"}
-      </Link>
-      {paid && (
-        <p className="mt-3 text-center text-xs leading-relaxed text-zinc-500">
-          Plan diaktifkan dari dashboard setelah masuk.
-        </p>
-      )}
-    </div>
-  );
-}
+// Halaman ini membaca sesi, jadi tidak boleh di-prerender statis.
+export const instant = false;
 
-export default function PricingPage() {
+// Halaman harga melayani dua penonton sekaligus: pengunjung publik
+// (termasuk peninjau Paddle) melihat harga dan tombol pendaftaran,
+// sedangkan user yang sudah masuk membeli dan mengganti plan langsung
+// di sini. Keadaan penonton dihitung server dari sesi; grid kartunya
+// sendiri komponen klien (PricingGrid).
+export default async function PricingPage() {
+  await connection();
+  const session = await getSession();
+  let viewerPlan: ViewerPlan = "visitor";
+  let userId: string | null = null;
+  let email: string | null = null;
+  if (session) {
+    const user = await prisma.user.findUnique({ where: { id: session.uid } });
+    if (user) {
+      viewerPlan = (["gratis", "pro", "max"].includes(user.plan)
+        ? user.plan
+        : "gratis") as ViewerPlan;
+      userId = user.id;
+      email = user.email;
+    }
+  }
+
   return (
     <main className="relative min-h-screen flex-1 overflow-hidden bg-[#060806] text-zinc-100">
       <div className="bg-dots absolute inset-0" />
@@ -91,10 +53,10 @@ export default function PricingPage() {
             </span>
           </Link>
           <Link
-            href="/"
+            href={viewerPlan === "visitor" ? "/" : "/app/profile"}
             className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-400 transition hover:text-lime-200"
           >
-            <ArrowLeft size={15} /> Beranda
+            <ArrowLeft size={15} /> {viewerPlan === "visitor" ? "Beranda" : "Profil"}
           </Link>
         </div>
 
@@ -109,11 +71,13 @@ export default function PricingPage() {
           </p>
         </div>
 
-        <div className="mt-14 grid grid-cols-1 items-stretch gap-6 md:grid-cols-3">
-          {PLANS.map((plan) => (
-            <PlanCard key={plan.id} plan={plan} featured={plan.id === "pro"} />
-          ))}
-        </div>
+        <PricingGrid
+          viewerPlan={viewerPlan}
+          userId={userId}
+          email={email}
+          pricePro={process.env.PADDLE_PRICE_PRO ?? null}
+          priceMax={process.env.PADDLE_PRICE_MAX ?? null}
+        />
 
         <div className="mx-auto mt-12 max-w-2xl space-y-2 text-center text-[13px] leading-relaxed text-zinc-500">
           <p>

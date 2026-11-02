@@ -1,4 +1,4 @@
-import { DEFAULT_REQUEST_LIMIT_HOURLY, DEFAULT_TOKEN_LIMIT } from "@/lib/quota";
+import { DEFAULT_REQUEST_LIMIT_HOURLY, DEFAULT_TOKEN_LIMIT } from "@/lib/limits";
 
 // Definisi plan GreenRouter, satu-satunya sumber angka untuk halaman
 // harga publik dan (kelak) pemetaan langganan Paddle ke limit akun.

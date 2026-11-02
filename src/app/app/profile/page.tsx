@@ -1,11 +1,12 @@
+import Link from "next/link";
 import { connection } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { CYCLE_DAYS, cycleTokensUsed, fmtDateShort, fmtResetIn, hourlyRequestsUsed } from "@/lib/quota";
-import { CreditCard, Fingerprint, Gauge } from "lucide-react";
+import { ArrowUpRight, CreditCard, Fingerprint, Gauge } from "lucide-react";
 import ProfileForms from "./ProfileForms";
 import LogoutSection from "./LogoutSection";
-import PlanActions from "./PlanActions";
+import PortalButton from "./PortalButton";
 import { planById, formatIdNumber } from "@/lib/plans";
 
 export default async function ProfilePage() {
@@ -199,13 +200,22 @@ export default async function ProfilePage() {
                     : "Langgananmu aktif dan diperpanjang otomatis setiap bulan. Ubah metode pembayaran, unduh invoice, atau batalkan dari portal pelanggan."}
           </p>
         )}
-        <PlanActions
-          userId={user.id}
-          email={user.email}
-          plan={user.plan}
-          pricePro={process.env.PADDLE_PRICE_PRO ?? null}
-          priceMax={process.env.PADDLE_PRICE_MAX ?? null}
-        />
+        <div className="mt-5 flex flex-wrap items-start gap-3">
+          {user.plan !== "max" && (
+            <Link
+              href="/pricing"
+              className="btn-shine inline-flex items-center justify-center gap-2 rounded-full bg-lime-400 px-6 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-lime-300"
+            >
+              Upgrade Plan <ArrowUpRight size={15} />
+            </Link>
+          )}
+          {user.plan !== "gratis" && <PortalButton />}
+        </div>
+        <p className="mt-3 text-xs leading-relaxed text-zinc-500">
+          {user.plan === "gratis"
+            ? "Perbandingan plan dan pembelian ada di halaman harga."
+            : "Pembayaran aman melalui Paddle. Langganan diperpanjang otomatis dan dapat dibatalkan kapan saja dari portal pelanggan."}
+        </p>
       </div>
 
       <div className="glass mt-6 rounded-3xl p-6">
