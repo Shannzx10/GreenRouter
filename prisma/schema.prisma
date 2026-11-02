@@ -26,9 +26,23 @@ model User {
   // Batas request per jam (jendela bergeser 60 menit, dihitung per akun).
   // NULL = tanpa batas, sama seperti tokenLimit.
   requestLimitHourly Int?
+  // Suspend oleh admin: sejak kapan + alasan opsional. Selama terisi, akun
+  // terkunci ke halaman /suspended; lewat 3 hari tanpa dibatalkan, akun
+  // dihapus permanen dan emailnya masuk Blacklist (lihat lib/suspension).
+  suspendedAt       DateTime?
+  suspendReason     String?
   apiKeys           ApiKey[]
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+}
+
+// Email yang dilarang mendaftar lagi: hasil purge akun tersuspend yang
+// kedaluwarsa. Dicek pada jalur pembuatan akun OAuth.
+model Blacklist {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  reason    String?
+  createdAt DateTime @default(now())
 }
 
 model ApiKey {

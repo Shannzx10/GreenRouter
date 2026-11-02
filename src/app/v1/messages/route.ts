@@ -11,6 +11,9 @@ import { cycleTokensUsed, fmtDateShort, hourlyRequestsUsed } from "@/lib/quota";
 // yang berbeda hanya amplop error dan format yang diteruskan ke hulu.
 export async function POST(req: Request) {
   const client = await authenticateClient(req);
+  if (client === "SUSPENDED") {
+    return anthropicError(403, "Akun pemilik key ini sedang disuspend. Semua akses API dihentikan sementara.", "permission_error");
+  }
   if (!client) {
     return anthropicError(401, "API key tidak valid", "authentication_error");
   }

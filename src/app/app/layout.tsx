@@ -12,6 +12,7 @@ export default async function UserLayout({
 }) {
   const session = await getSession();
   if (!session) redirect("/login");
+  if (session.suspended) redirect("/suspended");
   return (
     <div className="min-h-screen lg:flex">
       <UserSidebar email={session.email} role={session.role} />

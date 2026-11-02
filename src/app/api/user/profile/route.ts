@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { getActiveSession } from "@/lib/session";
 
 // User memperbarui data dirinya sendiri (saat ini: nama).
 export async function PATCH(req: Request) {
-  const s = await getSession();
+  const s = await getActiveSession();
   if (!s) return Response.json({ error: "Unauthorized" }, { status: 401 });
   let body: { name?: string };
   try {

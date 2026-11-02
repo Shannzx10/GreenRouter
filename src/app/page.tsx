@@ -11,13 +11,17 @@ import {
 } from "lucide-react";
 import Reveal from "./Reveal";
 import CodeShowcase from "./CodeShowcase";
+import HubDiagram from "./HubDiagram";
 import ProviderIcon from "./ProviderIcon";
 import SmoothAnchors from "./SmoothAnchors";
 
 const MODELS = [
-  { id: "glm-5.3-flash-dhl", label: "GLM 5.3 Flash DHL" },
+  { id: "glm-5.3-flash", label: "GLM 5.3 Flash" },
   { id: "minimax-m2.7", label: "MiniMax M2.7" },
   { id: "deepseek-v4-flash-0731", label: "DeepSeek V4 Flash 0731" },
+  { id: "deepseek-v4.1-flash", label: "DeepSeek V4.1 Flash" },
+  { id: "deepseek-v4-flash", label: "DeepSeek V4 Flash" },
+  { id: "mimo-v2.5", label: "MiMo V2.5" },
   { id: "mimo-v2.6-flash", label: "MiMo V2.6 Flash" },
   { id: "minicpm-v-4.7-35b-a3b", label: "MiniCPM-V 4.7 35B" },
   { id: "qwen3.8-27b", label: "Qwen3.8 27B" },
@@ -45,7 +49,7 @@ const FEATURES = [
   {
     icon: Gauge,
     title: "Kuota Jelas & Adil",
-    body: "Setiap akun baru membawa 5.000.000 token per siklus 7 hari, dengan batas 100 request per jam. Progres pemakaian selalu transparan di dashboard.",
+    body: "Setiap akun baru membawa 5.000.000 token per siklus 7 hari, dengan batas 300 request per jam. Progres pemakaian selalu transparan di dashboard.",
   },
   {
     icon: ShieldCheck,
@@ -99,6 +103,7 @@ const PROVIDERS = [
   { name: "MiniMax", kind: "minimax" },
   { name: "MiMo", kind: "mimo" },
   { name: "MiniCPM", kind: "minicpm" },
+  { name: "Qwen", kind: "qwen" },
   { name: "Kimi", kind: "kimi" },
   { name: "Mercury", kind: "mercury" },
   { name: "Atria", kind: "atria" },
@@ -258,6 +263,25 @@ export default function Home() {
       </section>
 
       <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
+        {/* Diagram hub */}
+        <section className="pt-16 sm:pt-24">
+          <Reveal className="text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-lime-300/80">Cara Kerja</p>
+            <h2 className="mx-auto mt-3 max-w-2xl text-3xl font-extrabold tracking-tight sm:text-4xl">
+              Dari model terbaik, langsung ke tool favoritmu
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-zinc-400 sm:text-base">
+              Model AI kelas atas dikumpulkan GreenRouter menjadi satu key, lalu diteruskan ke
+              aplikasi dan agen coding yang kamu pakai setiap hari.
+            </p>
+          </Reveal>
+          <Reveal delay={150}>
+            <div className="mt-10">
+              <HubDiagram />
+            </div>
+          </Reveal>
+        </section>
+
         {/* Fitur */}
         <section id="fitur" className="scroll-mt-28 pt-16 sm:pt-24">
           <Reveal className="text-center">
@@ -403,7 +427,7 @@ export default function Home() {
               </p>
               <p className="relative mx-auto mt-2 max-w-md text-sm leading-relaxed text-zinc-400">
                 Bukan trial sekali pakai. Kuotamu terisi penuh lagi setiap siklus,
-                dengan batas pemakaian 100 request per jam, dan progresnya bisa
+                dengan batas pemakaian 300 request per jam, dan progresnya bisa
                 kamu pantau transparan di dashboard.
               </p>
               <Link
@@ -478,6 +502,11 @@ export default function Home() {
           </div>
           <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/[0.05] pt-6 text-xs text-zinc-500 sm:flex-row">
             <p>© 2026 GreenRouter. Seluruh hak cipta dilindungi.</p>
+            <nav className="flex items-center gap-5">
+              <Link href="/terms" className="transition hover:text-lime-200">Syarat Layanan</Link>
+              <Link href="/privacy" className="transition hover:text-lime-200">Privasi</Link>
+              <Link href="/refunds" className="transition hover:text-lime-200">Pengembalian</Link>
+            </nav>
             <p className="font-medium tracking-wide text-zinc-400">Work Fast, Work Smart.</p>
           </div>
         </footer>

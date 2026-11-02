@@ -10,6 +10,9 @@ import { cycleTokensUsed, fmtDateShort, hourlyRequestsUsed } from "@/lib/quota";
 // POST /v1/chat/completions — OpenAI-compatible, dengan failover antar key/provider.
 export async function POST(req: Request) {
   const client = await authenticateClient(req);
+  if (client === "SUSPENDED") {
+    return openAiError(403, "Akun pemilik key ini sedang disuspend. Semua akses API dihentikan sementara.", "invalid_request_error", "account_suspended");
+  }
   if (!client) {
     return openAiError(401, "API key tidak valid", "invalid_request_error", "invalid_api_key");
   }

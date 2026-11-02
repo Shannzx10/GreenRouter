@@ -70,12 +70,7 @@ export async function POST(req: Request) {
     recordFailure(throttleKey);
     return Response.json({ error: "Email atau password salah" }, { status: 401 });
   }
-  if (!user.isActive) {
-    return Response.json(
-      { error: "Akun dinonaktifkan. Hubungi admin." },
-      { status: 403 },
-    );
-  }
+  // Akun tersuspend BOLEH login: sesinya akan diarahkan ke /suspended.
   failures.delete(throttleKey);
   const token = signSession({ uid: user.id, email: user.email, role: user.role });
   const store = await cookies();

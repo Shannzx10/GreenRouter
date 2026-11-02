@@ -4,10 +4,20 @@ import Reveal from "../../../Reveal";
 
 export default async function LogsPage() {
   await connection();
+  // Kolom error mentah dari hulu sengaja TIDAK diambil: halaman ini hanya
+  // menampilkan pil status, sama seperti halaman log user.
   const logs = await prisma.usageLog.findMany({
     orderBy: { createdAt: "desc" },
     take: 100,
-    include: {
+    select: {
+      id: true,
+      createdAt: true,
+      modelId: true,
+      promptTokens: true,
+      completionTokens: true,
+      totalTokens: true,
+      latencyMs: true,
+      status: true,
       provider: { select: { name: true } },
       apiKey: { select: { prefix: true, name: true } },
     },
@@ -69,7 +79,6 @@ export default async function LogsPage() {
                     >
                       {l.status}
                     </span>
-                    {l.error && <p className="mt-1 max-w-56 text-xs break-words text-red-300/80">{l.error}</p>}
                   </td>
                 </tr>
               ))}

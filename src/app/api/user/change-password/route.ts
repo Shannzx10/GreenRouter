@@ -1,10 +1,10 @@
 import { prisma } from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { getActiveSession } from "@/lib/session";
 import { hashPassword, verifyPassword } from "@/lib/crypto";
 
 // Ganti password sendiri: wajib tahu password saat ini.
 export async function POST(req: Request) {
-  const s = await getSession();
+  const s = await getActiveSession();
   if (!s) return Response.json({ error: "Unauthorized" }, { status: 401 });
   let body: { currentPassword?: string; newPassword?: string };
   try {

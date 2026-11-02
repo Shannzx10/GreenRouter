@@ -440,7 +440,7 @@ for chunk in stream:
           </p>
           <p>
             Selain kuota token, akunmu juga dibatasi{" "}
-            <span className="font-semibold text-zinc-100">100 request per jam</span>. Batas ini
+            <span className="font-semibold text-zinc-100">300 request per jam</span>. Batas ini
             dihitung dengan jendela bergeser 60 menit, jadi kapasitasmu pulih bertahap mengikuti
             keluarnya request lama dari jendela, bukan menunggu jam berikutnya.
           </p>
@@ -499,26 +499,7 @@ for chunk in stream:
               </tbody>
             </table>
           </div>
-          <CodeBlock
-            title="contoh · kuota habis (format OpenAI)"
-            code={`{
-  "error": {
-    "message": "Kuota token siklus ini sudah habis. Kuota diperbarui otomatis pada tanggal reset siklusmu.",
-    "type": "rate_limit_error",
-    "code": "quota_exceeded"
-  }
-}`}
-          />
-          <CodeBlock
-            title="contoh · key salah (format Anthropic)"
-            code={`{
-  "type": "error",
-  "error": {
-    "type": "authentication_error",
-    "message": "API key tidak valid."
-  }
-}`}
-          />
+
         </Section>
 
         <Section id="faq" title="FAQ">

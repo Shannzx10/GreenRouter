@@ -1,10 +1,10 @@
 import { prisma } from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { getActiveSession } from "@/lib/session";
 import { generateClientKey } from "@/lib/crypto";
 
 // Key klien MILIK user yang sedang login saja.
 export async function GET() {
-  const s = await getSession();
+  const s = await getActiveSession();
   if (!s) return Response.json({ error: "Unauthorized" }, { status: 401 });
   const keys = await prisma.apiKey.findMany({
     where: { userId: s.uid },
@@ -15,7 +15,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const s = await getSession();
+  const s = await getActiveSession();
   if (!s) return Response.json({ error: "Unauthorized" }, { status: 401 });
   let body: { name?: string };
   try {

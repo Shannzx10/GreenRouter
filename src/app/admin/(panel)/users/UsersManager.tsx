@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Pencil, Trash2, X } from "lucide-react";
+import { Ban, Pencil, Trash2, Undo2, X } from "lucide-react";
 import ConfirmModal from "@/app/ConfirmModal";
 import Reveal from "@/app/Reveal";
 
@@ -13,7 +13,8 @@ type UserRow = {
   image: string | null;
   authProviders: string;
   role: string;
-  isActive: boolean;
+  suspendedAt: string | null;
+  suspendReason: string | null;
   tokenLimit: number | null;
   requestLimitHourly: number | null;
   keyCount: number;
@@ -37,6 +38,47 @@ export default function UsersManager({ users }: { users: UserRow[] }) {
   const [editing, setEditing] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<UserRow | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [suspendTarget, setSuspendTarget] = useState<UserRow | null>(null);
+  const [suspendReason, setSuspendReason] = useState("");
+  const [suspending, setSuspending] = useState(false);
+  const [unsuspendTarget, setUnsuspendTarget] = useState<UserRow | null>(null);
+  const [unsuspending, setUnsuspending] = useState(false);
+
+  async function doSuspend() {
+    if (!suspendTarget) return;
+    setSuspending(true);
+    setErr("");
+    try {
+      await call(`/api/admin/users/${suspendTarget.id}`, "PATCH", {
+        suspended: true,
+        suspendReason: suspendReason.trim() || undefined,
+      });
+      setSuspendTarget(null);
+      setSuspendReason("");
+      router.refresh();
+    } catch (e2) {
+      setErr(e2 instanceof Error ? e2.message : "Gagal mensuspend user");
+      setSuspendTarget(null);
+    } finally {
+      setSuspending(false);
+    }
+  }
+
+  async function doUnsuspend() {
+    if (!unsuspendTarget) return;
+    setUnsuspending(true);
+    setErr("");
+    try {
+      await call(`/api/admin/users/${unsuspendTarget.id}`, "PATCH", { suspended: false });
+      setUnsuspendTarget(null);
+      router.refresh();
+    } catch (e2) {
+      setErr(e2 instanceof Error ? e2.message : "Gagal membatalkan suspend");
+      setUnsuspendTarget(null);
+    } finally {
+      setUnsuspending(false);
+    }
+  }
 
   async function doDeleteUser() {
     if (!deleteTarget) return;
@@ -105,9 +147,11 @@ export default function UsersManager({ users }: { users: UserRow[] }) {
         </p>
         <h1 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Pengguna</h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-400 sm:text-base">
-          Kelola akun user yang mendaftar lewat Google/GitHub: data diri, role, status aktif, dan
+          Kelola akun user yang mendaftar lewat Google/GitHub: data diri, role, suspend, dan
           limit token per siklus 7 hari. Akun baru hanya lahir dari pendaftaran OAuth, tidak ada pembuatan
-          user manual. Menghapus user juga menghapus semua key miliknya.
+          user manual. User yang disuspend terkunci ke halaman suspend dan key API-nya berhenti bekerja;
+          bila suspend tidak dibatalkan dalam 3 hari, akun terhapus permanen dan emailnya masuk daftar
+          hitam. Menghapus user juga menghapus semua key miliknya.
         </p>
       </Reveal>
 
@@ -157,16 +201,19 @@ export default function UsersManager({ users }: { users: UserRow[] }) {
                   </span>
                   <button
                     disabled={u.isSelf}
-                    onClick={async () => {
-                      await call(`/api/admin/users/${u.id}`, "PATCH", { isActive: !u.isActive });
-                      router.refresh();
-                    }}
+                    onClick={() => (u.suspendedAt ? setUnsuspendTarget(u) : setSuspendTarget(u))}
                     className={`rounded-full px-2.5 py-0.5 text-xs font-medium disabled:opacity-40 ${
-                      u.isActive ? "bg-lime-400/10 text-lime-300" : "bg-red-500/15 text-red-300"
+                      u.suspendedAt ? "bg-red-500/15 text-red-300" : "bg-lime-400/10 text-lime-300"
                     }`}
-                    title={u.isSelf ? "Akun sendiri tidak bisa dinonaktifkan" : "Aktif/nonaktifkan"}
+                    title={
+                      u.isSelf
+                        ? "Akun sendiri tidak bisa disuspend"
+                        : u.suspendedAt
+                          ? "Batalkan suspend"
+                          : "Suspend akun ini"
+                    }
                   >
-                    {u.isActive ? "AKTIF" : "NONAKTIF"}
+                    {u.suspendedAt ? "DISUSPEND" : "AKTIF"}
                   </button>
                   <button
                     onClick={() => (isEditing ? setEditing(null) : startEdit(u))}
@@ -204,6 +251,15 @@ export default function UsersManager({ users }: { users: UserRow[] }) {
                 </span>
                 <span>Bergabung {new Date(u.createdAt).toLocaleDateString("id-ID", { dateStyle: "medium" })}</span>
               </div>
+              {u.suspendedAt && (
+                <p className="mt-2.5 rounded-xl border border-red-400/25 bg-red-500/10 px-3.5 py-2.5 text-sm leading-relaxed text-red-200">
+                  Disuspend {new Date(u.suspendedAt).toLocaleDateString("id-ID", { dateStyle: "medium" })}
+                  {u.suspendReason ? <> · alasan: {u.suspendReason}</> : null}
+                  {" "}· akun terhapus permanen pada{" "}
+                  {new Date(new Date(u.suspendedAt).getTime() + 3 * 24 * 3600 * 1000).toLocaleDateString("id-ID", { dateStyle: "medium" })}{" "}
+                  bila tidak dibatalkan.
+                </p>
+              )}
               {pct !== null && (
                 <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
                   <div
@@ -233,6 +289,70 @@ export default function UsersManager({ users }: { users: UserRow[] }) {
           );
         })}
       </div>
+
+      {suspendTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-4 backdrop-blur-sm sm:items-center"
+          onClick={() => !suspending && setSuspendTarget(null)}
+        >
+          <div className="glass w-full max-w-sm rounded-3xl p-5" onClick={(e) => e.stopPropagation()}>
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-500/10 text-red-300 ring-1 ring-red-400/25">
+              <Ban size={19} />
+            </span>
+            <h3 className="mt-4 text-lg font-bold">Suspend user ini?</h3>
+            <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">
+              <span className="font-medium text-zinc-200">{suspendTarget.email}</span> akan terkunci ke
+              halaman suspend dan semua key API-nya berhenti bekerja. Bila kamu tidak membatalkannya
+              dalam <span className="font-medium text-zinc-200">3 hari</span>, akunnya terhapus permanen
+              dan email ini masuk daftar hitam.
+            </p>
+            <textarea
+              className={`${inputCls} mt-4 resize-none`}
+              rows={2}
+              maxLength={300}
+              placeholder="Alasan suspend (opsional, tampil ke user)"
+              value={suspendReason}
+              onChange={(e) => setSuspendReason(e.target.value)}
+            />
+            <div className="mt-5 flex gap-2.5">
+              <button
+                type="button"
+                disabled={suspending}
+                onClick={() => setSuspendTarget(null)}
+                className="flex-1 rounded-full border border-white/10 px-4 py-2.5 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.04] disabled:opacity-50"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                disabled={suspending}
+                onClick={doSuspend}
+                className="flex-1 rounded-full bg-red-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-400 disabled:opacity-50"
+              >
+                {suspending ? "Memproses..." : "Ya, Suspend"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {unsuspendTarget && (
+        <ConfirmModal
+          icon={Undo2}
+          tone="lime"
+          title="Batalkan suspend?"
+          description={
+            <>
+              Suspend <span className="font-medium text-zinc-200">{unsuspendTarget.email}</span> akan
+              dicabut. Akunnya kembali aktif penuh dan hitungan 3 hari menuju penghapusan dibatalkan.
+            </>
+          }
+          confirmLabel="Ya, Batalkan Suspend"
+          busy={unsuspending}
+          onCancel={() => setUnsuspendTarget(null)}
+          onConfirm={doUnsuspend}
+        />
+      )}
 
       {deleteTarget && (
         <ConfirmModal

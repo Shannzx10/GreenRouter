@@ -40,7 +40,7 @@ const TOOLS: Tool[] = [
       },
       "models": {
         "deepseek-v4-flash-0731": {},
-        "glm-5.3-flash-dhl": {}
+        "glm-5.3-flash": {}
       }
     }
   }

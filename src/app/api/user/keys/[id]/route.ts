@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { getActiveSession } from "@/lib/session";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 // Semua operasi di sini dibatasi kepemilikan: key user lain = 404.
 export async function PATCH(req: Request, { params }: Ctx) {
-  const s = await getSession();
+  const s = await getActiveSession();
   if (!s) return Response.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
   const own = await prisma.apiKey.findFirst({ where: { id, userId: s.uid } });
@@ -28,7 +28,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
 }
 
 export async function DELETE(_req: Request, { params }: Ctx) {
-  const s = await getSession();
+  const s = await getActiveSession();
   if (!s) return Response.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
   const own = await prisma.apiKey.findFirst({ where: { id, userId: s.uid } });

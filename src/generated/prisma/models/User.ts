@@ -47,6 +47,8 @@ export type UserMinAggregateOutputType = {
   isActive: boolean | null
   tokenLimit: number | null
   requestLimitHourly: number | null
+  suspendedAt: Date | null
+  suspendReason: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -62,6 +64,8 @@ export type UserMaxAggregateOutputType = {
   isActive: boolean | null
   tokenLimit: number | null
   requestLimitHourly: number | null
+  suspendedAt: Date | null
+  suspendReason: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -77,6 +81,8 @@ export type UserCountAggregateOutputType = {
   isActive: number
   tokenLimit: number
   requestLimitHourly: number
+  suspendedAt: number
+  suspendReason: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -104,6 +110,8 @@ export type UserMinAggregateInputType = {
   isActive?: true
   tokenLimit?: true
   requestLimitHourly?: true
+  suspendedAt?: true
+  suspendReason?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -119,6 +127,8 @@ export type UserMaxAggregateInputType = {
   isActive?: true
   tokenLimit?: true
   requestLimitHourly?: true
+  suspendedAt?: true
+  suspendReason?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -134,6 +144,8 @@ export type UserCountAggregateInputType = {
   isActive?: true
   tokenLimit?: true
   requestLimitHourly?: true
+  suspendedAt?: true
+  suspendReason?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -236,6 +248,8 @@ export type UserGroupByOutputType = {
   isActive: boolean
   tokenLimit: number | null
   requestLimitHourly: number | null
+  suspendedAt: Date | null
+  suspendReason: string | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -274,6 +288,8 @@ export type UserWhereInput = {
   isActive?: Prisma.BoolFilter<"User"> | boolean
   tokenLimit?: Prisma.IntNullableFilter<"User"> | number | null
   requestLimitHourly?: Prisma.IntNullableFilter<"User"> | number | null
+  suspendedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  suspendReason?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   apiKeys?: Prisma.ApiKeyListRelationFilter
@@ -290,6 +306,8 @@ export type UserOrderByWithRelationInput = {
   isActive?: Prisma.SortOrder
   tokenLimit?: Prisma.SortOrderInput | Prisma.SortOrder
   requestLimitHourly?: Prisma.SortOrderInput | Prisma.SortOrder
+  suspendedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  suspendReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   apiKeys?: Prisma.ApiKeyOrderByRelationAggregateInput
@@ -309,6 +327,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   isActive?: Prisma.BoolFilter<"User"> | boolean
   tokenLimit?: Prisma.IntNullableFilter<"User"> | number | null
   requestLimitHourly?: Prisma.IntNullableFilter<"User"> | number | null
+  suspendedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  suspendReason?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   apiKeys?: Prisma.ApiKeyListRelationFilter
@@ -325,6 +345,8 @@ export type UserOrderByWithAggregationInput = {
   isActive?: Prisma.SortOrder
   tokenLimit?: Prisma.SortOrderInput | Prisma.SortOrder
   requestLimitHourly?: Prisma.SortOrderInput | Prisma.SortOrder
+  suspendedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  suspendReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -348,6 +370,8 @@ export type UserScalarWhereWithAggregatesInput = {
   isActive?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   tokenLimit?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   requestLimitHourly?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
+  suspendedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  suspendReason?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -363,6 +387,8 @@ export type UserCreateInput = {
   isActive?: boolean
   tokenLimit?: number | null
   requestLimitHourly?: number | null
+  suspendedAt?: Date | string | null
+  suspendReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
@@ -379,6 +405,8 @@ export type UserUncheckedCreateInput = {
   isActive?: boolean
   tokenLimit?: number | null
   requestLimitHourly?: number | null
+  suspendedAt?: Date | string | null
+  suspendReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
@@ -395,6 +423,8 @@ export type UserUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   requestLimitHourly?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
@@ -411,6 +441,8 @@ export type UserUncheckedUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   requestLimitHourly?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
@@ -427,6 +459,8 @@ export type UserCreateManyInput = {
   isActive?: boolean
   tokenLimit?: number | null
   requestLimitHourly?: number | null
+  suspendedAt?: Date | string | null
+  suspendReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -442,6 +476,8 @@ export type UserUpdateManyMutationInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   requestLimitHourly?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -457,6 +493,8 @@ export type UserUncheckedUpdateManyInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   requestLimitHourly?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -472,6 +510,8 @@ export type UserCountOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   tokenLimit?: Prisma.SortOrder
   requestLimitHourly?: Prisma.SortOrder
+  suspendedAt?: Prisma.SortOrder
+  suspendReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -492,6 +532,8 @@ export type UserMaxOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   tokenLimit?: Prisma.SortOrder
   requestLimitHourly?: Prisma.SortOrder
+  suspendedAt?: Prisma.SortOrder
+  suspendReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -507,6 +549,8 @@ export type UserMinOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   tokenLimit?: Prisma.SortOrder
   requestLimitHourly?: Prisma.SortOrder
+  suspendedAt?: Prisma.SortOrder
+  suspendReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -541,6 +585,10 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
@@ -572,6 +620,8 @@ export type UserCreateWithoutApiKeysInput = {
   isActive?: boolean
   tokenLimit?: number | null
   requestLimitHourly?: number | null
+  suspendedAt?: Date | string | null
+  suspendReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -587,6 +637,8 @@ export type UserUncheckedCreateWithoutApiKeysInput = {
   isActive?: boolean
   tokenLimit?: number | null
   requestLimitHourly?: number | null
+  suspendedAt?: Date | string | null
+  suspendReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -618,6 +670,8 @@ export type UserUpdateWithoutApiKeysInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   requestLimitHourly?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -633,6 +687,8 @@ export type UserUncheckedUpdateWithoutApiKeysInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   requestLimitHourly?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -679,6 +735,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   isActive?: boolean
   tokenLimit?: boolean
   requestLimitHourly?: boolean
+  suspendedAt?: boolean
+  suspendReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   apiKeys?: boolean | Prisma.User$apiKeysArgs<ExtArgs>
@@ -696,6 +754,8 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   isActive?: boolean
   tokenLimit?: boolean
   requestLimitHourly?: boolean
+  suspendedAt?: boolean
+  suspendReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -711,6 +771,8 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   isActive?: boolean
   tokenLimit?: boolean
   requestLimitHourly?: boolean
+  suspendedAt?: boolean
+  suspendReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -726,11 +788,13 @@ export type UserSelectScalar = {
   isActive?: boolean
   tokenLimit?: boolean
   requestLimitHourly?: boolean
+  suspendedAt?: boolean
+  suspendReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "role" | "name" | "image" | "authProviders" | "isActive" | "tokenLimit" | "requestLimitHourly" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "role" | "name" | "image" | "authProviders" | "isActive" | "tokenLimit" | "requestLimitHourly" | "suspendedAt" | "suspendReason" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   apiKeys?: boolean | Prisma.User$apiKeysArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -754,6 +818,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     isActive: boolean
     tokenLimit: number | null
     requestLimitHourly: number | null
+    suspendedAt: Date | null
+    suspendReason: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1190,6 +1256,8 @@ export interface UserFieldRefs {
   readonly isActive: Prisma.FieldRef<"User", 'Boolean'>
   readonly tokenLimit: Prisma.FieldRef<"User", 'Int'>
   readonly requestLimitHourly: Prisma.FieldRef<"User", 'Int'>
+  readonly suspendedAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly suspendReason: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }

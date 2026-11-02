@@ -43,6 +43,13 @@ export default async function ModelsPage() {
     } catch {}
   }
 
+  // Sasaran yang sedang tersimpan WAJIB selalu ada di daftar pilihan, walau
+  // tidak muncul di /v1/models 9Router (model passthrough tidak semuanya
+  // terdaftar di sana). Tanpa ini dropdown menampilkan pilihan pertama yang
+  // ada dan tombol simpan bisa menimpa sasaran dengan nilai yang salah.
+  const currentTargets = models.flatMap((m) => m.routes.map((r) => r.upstreamModelId));
+  routerModels = [...new Set([...routerModels, ...currentTargets])];
+
   const data = models.map((m) => {
     const route = m.routes.find((r) => r.providerId === routerProvider?.id) ?? m.routes[0];
     return {

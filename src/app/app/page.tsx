@@ -2,11 +2,11 @@ import { connection } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import Reveal from "../Reveal";
+import AnnouncementSlider from "./AnnouncementSlider";
 import {
   Activity,
   Coins,
   KeyRound,
-  Megaphone,
   TicketCheck,
   TrendingDown,
   TrendingUp,
@@ -267,33 +267,18 @@ export default async function UserOverviewPage() {
           </p>
         </Reveal>
 
-        {/* ===== Pengumuman ===== */}
+        {/* ===== Pengumuman (slider) ===== */}
         {announcements.length > 0 && (
-          <div className="mt-8 flex flex-col gap-3">
-            {announcements.map((a, i) => (
-              <Reveal key={a.id} delay={i * 90}>
-                <article className="glass group rounded-3xl p-5 transition duration-300 hover:-translate-y-0.5 hover:border-lime-300/25 sm:p-6">
-                  <div className="flex items-start gap-4">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
-                      <Megaphone size={19} />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-lime-300">
-                        Pengumuman
-                        <span className="ml-2 font-medium normal-case tracking-normal text-zinc-500">
-                          {a.createdAt.toLocaleDateString("id-ID", { dateStyle: "medium" })}
-                        </span>
-                      </p>
-                      <h3 className="mt-1 font-semibold sm:text-lg">{a.title}</h3>
-                      <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-zinc-400">
-                        {a.body}
-                      </p>
-                    </div>
-                  </div>
-                </article>
-              </Reveal>
-            ))}
-          </div>
+          <Reveal className="mt-8">
+            <AnnouncementSlider
+              items={announcements.map((a) => ({
+                id: a.id,
+                title: a.title,
+                body: a.body,
+                dateLabel: a.createdAt.toLocaleDateString("id-ID", { dateStyle: "medium" }),
+              }))}
+            />
+          </Reveal>
         )}
 
         {/* ===== Statistik ===== */}
