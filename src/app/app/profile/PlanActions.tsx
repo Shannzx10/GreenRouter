@@ -42,6 +42,14 @@ export default function PlanActions({
           );
           window.setTimeout(() => window.location.reload(), 3000);
         }
+        if (e.name === "checkout.error") {
+          const detail = e.data as { error?: { code?: string; detail?: string } } | undefined;
+          setError(
+            `Checkout gagal dibuka (${detail?.error?.code ?? "unknown"}): ${
+              detail?.error?.detail ?? "coba lagi sebentar."
+            }`,
+          );
+        }
       },
     }).then((p) => p && setPaddle(p));
   }, []);
