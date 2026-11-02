@@ -49,7 +49,7 @@ const FEATURES = [
   {
     icon: Gauge,
     title: "Kuota Jelas & Adil",
-    body: "Setiap akun baru membawa 5.000.000 token per siklus 7 hari, dengan batas 100 request per jam. Progres pemakaian selalu transparan di dashboard.",
+    body: "Setiap akun baru membawa 5.000.000 token per siklus 7 hari, dengan batas 300 request per jam. Progres pemakaian selalu transparan di dashboard.",
   },
   {
     icon: ShieldCheck,
@@ -427,7 +427,7 @@ export default function Home() {
               </p>
               <p className="relative mx-auto mt-2 max-w-md text-sm leading-relaxed text-zinc-400">
                 Bukan trial sekali pakai. Kuotamu terisi penuh lagi setiap siklus,
-                dengan batas pemakaian 100 request per jam, dan progresnya bisa
+                dengan batas pemakaian 300 request per jam, dan progresnya bisa
                 kamu pantau transparan di dashboard.
               </p>
               <Link

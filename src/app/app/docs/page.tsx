@@ -440,7 +440,7 @@ for chunk in stream:
           </p>
           <p>
             Selain kuota token, akunmu juga dibatasi{" "}
-            <span className="font-semibold text-zinc-100">100 request per jam</span>. Batas ini
+            <span className="font-semibold text-zinc-100">300 request per jam</span>. Batas ini
             dihitung dengan jendela bergeser 60 menit, jadi kapasitasmu pulih bertahap mengikuti
             keluarnya request lama dari jendela, bukan menunggu jam berikutnya.
           </p>

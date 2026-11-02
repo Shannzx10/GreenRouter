@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 // dihitung dari nol lagi untuk jendela berikutnya. Tanpa cron/penjadwal:
 // jendela selalu dihitung dari waktu saat ini.
 export const DEFAULT_TOKEN_LIMIT = 5_000_000;
-export const DEFAULT_REQUEST_LIMIT_HOURLY = 100;
+export const DEFAULT_REQUEST_LIMIT_HOURLY = 300;
 export const CYCLE_DAYS = 7;
 
 const HOUR_MS = 3600 * 1000;
