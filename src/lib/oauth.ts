@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { isBlacklisted } from "./suspension";
 import { hashPassword, signSession } from "@/lib/crypto";
 import { SESSION_COOKIE, getSession } from "@/lib/session";
 import { DEFAULT_REQUEST_LIMIT_HOURLY, DEFAULT_TOKEN_LIMIT } from "@/lib/quota";
@@ -277,6 +278,12 @@ export async function finishOAuth(
   // ----- Mode login / daftar -----
   let user = await prisma.user.findUnique({ where: { email: profile.email } });
   if (!user) {
+    // Email hasil purge akun tersuspend dilarang mendaftar lagi selamanya.
+    if (await isBlacklisted(profile.email)) {
+      return fail(
+        "Email ini tidak bisa dipakai mendaftar karena akun sebelumnya dihapus permanen setelah suspend. Hubungi admin bila ini kekeliruan.",
+      );
+    }
     try {
       user = await prisma.user.create({
         data: {
@@ -314,9 +321,7 @@ export async function finishOAuth(
       user = await prisma.user.update({ where: { id: user.id }, data: patch });
     }
   }
-  if (!user.isActive) {
-    return fail("Akun dinonaktifkan. Hubungi admin.");
-  }
+  // Akun tersuspend tetap dibuatkan sesi; layout akan mengarahkannya ke /suspended.
 
   const token = signSession({ uid: user.id, email: user.email, role: user.role });
   const res = NextResponse.redirect(`${appUrl()}${user.role === "ADMIN" ? "/admin" : "/app"}`);

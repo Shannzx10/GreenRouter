@@ -23,6 +23,11 @@ export * from './enums';
  */
 export type User = Prisma.UserModel
 /**
+ * Model Blacklist
+ * 
+ */
+export type Blacklist = Prisma.BlacklistModel
+/**
  * Model ApiKey
  * 
  */

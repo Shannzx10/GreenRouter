@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { getActiveSession } from "@/lib/session";
 import { generateClientKey } from "@/lib/crypto";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -7,7 +7,7 @@ type Ctx = { params: Promise<{ id: string }> };
 // Rotate: nilai rahasia key diganti baru di baris yang sama (nama, status,
 // dan riwayat log tetap), nilai lama langsung berhenti bekerja.
 export async function POST(_req: Request, { params }: Ctx) {
-  const s = await getSession();
+  const s = await getActiveSession();
   if (!s) return Response.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
   const own = await prisma.apiKey.findFirst({ where: { id, userId: s.uid } });

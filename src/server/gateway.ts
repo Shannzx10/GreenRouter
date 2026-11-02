@@ -39,14 +39,19 @@ export function anthropicError(
 export type AuthedClient = ApiKey & {
   user: {
     id: string;
-    isActive: boolean;
+    suspendedAt: Date | null;
     tokenLimit: number | null;
     requestLimitHourly: number | null;
     createdAt: Date;
   } | null;
 };
 
-export async function authenticateClient(req: Request): Promise<AuthedClient | null> {
+// authenticateClient mengembalikan "SUSPENDED" (bukan null) bila key valid
+// tetapi akun pemiliknya sedang disuspend admin, supaya route bisa menjawab
+// 403 yang jelas, bukan 401 "key tidak valid".
+export async function authenticateClient(
+  req: Request,
+): Promise<AuthedClient | "SUSPENDED" | null> {
   const auth = req.headers.get("authorization") ?? "";
   let token = auth.toLowerCase().startsWith("bearer ") ? auth.slice(7).trim() : "";
   // Klien Anthropic (Claude Code, Anthropic SDK) mengirim key lewat x-api-key.
@@ -56,12 +61,12 @@ export async function authenticateClient(req: Request): Promise<AuthedClient | n
     where: { keyHash: hashClientKey(token) },
     include: {
       user: {
-        select: { id: true, isActive: true, tokenLimit: true, requestLimitHourly: true, createdAt: true },
+        select: { id: true, suspendedAt: true, tokenLimit: true, requestLimitHourly: true, createdAt: true },
       },
     },
   });
   if (!row || !row.isActive) return null;
-  if (row.user && !row.user.isActive) return null; // pemilik akun dinonaktifkan admin
+  if (row.user && row.user.suspendedAt) return "SUSPENDED"; // pemilik akun sedang disuspend admin
   if (!row.lastUsedAt || Date.now() - row.lastUsedAt.getTime() > 60_000) {
     prisma.apiKey
       .update({ where: { id: row.id }, data: { lastUsedAt: new Date() } })

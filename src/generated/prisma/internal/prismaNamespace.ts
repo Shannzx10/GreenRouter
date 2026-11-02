@@ -398,6 +398,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
+  Blacklist: 'Blacklist',
   ApiKey: 'ApiKey',
   Provider: 'Provider',
   UpstreamKey: 'UpstreamKey',
@@ -421,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "apiKey" | "provider" | "upstreamKey" | "modelCatalog" | "modelRoute" | "announcement" | "modelHealthCheck" | "usageLog"
+    modelProps: "user" | "blacklist" | "apiKey" | "provider" | "upstreamKey" | "modelCatalog" | "modelRoute" | "announcement" | "modelHealthCheck" | "usageLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -496,6 +497,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    Blacklist: {
+      payload: Prisma.$BlacklistPayload<ExtArgs>
+      fields: Prisma.BlacklistFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BlacklistFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlacklistPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BlacklistFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlacklistPayload>
+        }
+        findFirst: {
+          args: Prisma.BlacklistFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlacklistPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BlacklistFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlacklistPayload>
+        }
+        findMany: {
+          args: Prisma.BlacklistFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlacklistPayload>[]
+        }
+        create: {
+          args: Prisma.BlacklistCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlacklistPayload>
+        }
+        createMany: {
+          args: Prisma.BlacklistCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BlacklistCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlacklistPayload>[]
+        }
+        delete: {
+          args: Prisma.BlacklistDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlacklistPayload>
+        }
+        update: {
+          args: Prisma.BlacklistUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlacklistPayload>
+        }
+        deleteMany: {
+          args: Prisma.BlacklistDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BlacklistUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BlacklistUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlacklistPayload>[]
+        }
+        upsert: {
+          args: Prisma.BlacklistUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlacklistPayload>
+        }
+        aggregate: {
+          args: Prisma.BlacklistAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBlacklist>
+        }
+        groupBy: {
+          args: Prisma.BlacklistGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BlacklistGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BlacklistCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BlacklistCountAggregateOutputType> | number
         }
       }
     }
@@ -1141,11 +1216,23 @@ export const UserScalarFieldEnum = {
   isActive: 'isActive',
   tokenLimit: 'tokenLimit',
   requestLimitHourly: 'requestLimitHourly',
+  suspendedAt: 'suspendedAt',
+  suspendReason: 'suspendReason',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const BlacklistScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  reason: 'reason',
+  createdAt: 'createdAt'
+} as const
+
+export type BlacklistScalarFieldEnum = (typeof BlacklistScalarFieldEnum)[keyof typeof BlacklistScalarFieldEnum]
 
 
 export const ApiKeyScalarFieldEnum = {
@@ -1514,6 +1601,7 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
 export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
+  blacklist?: Prisma.BlacklistOmit
   apiKey?: Prisma.ApiKeyOmit
   provider?: Prisma.ProviderOmit
   upstreamKey?: Prisma.UpstreamKeyOmit

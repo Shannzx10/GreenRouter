@@ -65,8 +65,8 @@ export default async function ProfilePage() {
           <div>
             <p className="text-zinc-500">Status akun</p>
             <p className="mt-0.5 flex items-center gap-2 font-medium">
-              <span className={`h-2 w-2 rounded-full ${user.isActive ? "bg-lime-300" : "bg-red-400"}`} />
-              {user.isActive ? "Aktif" : "Nonaktif"}
+              <span className={`h-2 w-2 rounded-full ${user.suspendedAt ? "bg-red-400" : "bg-lime-300"}`} />
+              {user.suspendedAt ? "Disuspend" : "Aktif"}
             </p>
           </div>
         </div>

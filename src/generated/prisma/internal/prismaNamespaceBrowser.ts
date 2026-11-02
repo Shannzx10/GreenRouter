@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  Blacklist: 'Blacklist',
   ApiKey: 'ApiKey',
   Provider: 'Provider',
   UpstreamKey: 'UpstreamKey',
@@ -89,11 +90,23 @@ export const UserScalarFieldEnum = {
   isActive: 'isActive',
   tokenLimit: 'tokenLimit',
   requestLimitHourly: 'requestLimitHourly',
+  suspendedAt: 'suspendedAt',
+  suspendReason: 'suspendReason',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const BlacklistScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  reason: 'reason',
+  createdAt: 'createdAt'
+} as const
+
+export type BlacklistScalarFieldEnum = (typeof BlacklistScalarFieldEnum)[keyof typeof BlacklistScalarFieldEnum]
 
 
 export const ApiKeyScalarFieldEnum = {

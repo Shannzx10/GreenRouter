@@ -12,7 +12,8 @@ export async function PATCH(req: Request, { params }: Ctx) {
     name?: string | null;
     email?: string;
     role?: string;
-    isActive?: boolean;
+    suspended?: boolean;
+    suspendReason?: string | null;
     tokenLimit?: number | null;
     requestLimitHourly?: number | null;
   };
@@ -27,7 +28,8 @@ export async function PATCH(req: Request, { params }: Ctx) {
     name?: string | null;
     email?: string;
     role?: string;
-    isActive?: boolean;
+    suspendedAt?: Date | null;
+    suspendReason?: string | null;
     tokenLimit?: number | null;
     requestLimitHourly?: number | null;
   } = {};
@@ -49,14 +51,23 @@ export async function PATCH(req: Request, { params }: Ctx) {
     }
     data.role = body.role;
   }
-  if (typeof body.isActive === "boolean") {
-    if (isSelf && body.isActive === false) {
+  if (typeof body.suspended === "boolean") {
+    if (isSelf && body.suspended) {
       return Response.json(
-        { error: "Kamu tidak bisa menonaktifkan akunmu sendiri" },
+        { error: "Kamu tidak bisa mensuspend akunmu sendiri" },
         { status: 400 },
       );
     }
-    data.isActive = body.isActive;
+    if (body.suspended) {
+      data.suspendedAt = new Date();
+      data.suspendReason =
+        typeof body.suspendReason === "string" && body.suspendReason.trim()
+          ? body.suspendReason.trim().slice(0, 300)
+          : null;
+    } else {
+      data.suspendedAt = null;
+      data.suspendReason = null;
+    }
   }
   if (body.tokenLimit !== undefined) {
     data.tokenLimit =
@@ -75,7 +86,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
     const user = await prisma.user.update({
       where: { id },
       data,
-      select: { id: true, email: true, name: true, role: true, isActive: true, tokenLimit: true, requestLimitHourly: true, createdAt: true },
+      select: { id: true, email: true, name: true, role: true, suspendedAt: true, suspendReason: true, tokenLimit: true, requestLimitHourly: true, createdAt: true },
     });
     return Response.json({ user });
   } catch (e) {

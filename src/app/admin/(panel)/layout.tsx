@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getAdminSession } from "@/lib/session";
+import { getSession } from "@/lib/session";
 import Sidebar from "./Sidebar";
 
 // Area admin selalu dirender saat request (data runtime, tanpa prerender).
@@ -10,8 +10,10 @@ export default async function PanelLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getAdminSession();
+  const session = await getSession();
   if (!session) redirect("/login");
+  if (session.suspended) redirect("/suspended");
+  if (session.role !== "ADMIN") redirect("/app");
   return (
     <div className="min-h-screen lg:flex">
       <Sidebar email={session.email} />
