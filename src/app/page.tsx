@@ -502,6 +502,11 @@ export default function Home() {
           </div>
           <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/[0.05] pt-6 text-xs text-zinc-500 sm:flex-row">
             <p>© 2026 GreenRouter. Seluruh hak cipta dilindungi.</p>
+            <nav className="flex items-center gap-5">
+              <Link href="/terms" className="transition hover:text-lime-200">Syarat Layanan</Link>
+              <Link href="/privacy" className="transition hover:text-lime-200">Privasi</Link>
+              <Link href="/refunds" className="transition hover:text-lime-200">Pengembalian</Link>
+            </nav>
             <p className="font-medium tracking-wide text-zinc-400">Work Fast, Work Smart.</p>
           </div>
         </footer>
