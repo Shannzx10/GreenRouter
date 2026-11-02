@@ -103,6 +103,7 @@ const PROVIDERS = [
   { name: "MiniMax", kind: "minimax" },
   { name: "MiMo", kind: "mimo" },
   { name: "MiniCPM", kind: "minicpm" },
+  { name: "Qwen", kind: "qwen" },
   { name: "Kimi", kind: "kimi" },
   { name: "Mercury", kind: "mercury" },
   { name: "Atria", kind: "atria" },
