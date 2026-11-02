@@ -31,6 +31,17 @@ model User {
   // dihapus permanen dan emailnya masuk Blacklist (lihat lib/suspension).
   suspendedAt       DateTime?
   suspendReason     String?
+  // Plan langganan (gratis | pro | max, lihat lib/plans) dan cerminan
+  // keadaan langganan Paddle. Kolom-kolom ini HANYA ditulis oleh handler
+  // webhook Paddle (server/paddle-events) dan menjadi dasar limit akun:
+  // saat plan berubah, tokenLimit + requestLimitHourly disetel dari
+  // definisi plan. paddleLastEventAt menjaga urutan event (event lama
+  // yang tiba belakangan tidak boleh menimpa keadaan yang lebih baru).
+  plan               String    @default("gratis")
+  paddleCustomerId   String?
+  paddleSubscriptionId String?
+  paddleSubStatus    String?
+  paddleLastEventAt  DateTime?
   apiKeys           ApiKey[]
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt

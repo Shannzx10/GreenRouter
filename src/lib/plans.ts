@@ -48,3 +48,17 @@ export const PLANS: Plan[] = [
 export function formatIdNumber(n: number): string {
   return n.toLocaleString("id-ID");
 }
+
+export function planById(id: string): Plan {
+  return PLANS.find((p) => p.id === id) ?? PLANS[0];
+}
+
+// Pemetaan price id Paddle ke plan. Price id berbeda per environment
+// (sandbox dan live), jadi dibaca dari env: PADDLE_PRICE_PRO dan
+// PADDLE_PRICE_MAX. Price yang tidak dikenal mengembalikan null.
+export function planByPriceId(priceId: string | undefined | null): Plan | null {
+  if (!priceId) return null;
+  if (priceId === process.env.PADDLE_PRICE_PRO) return planById("pro");
+  if (priceId === process.env.PADDLE_PRICE_MAX) return planById("max");
+  return null;
+}

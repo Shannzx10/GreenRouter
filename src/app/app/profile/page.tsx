@@ -2,9 +2,11 @@ import { connection } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { CYCLE_DAYS, cycleTokensUsed, fmtDateShort, fmtResetIn, hourlyRequestsUsed } from "@/lib/quota";
-import { Fingerprint, Gauge } from "lucide-react";
+import { CreditCard, Fingerprint, Gauge } from "lucide-react";
 import ProfileForms from "./ProfileForms";
 import LogoutSection from "./LogoutSection";
+import PlanActions from "./PlanActions";
+import { planById, formatIdNumber } from "@/lib/plans";
 
 export default async function ProfilePage() {
   await connection();
@@ -162,6 +164,46 @@ export default async function ProfilePage() {
             </p>
           )}
         </div>
+      </div>
+
+      <div className="glass mt-6 rounded-3xl p-6">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="flex items-center gap-3 font-semibold">
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
+              <CreditCard size={18} />
+            </span>
+            Plan
+          </h2>
+          <span className="rounded-full bg-lime-400/10 px-3 py-1 text-xs font-semibold text-lime-300">
+            {planById(user.plan).name}
+          </span>
+        </div>
+        {user.plan === "gratis" ? (
+          <p className="mt-4 text-sm leading-relaxed text-zinc-400">
+            Kamu memakai plan Gratis dengan {formatIdNumber(planById("gratis").tokenLimit)} token
+            per siklus. Plan berbayar menaikkan kuota token menjadi{" "}
+            {formatIdNumber(planById("pro").tokenLimit)} (Pro) atau{" "}
+            {formatIdNumber(planById("max").tokenLimit)} (Max) per siklus, dengan batas request
+            per jam yang lebih longgar.
+          </p>
+        ) : (
+          <p className="mt-4 text-sm leading-relaxed text-zinc-400">
+            {user.paddleSubStatus === "past_due"
+              ? "Pembayaran terakhir tertunda. Perbarui metode pembayaranmu dari portal pelanggan agar langganan tidak berhenti."
+              : user.paddleSubStatus === "paused"
+                ? "Langgananmu sedang dijeda, kuota mengikuti plan Gratis sampai dilanjutkan."
+                : user.paddleSubStatus === "canceled"
+                  ? "Langgananmu sudah berakhir, kuota mengikuti plan Gratis."
+                  : "Langgananmu aktif dan diperpanjang otomatis setiap bulan. Ubah metode pembayaran, unduh invoice, atau batalkan dari portal pelanggan."}
+          </p>
+        )}
+        <PlanActions
+          userId={user.id}
+          email={user.email}
+          plan={user.plan}
+          pricePro={process.env.PADDLE_PRICE_PRO ?? null}
+          priceMax={process.env.PADDLE_PRICE_MAX ?? null}
+        />
       </div>
 
       <div className="glass mt-6 rounded-3xl p-6">

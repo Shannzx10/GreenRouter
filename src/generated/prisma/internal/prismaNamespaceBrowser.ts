@@ -92,6 +92,11 @@ export const UserScalarFieldEnum = {
   requestLimitHourly: 'requestLimitHourly',
   suspendedAt: 'suspendedAt',
   suspendReason: 'suspendReason',
+  plan: 'plan',
+  paddleCustomerId: 'paddleCustomerId',
+  paddleSubscriptionId: 'paddleSubscriptionId',
+  paddleSubStatus: 'paddleSubStatus',
+  paddleLastEventAt: 'paddleLastEventAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
