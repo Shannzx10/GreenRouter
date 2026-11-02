@@ -42,6 +42,11 @@ model User {
   paddleSubscriptionId String?
   paddleSubStatus    String?
   paddleLastEventAt  DateTime?
+  // Tanggal efektif pembatalan yang dijadwalkan dari portal pelanggan
+  // (scheduledChange.action = cancel). Selama terisi, status langganan
+  // masih active dan plan tetap berlaku sampai tanggal ini; event
+  // penutup dari Paddle yang nanti menurunkan akun ke plan Gratis.
+  paddleCancelAt     DateTime?
   apiKeys           ApiKey[]
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt

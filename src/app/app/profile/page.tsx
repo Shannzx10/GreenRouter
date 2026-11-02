@@ -188,13 +188,15 @@ export default async function ProfilePage() {
           </p>
         ) : (
           <p className="mt-4 text-sm leading-relaxed text-zinc-400">
-            {user.paddleSubStatus === "past_due"
-              ? "Pembayaran terakhir tertunda. Perbarui metode pembayaranmu dari portal pelanggan agar langganan tidak berhenti."
-              : user.paddleSubStatus === "paused"
-                ? "Langgananmu sedang dijeda, kuota mengikuti plan Gratis sampai dilanjutkan."
-                : user.paddleSubStatus === "canceled"
-                  ? "Langgananmu sudah berakhir, kuota mengikuti plan Gratis."
-                  : "Langgananmu aktif dan diperpanjang otomatis setiap bulan. Ubah metode pembayaran, unduh invoice, atau batalkan dari portal pelanggan."}
+            {user.paddleCancelAt
+              ? `Langgananmu dijadwalkan berakhir pada ${user.paddleCancelAt.toLocaleDateString("id-ID", { dateStyle: "long" })}. Kamu tetap memakai plan ini sampai tanggal itu, sesudahnya akun kembali ke plan Gratis. Batalkan penjadwalan ini kapan saja dari portal pelanggan.`
+              : user.paddleSubStatus === "past_due"
+                ? "Pembayaran terakhir tertunda. Perbarui metode pembayaranmu dari portal pelanggan agar langganan tidak berhenti."
+                : user.paddleSubStatus === "paused"
+                  ? "Langgananmu sedang dijeda, kuota mengikuti plan Gratis sampai dilanjutkan."
+                  : user.paddleSubStatus === "canceled"
+                    ? "Langgananmu sudah berakhir, kuota mengikuti plan Gratis."
+                    : "Langgananmu aktif dan diperpanjang otomatis setiap bulan. Ubah metode pembayaran, unduh invoice, atau batalkan dari portal pelanggan."}
           </p>
         )}
         <PlanActions

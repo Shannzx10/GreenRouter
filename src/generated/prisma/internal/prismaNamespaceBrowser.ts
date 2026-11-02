@@ -97,6 +97,7 @@ export const UserScalarFieldEnum = {
   paddleSubscriptionId: 'paddleSubscriptionId',
   paddleSubStatus: 'paddleSubStatus',
   paddleLastEventAt: 'paddleLastEventAt',
+  paddleCancelAt: 'paddleCancelAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

@@ -54,6 +54,7 @@ export type UserMinAggregateOutputType = {
   paddleSubscriptionId: string | null
   paddleSubStatus: string | null
   paddleLastEventAt: Date | null
+  paddleCancelAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -76,6 +77,7 @@ export type UserMaxAggregateOutputType = {
   paddleSubscriptionId: string | null
   paddleSubStatus: string | null
   paddleLastEventAt: Date | null
+  paddleCancelAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -98,6 +100,7 @@ export type UserCountAggregateOutputType = {
   paddleSubscriptionId: number
   paddleSubStatus: number
   paddleLastEventAt: number
+  paddleCancelAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -132,6 +135,7 @@ export type UserMinAggregateInputType = {
   paddleSubscriptionId?: true
   paddleSubStatus?: true
   paddleLastEventAt?: true
+  paddleCancelAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -154,6 +158,7 @@ export type UserMaxAggregateInputType = {
   paddleSubscriptionId?: true
   paddleSubStatus?: true
   paddleLastEventAt?: true
+  paddleCancelAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -176,6 +181,7 @@ export type UserCountAggregateInputType = {
   paddleSubscriptionId?: true
   paddleSubStatus?: true
   paddleLastEventAt?: true
+  paddleCancelAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -285,6 +291,7 @@ export type UserGroupByOutputType = {
   paddleSubscriptionId: string | null
   paddleSubStatus: string | null
   paddleLastEventAt: Date | null
+  paddleCancelAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -330,6 +337,7 @@ export type UserWhereInput = {
   paddleSubscriptionId?: Prisma.StringNullableFilter<"User"> | string | null
   paddleSubStatus?: Prisma.StringNullableFilter<"User"> | string | null
   paddleLastEventAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  paddleCancelAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   apiKeys?: Prisma.ApiKeyListRelationFilter
@@ -353,6 +361,7 @@ export type UserOrderByWithRelationInput = {
   paddleSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
   paddleSubStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   paddleLastEventAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  paddleCancelAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   apiKeys?: Prisma.ApiKeyOrderByRelationAggregateInput
@@ -379,6 +388,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   paddleSubscriptionId?: Prisma.StringNullableFilter<"User"> | string | null
   paddleSubStatus?: Prisma.StringNullableFilter<"User"> | string | null
   paddleLastEventAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  paddleCancelAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   apiKeys?: Prisma.ApiKeyListRelationFilter
@@ -402,6 +412,7 @@ export type UserOrderByWithAggregationInput = {
   paddleSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
   paddleSubStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   paddleLastEventAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  paddleCancelAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -432,6 +443,7 @@ export type UserScalarWhereWithAggregatesInput = {
   paddleSubscriptionId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   paddleSubStatus?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   paddleLastEventAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  paddleCancelAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -454,6 +466,7 @@ export type UserCreateInput = {
   paddleSubscriptionId?: string | null
   paddleSubStatus?: string | null
   paddleLastEventAt?: Date | string | null
+  paddleCancelAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
@@ -477,6 +490,7 @@ export type UserUncheckedCreateInput = {
   paddleSubscriptionId?: string | null
   paddleSubStatus?: string | null
   paddleLastEventAt?: Date | string | null
+  paddleCancelAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
@@ -500,6 +514,7 @@ export type UserUpdateInput = {
   paddleSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paddleSubStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paddleLastEventAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paddleCancelAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
@@ -523,6 +538,7 @@ export type UserUncheckedUpdateInput = {
   paddleSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paddleSubStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paddleLastEventAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paddleCancelAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
@@ -546,6 +562,7 @@ export type UserCreateManyInput = {
   paddleSubscriptionId?: string | null
   paddleSubStatus?: string | null
   paddleLastEventAt?: Date | string | null
+  paddleCancelAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -568,6 +585,7 @@ export type UserUpdateManyMutationInput = {
   paddleSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paddleSubStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paddleLastEventAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paddleCancelAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -590,6 +608,7 @@ export type UserUncheckedUpdateManyInput = {
   paddleSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paddleSubStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paddleLastEventAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paddleCancelAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -612,6 +631,7 @@ export type UserCountOrderByAggregateInput = {
   paddleSubscriptionId?: Prisma.SortOrder
   paddleSubStatus?: Prisma.SortOrder
   paddleLastEventAt?: Prisma.SortOrder
+  paddleCancelAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -639,6 +659,7 @@ export type UserMaxOrderByAggregateInput = {
   paddleSubscriptionId?: Prisma.SortOrder
   paddleSubStatus?: Prisma.SortOrder
   paddleLastEventAt?: Prisma.SortOrder
+  paddleCancelAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -661,6 +682,7 @@ export type UserMinOrderByAggregateInput = {
   paddleSubscriptionId?: Prisma.SortOrder
   paddleSubStatus?: Prisma.SortOrder
   paddleLastEventAt?: Prisma.SortOrder
+  paddleCancelAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -737,6 +759,7 @@ export type UserCreateWithoutApiKeysInput = {
   paddleSubscriptionId?: string | null
   paddleSubStatus?: string | null
   paddleLastEventAt?: Date | string | null
+  paddleCancelAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -759,6 +782,7 @@ export type UserUncheckedCreateWithoutApiKeysInput = {
   paddleSubscriptionId?: string | null
   paddleSubStatus?: string | null
   paddleLastEventAt?: Date | string | null
+  paddleCancelAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -797,6 +821,7 @@ export type UserUpdateWithoutApiKeysInput = {
   paddleSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paddleSubStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paddleLastEventAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paddleCancelAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -819,6 +844,7 @@ export type UserUncheckedUpdateWithoutApiKeysInput = {
   paddleSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paddleSubStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paddleLastEventAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paddleCancelAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -872,6 +898,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   paddleSubscriptionId?: boolean
   paddleSubStatus?: boolean
   paddleLastEventAt?: boolean
+  paddleCancelAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   apiKeys?: boolean | Prisma.User$apiKeysArgs<ExtArgs>
@@ -896,6 +923,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   paddleSubscriptionId?: boolean
   paddleSubStatus?: boolean
   paddleLastEventAt?: boolean
+  paddleCancelAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -918,6 +946,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   paddleSubscriptionId?: boolean
   paddleSubStatus?: boolean
   paddleLastEventAt?: boolean
+  paddleCancelAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -940,11 +969,12 @@ export type UserSelectScalar = {
   paddleSubscriptionId?: boolean
   paddleSubStatus?: boolean
   paddleLastEventAt?: boolean
+  paddleCancelAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "role" | "name" | "image" | "authProviders" | "isActive" | "tokenLimit" | "requestLimitHourly" | "suspendedAt" | "suspendReason" | "plan" | "paddleCustomerId" | "paddleSubscriptionId" | "paddleSubStatus" | "paddleLastEventAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "role" | "name" | "image" | "authProviders" | "isActive" | "tokenLimit" | "requestLimitHourly" | "suspendedAt" | "suspendReason" | "plan" | "paddleCustomerId" | "paddleSubscriptionId" | "paddleSubStatus" | "paddleLastEventAt" | "paddleCancelAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   apiKeys?: boolean | Prisma.User$apiKeysArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -975,6 +1005,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     paddleSubscriptionId: string | null
     paddleSubStatus: string | null
     paddleLastEventAt: Date | null
+    paddleCancelAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1418,6 +1449,7 @@ export interface UserFieldRefs {
   readonly paddleSubscriptionId: Prisma.FieldRef<"User", 'String'>
   readonly paddleSubStatus: Prisma.FieldRef<"User", 'String'>
   readonly paddleLastEventAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly paddleCancelAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }

@@ -75,6 +75,10 @@ async function handleSubscription(event: EventEntity) {
       paddleSubscriptionId: sub.id,
       paddleSubStatus: sub.status,
       paddleLastEventAt: occurredAt,
+      paddleCancelAt:
+        sub.scheduledChange?.action === "cancel"
+          ? new Date(sub.scheduledChange.effectiveAt)
+          : null,
     },
   });
   console.log(
