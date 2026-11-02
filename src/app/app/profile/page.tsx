@@ -7,7 +7,7 @@ import { ArrowUpRight, CreditCard, Fingerprint, Gauge } from "lucide-react";
 import ProfileForms from "./ProfileForms";
 import LogoutSection from "./LogoutSection";
 import PortalButton from "./PortalButton";
-import { planById, formatIdNumber } from "@/lib/plans";
+import { planById } from "@/lib/plans";
 
 export default async function ProfilePage() {
   await connection();
@@ -181,11 +181,7 @@ export default async function ProfilePage() {
         </div>
         {user.plan === "gratis" ? (
           <p className="mt-4 text-sm leading-relaxed text-zinc-400">
-            Kamu memakai plan Gratis dengan {formatIdNumber(planById("gratis").tokenLimit)} token
-            per siklus. Plan berbayar menaikkan kuota token menjadi{" "}
-            {formatIdNumber(planById("pro").tokenLimit)} (Pro) atau{" "}
-            {formatIdNumber(planById("max").tokenLimit)} (Max) per siklus, dengan batas request
-            per jam yang lebih longgar.
+            Plan berbayar memberikan kuota token dan batas request yang jauh lebih besar.
           </p>
         ) : (
           <p className="mt-4 text-sm leading-relaxed text-zinc-400">
