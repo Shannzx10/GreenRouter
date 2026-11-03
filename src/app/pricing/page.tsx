@@ -43,13 +43,13 @@ export default async function PricingPage() {
   const loggedIn = viewerPlan !== "visitor";
 
   return (
-    <main className="relative min-h-screen flex-1 overflow-hidden bg-[#060806] text-zinc-100">
+    <main className="relative flex-1 overflow-hidden">
       <div className="bg-dots absolute inset-0" />
       <div className="aurora left-[-120px] top-[-80px] h-96 w-96 bg-emerald-500/25" />
       <div className="aurora right-[-100px] top-48 h-80 w-80 bg-lime-400/20" style={{ animationDelay: "-6s" }} />
       <div className="aurora bottom-[24%] left-[-140px] h-80 w-80 bg-teal-400/15" style={{ animationDelay: "-11s" }} />
 
-      <div className="relative mx-auto w-full max-w-6xl px-5 pb-10 pt-5 sm:px-8">
+      <div className="relative mx-auto w-full max-w-6xl px-5 pt-5 sm:px-8">
         {/* Navigasi melayang, sama seperti landing */}
         <header className="glass sticky top-4 z-40 flex items-center justify-between rounded-full py-2.5 pl-4 pr-2.5">
           <Link href="/" className="flex items-center gap-2.5">
