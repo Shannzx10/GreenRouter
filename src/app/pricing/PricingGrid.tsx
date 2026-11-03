@@ -2,9 +2,10 @@
 
 import { initializePaddle, type Paddle } from "@paddle/paddle-js";
 import { PLANS, formatIdNumber, type Plan } from "@/lib/plans";
-import { Check, Crown, Loader2, Sprout, Zap } from "lucide-react";
+import { Check, Crown, Loader2, Settings2, Sprout, Zap } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Spot } from "../landing/Interactive";
 
 // Grid kartu harga yang sadar sesi. Tiga keadaan penonton:
 // - visitor (belum masuk): tombol mengarah ke pendaftaran.
@@ -119,7 +120,7 @@ export default function PricingGrid({
       "mt-8 inline-flex w-full items-center justify-center rounded-full px-6 py-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ";
     const btnStyle = featured
       ? "btn-shine bg-lime-400 text-zinc-950 hover:bg-lime-300"
-      : "glass text-zinc-100 hover:border-lime-300/40 hover:text-lime-200";
+      : "border border-white/15 bg-white/[0.03] text-zinc-100 hover:border-lime-300/50 hover:text-lime-200";
 
     if (viewerPlan === "visitor") {
       return (
@@ -130,22 +131,30 @@ export default function PricingGrid({
     }
     if (plan.id === viewerPlan) {
       return (
-        <span className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-lime-400/10 px-6 py-3 text-sm font-semibold text-lime-300">
-          Plan Kamu Saat Ini
+        <span className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full border border-lime-300/30 bg-lime-400/10 px-6 py-3 text-sm font-semibold text-lime-300">
+          <Check size={15} /> Plan Kamu Saat Ini
         </span>
       );
     }
     if (viewerPlan === "gratis") {
+      const ready = !!priceIdFor(plan);
       return (
-        <button
-          type="button"
-          disabled={!paddle || !priceIdFor(plan) || busy !== null}
-          onClick={() => openCheckout(plan)}
-          className={btnBase + btnStyle}
-        >
-          {busy === plan.id ? <Loader2 size={15} className="mr-2 animate-spin" /> : null}
-          Berlangganan {plan.name}
-        </button>
+        <>
+          <button
+            type="button"
+            disabled={!paddle || !ready || busy !== null}
+            onClick={() => openCheckout(plan)}
+            className={btnBase + btnStyle}
+          >
+            {busy === plan.id ? <Loader2 size={15} className="mr-2 animate-spin" /> : null}
+            Berlangganan {plan.name}
+          </button>
+          {!ready && (
+            <p className="mt-3 text-center text-xs leading-relaxed text-zinc-500">
+              Checkout untuk plan ini belum tersedia.
+            </p>
+          )}
+        </>
       );
     }
     if (plan.id === "gratis") {
@@ -175,102 +184,121 @@ export default function PricingGrid({
     );
   }
 
+  const loggedIn = viewerPlan !== "visitor";
+
   return (
-    <div className="mt-14">
-      {notice && (
-        <p className="mx-auto mb-6 flex max-w-2xl items-center gap-2 rounded-2xl border border-lime-300/25 bg-lime-400/10 px-4 py-3 text-sm text-lime-200">
-          <Loader2 size={15} className="shrink-0 animate-spin" /> {notice}
-        </p>
+    <div className="mt-12">
+      {loggedIn && (
+        <div className="mx-auto mb-8 flex max-w-3xl flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0 text-sm">
+            <p className="text-zinc-500">Masuk sebagai</p>
+            <p className="truncate font-medium text-zinc-100">{email}</p>
+          </div>
+          <div className="flex items-center justify-between gap-3 sm:justify-end">
+            <span className="rounded-full border border-lime-300/30 bg-lime-400/10 px-3 py-1 font-mono text-xs font-semibold uppercase tracking-wider text-lime-300">
+              Plan {planLabel(viewerPlan)}
+            </span>
+            <Link
+              href="/app/profile"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-300 transition hover:text-lime-200"
+            >
+              <Settings2 size={15} /> Kelola
+            </Link>
+          </div>
+        </div>
       )}
-      {error && (
-        <p className="mx-auto mb-6 max-w-2xl rounded-2xl border border-red-300/25 bg-red-400/10 px-4 py-3 text-sm text-red-200">
-          {error}
-        </p>
-      )}
+      <div aria-live="polite">
+        {notice && (
+          <p className="mx-auto mb-6 flex max-w-2xl items-center gap-2 rounded-2xl border border-lime-300/25 bg-lime-400/10 px-4 py-3 text-sm text-lime-200">
+            <Loader2 size={15} className="shrink-0 animate-spin" /> {notice}
+          </p>
+        )}
+        {error && (
+          <p role="alert" className="mx-auto mb-6 max-w-2xl rounded-2xl border border-red-300/25 bg-red-400/10 px-4 py-3 text-sm text-red-200">
+            {error}
+          </p>
+        )}
+      </div>
+
       <div className="mb-10 flex justify-center">
-        <div className="glass inline-flex items-center rounded-full p-1">
-          <button
-            type="button"
-            onClick={() => setInterval("monthly")}
+        <div role="tablist" aria-label="Periode penagihan" className="relative grid w-full max-w-xs grid-cols-2 rounded-full border border-white/10 bg-white/[0.03] p-1">
+          <span
+            aria-hidden
             className={
-              "rounded-full px-5 py-2 text-sm font-semibold transition " +
-              (interval === "monthly"
-                ? "bg-lime-400 text-zinc-950"
-                : "text-zinc-300 hover:text-lime-200")
+              "absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-full bg-lime-400 shadow-[0_6px_24px_-6px_rgba(163,230,53,0.7)] transition-transform duration-300 ease-out " +
+              (interval === "yearly" ? "translate-x-full" : "")
             }
-          >
-            Bulanan
-          </button>
-          <button
-            type="button"
-            onClick={() => setInterval("yearly")}
-            className={
-              "inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition " +
-              (interval === "yearly"
-                ? "bg-lime-400 text-zinc-950"
-                : "text-zinc-300 hover:text-lime-200")
-            }
-          >
-            Tahunan
-            <span
+          />
+          {(["monthly", "yearly"] as const).map((k) => (
+            <button
+              key={k}
+              type="button"
+              role="tab"
+              aria-selected={interval === k}
+              onClick={() => setInterval(k)}
               className={
-                "rounded-full px-2 py-0.5 text-[11px] font-bold " +
-                (interval === "yearly"
-                  ? "bg-zinc-950/15 text-zinc-900"
-                  : "bg-lime-400/15 text-lime-300")
+                "relative z-10 inline-flex items-center justify-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold transition-colors " +
+                (interval === k ? "text-zinc-950" : "text-zinc-300 hover:text-lime-200")
               }
             >
-              hemat 17%
-            </span>
-          </button>
+              {k === "monthly" ? "Bulanan" : "Tahunan"}
+              {k === "yearly" && (
+                <span className={"rounded-full px-1.5 py-0.5 text-[10px] font-bold " + (interval === "yearly" ? "bg-zinc-950/15" : "bg-lime-400/15 text-lime-300")}>
+                  -17%
+                </span>
+              )}
+            </button>
+          ))}
         </div>
       </div>
-      <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-3">
+
+      <div className="grid grid-cols-1 items-stretch gap-5 md:grid-cols-3">
         {PLANS.map((plan) => {
           const featured = plan.id === "pro";
           const paid = plan.priceIdrMonthly > 0;
-          const perMonth = paid
-            ? interval === "monthly"
-              ? plan.priceIdrMonthly
-              : Math.round(plan.priceIdrYearly / 12)
-            : 0;
-          const isCurrent = viewerPlan !== "visitor" && viewerPlan === plan.id;
+          const yearly = interval === "yearly";
+          const perMonth = paid ? (yearly ? Math.round(plan.priceIdrYearly / 12) : plan.priceIdrMonthly) : 0;
+          const saving = plan.priceIdrMonthly * 12 - plan.priceIdrYearly;
+          const isCurrent = loggedIn && viewerPlan === plan.id;
           const Icon = plan.id === "pro" ? Zap : plan.id === "max" ? Crown : Sprout;
           return (
-            <div
+            <Spot
               key={plan.id}
               className={
-                "relative flex flex-col rounded-3xl p-7 " +
-                (featured
-                  ? "border border-lime-300/40 bg-lime-300/[0.06] shadow-[0_20px_60px_-20px_rgba(163,230,53,0.35)] lg:z-10 lg:scale-[1.03]"
-                  : "glass") +
-                (isCurrent ? " ring-1 ring-lime-300/60" : "")
+                "flex flex-col rounded-3xl p-6 sm:p-7 " +
+                (featured ? "plan-hot shadow-[0_20px_70px_-25px_rgba(163,230,53,0.4)] " : "") +
+                (isCurrent ? "ring-1 ring-lime-300/60" : "")
               }
             >
-              {featured && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-lime-400 px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-zinc-950">
-                  Paling Populer
+              <div className="flex items-center justify-between gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
+                  <Icon size={20} />
                 </span>
-              )}
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
-                <Icon size={20} />
-              </span>
+                {featured && (
+                  <span className="rounded-full bg-lime-400 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-950">
+                    Paling Populer
+                  </span>
+                )}
+              </div>
               <h2 className="mt-4 text-lg font-bold tracking-tight">{plan.name}</h2>
-              <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">{plan.tagline}</p>
-              <p className="mt-6 flex items-baseline gap-1.5">
-                <span className="text-5xl font-extrabold tracking-tight">
+              <p className="mt-1.5 min-h-[2.75rem] text-sm leading-relaxed text-zinc-400">{plan.tagline}</p>
+              <p className="mt-5 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                <span className="text-[44px] font-extrabold leading-none tracking-tight">
                   {paid ? `Rp${formatIdNumber(perMonth)}` : "Rp0"}
                 </span>
                 <span className="text-sm text-zinc-500">/ bulan</span>
+                {paid && yearly && (
+                  <span className="text-sm text-zinc-600 line-through">Rp{formatIdNumber(plan.priceIdrMonthly)}</span>
+                )}
               </p>
-              <p className="mt-1 h-5 text-[13px] text-zinc-500">
+              <p className="mt-2 min-h-[2.5rem] text-[13px] leading-snug text-zinc-500">
                 {!paid
                   ? "Tanpa kartu, langsung pakai"
-                  : interval === "monthly"
+                  : !yearly
                     ? "Ditagih bulanan, sudah termasuk pajak"
-                    : `Ditagih Rp${formatIdNumber(plan.priceIdrYearly)} per tahun, sudah termasuk pajak`}
+                    : `Ditagih Rp${formatIdNumber(plan.priceIdrYearly)} per tahun, sudah termasuk pajak. Hemat Rp${formatIdNumber(saving)}.`}
               </p>
-              <ul className="mt-6 flex-1 space-y-3 text-sm text-zinc-300">
+              <ul className="mt-5 flex-1 space-y-3 border-t border-white/[0.07] pt-5 text-sm text-zinc-300">
                 <li className="flex gap-2.5">
                   <Check size={16} className="mt-0.5 shrink-0 text-lime-300" />
                   {formatIdNumber(plan.tokenLimit)} token per siklus 7 hari
@@ -287,10 +315,14 @@ export default function PricingGrid({
                 ))}
               </ul>
               {actionFor(plan, featured)}
-            </div>
+            </Spot>
           );
         })}
       </div>
     </div>
   );
+}
+
+function planLabel(p: ViewerPlan): string {
+  return p === "visitor" ? "" : PLANS.find((x) => x.id === p)?.name ?? p;
 }

@@ -13,10 +13,13 @@ const LINKS = [
   { href: "/app/docs", label: "Dokumentasi" },
 ];
 
-export default function Nav() {
+// landing=false: dipakai di halaman lain (mis. harga), jangkar mengarah ke "/#..."
+// dan "Harga" ditandai aktif. loggedIn: tombol masuk/daftar diganti "Ke Dashboard".
+export default function Nav({ landing = true, loggedIn = false }: { landing?: boolean; loggedIn?: boolean }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [active, setActive] = useState("");
+  const [active, setActive] = useState(landing ? "" : "/pricing");
+  const links = LINKS.map((l) => (!landing && l.href.startsWith("#") ? { ...l, href: "/" + l.href } : l));
   const bar = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,6 +44,7 @@ export default function Nav() {
   }, []);
 
   useEffect(() => {
+    if (!landing) return;
     const ids = ["fitur", "cara-mulai", "model", "kuota"];
     const io = new IntersectionObserver(
       (es) => es.forEach((e) => e.isIntersecting && setActive("#" + e.target.id)),
@@ -51,7 +55,7 @@ export default function Nav() {
       if (el) io.observe(el);
     });
     return () => io.disconnect();
-  }, []);
+  }, [landing]);
 
   return (
     <>
@@ -78,7 +82,7 @@ export default function Nav() {
             </Link>
 
             <nav className="hidden items-center gap-1 text-sm text-zinc-400 lg:flex">
-              {LINKS.map((l) => (
+              {links.map((l) => (
                 <a
                   key={l.href}
                   href={l.href}
@@ -93,17 +97,19 @@ export default function Nav() {
             </nav>
 
             <div className="flex items-center gap-1.5">
+              {!loggedIn && (
+                <Link
+                  href="/login"
+                  className="hidden rounded-full px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06] hover:text-lime-200 sm:block"
+                >
+                  Masuk
+                </Link>
+              )}
               <Link
-                href="/login"
-                className="hidden rounded-full px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06] hover:text-lime-200 sm:block"
-              >
-                Masuk
-              </Link>
-              <Link
-                href="/register"
+                href={loggedIn ? "/app" : "/register"}
                 className="btn-shine inline-flex items-center rounded-full bg-lime-400 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-lime-300"
               >
-                Daftar Gratis
+                {loggedIn ? "Ke Dashboard" : "Daftar Gratis"}
               </Link>
               <button
                 type="button"
@@ -125,7 +131,7 @@ export default function Nav() {
           >
             <div className="min-h-0 overflow-hidden">
               <nav className="rounded-3xl border border-white/10 bg-zinc-950/90 p-2 backdrop-blur-xl">
-                {LINKS.map((l) => (
+                {links.map((l) => (
                   <a
                     key={l.href}
                     href={l.href}
@@ -136,12 +142,14 @@ export default function Nav() {
                     <span className="font-mono text-xs text-zinc-600">→</span>
                   </a>
                 ))}
+                {!loggedIn && (
                 <Link
                   href="/login"
                   className="mt-1 flex items-center justify-center rounded-2xl border border-white/10 px-4 py-3 text-[15px] font-medium text-zinc-100 sm:hidden"
                 >
                   Masuk
                 </Link>
+                )}
               </nav>
             </div>
           </div>

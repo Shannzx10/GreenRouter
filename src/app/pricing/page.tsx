@@ -6,6 +6,9 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import Reveal from "../Reveal";
 import SiteFooter from "../SiteFooter";
+import Nav from "../landing/Nav";
+import HeroCanvas from "../landing/HeroCanvas";
+import { Magnetic } from "../landing/Interactive";
 import PricingFaq from "./PricingFaq";
 import PricingGrid, { type ViewerPlan } from "./PricingGrid";
 
@@ -43,112 +46,64 @@ export default async function PricingPage() {
   const loggedIn = viewerPlan !== "visitor";
 
   return (
-    <main className="relative flex-1 overflow-hidden">
-      <div className="bg-dots absolute inset-0" />
-      <div className="aurora left-[-120px] top-[-80px] h-96 w-96 bg-emerald-500/25" />
-      <div className="aurora right-[-100px] top-48 h-80 w-80 bg-lime-400/20" style={{ animationDelay: "-6s" }} />
-      <div className="aurora bottom-[24%] left-[-140px] h-80 w-80 bg-teal-400/15" style={{ animationDelay: "-11s" }} />
+    <main className="lp-grain relative flex-1 overflow-x-clip bg-[#060806]">
+      <Nav landing={false} loggedIn={loggedIn} />
 
-      <div className="relative mx-auto w-full max-w-6xl px-5 pt-5 sm:px-8">
-        {/* Navigasi melayang, sama seperti landing */}
-        <header className="glass sticky top-4 z-40 flex items-center justify-between rounded-full py-2.5 pl-4 pr-2.5">
-          <Link href="/" className="flex items-center gap-2.5">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/assets/brand/leaf.png" alt="GreenRouter" className="h-9 w-9 shrink-0 object-contain" />
-            <span className="text-lg font-bold tracking-tight">
-              Green<span className="text-lime-300">Router</span>
-            </span>
-          </Link>
-          <nav className="hidden items-center gap-7 text-sm text-zinc-300 md:flex">
-            <a href="/#fitur" className="transition hover:text-lime-200">Fitur</a>
-            <a href="/#cara-mulai" className="transition hover:text-lime-200">Cara Mulai</a>
-            <a href="/#model" className="transition hover:text-lime-200">Model</a>
-            <a href="/#kuota" className="transition hover:text-lime-200">Kuota</a>
-            <span className="font-semibold text-lime-300">Harga</span>
-            <Link href="/app/docs" className="transition hover:text-lime-200">Dokumentasi</Link>
-          </nav>
-          <div className="flex items-center gap-2">
-            {loggedIn ? (
-              <Link
-                href="/app"
-                className="btn-shine inline-flex items-center gap-1.5 rounded-full bg-lime-400 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-lime-300"
-              >
-                Ke Dashboard
-              </Link>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="rounded-full px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06] hover:text-lime-200"
-                >
-                  Masuk
-                </Link>
-                <Link
-                  href="/register"
-                  className="btn-shine inline-flex items-center gap-1.5 rounded-full bg-lime-400 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-lime-300"
-                >
-                  Daftar Gratis
-                </Link>
-              </>
-            )}
-          </div>
-        </header>
+      <div className="lp-grid absolute inset-x-0 top-0 h-[560px]" />
+      <div className="pointer-events-none absolute left-1/2 top-[-120px] h-[380px] w-[680px] max-w-full -translate-x-1/2 rounded-full bg-lime-400/10 blur-[110px]" />
 
-        {/* Hero */}
-        <section className="mt-16 text-center sm:mt-20">
+      <div className="relative mx-auto w-full max-w-6xl px-5 pt-28 sm:px-8 sm:pt-32">
+        {/* Hero ringkas */}
+        <section className="text-center">
           <Reveal>
-            <div className="glass inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium text-lime-200 sm:text-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-lime-300 opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-lime-300" />
-              </span>
+            <p className="inline-flex items-center gap-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-lime-300/90">
+              <span className="h-1.5 w-1.5 bg-lime-300" />
               Harga GreenRouter
-            </div>
-            <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-6xl">
+              <span className="h-1.5 w-1.5 bg-lime-300" />
+            </p>
+            <h1 className="mx-auto mt-4 max-w-3xl text-[clamp(2.2rem,6.5vw,4rem)] font-extrabold leading-[1.05] tracking-tight">
               Harga sederhana,
               <br />
-              <span className="bg-gradient-to-r from-lime-200 via-lime-300 to-emerald-300 bg-clip-text text-transparent">
+              <span className="text-gradient-anim bg-gradient-to-r from-lime-300 via-emerald-300 to-teal-300 bg-clip-text text-transparent">
                 kuota yang serius.
               </span>
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-zinc-400 sm:text-lg">
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-zinc-400 sm:text-lg">
               Semua plan membuka seluruh katalog model dengan key yang sama. Yang
               membedakan hanya besar kuotanya. Naik atau turun plan kapan saja,
               dan plan Gratis selalu tersedia.
             </p>
           </Reveal>
-          <Reveal delay={120}>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-zinc-400">
-              <span className="inline-flex items-center gap-2">
-                <ShieldCheck size={16} className="text-lime-300" /> Pembayaran aman melalui Paddle
+          <Reveal delay={100}>
+            <div className="mt-7 flex flex-wrap items-center justify-center gap-2 font-mono text-[11px] text-zinc-300 sm:text-xs">
+              <span className="inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.03] px-3 py-1.5">
+                <ShieldCheck size={14} className="text-lime-300" /> Pembayaran aman melalui Paddle
               </span>
-              <span className="inline-flex items-center gap-2">
-                <CalendarClock size={16} className="text-lime-300" /> Batalkan kapan saja
+              <span className="inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.03] px-3 py-1.5">
+                <CalendarClock size={14} className="text-lime-300" /> Batalkan kapan saja
               </span>
-              <span className="inline-flex items-center gap-2">
-                <CreditCard size={16} className="text-lime-300" /> Kartu, PayPal, Apple Pay, Google Pay
+              <span className="inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.03] px-3 py-1.5">
+                <CreditCard size={14} className="text-lime-300" /> Kartu, PayPal, Apple Pay, Google Pay
               </span>
             </div>
           </Reveal>
         </section>
 
-        <Reveal delay={80}>
-          <PricingGrid
-            viewerPlan={viewerPlan}
-            userId={userId}
-            email={email}
-            prices={{
-              pro: {
-                monthly: process.env.PADDLE_PRICE_PRO_MONTHLY ?? null,
-                yearly: process.env.PADDLE_PRICE_PRO_YEARLY ?? null,
-              },
-              max: {
-                monthly: process.env.PADDLE_PRICE_MAX_MONTHLY ?? null,
-                yearly: process.env.PADDLE_PRICE_MAX_YEARLY ?? null,
-              },
-            }}
-          />
-        </Reveal>
+        <PricingGrid
+          viewerPlan={viewerPlan}
+          userId={userId}
+          email={email}
+          prices={{
+            pro: {
+              monthly: process.env.PADDLE_PRICE_PRO_MONTHLY ?? null,
+              yearly: process.env.PADDLE_PRICE_PRO_YEARLY ?? null,
+            },
+            max: {
+              monthly: process.env.PADDLE_PRICE_MAX_MONTHLY ?? null,
+              yearly: process.env.PADDLE_PRICE_MAX_YEARLY ?? null,
+            },
+          }}
+        />
 
         <div className="mx-auto mt-12 max-w-2xl space-y-2 text-center text-[13px] leading-relaxed text-zinc-500">
           <p>
@@ -167,39 +122,39 @@ export default async function PricingPage() {
         </div>
 
         <PricingFaq />
+      </div>
 
-        {/* CTA penutup, struktur dan jarak sama persis dengan landing */}
-        <section className="pt-16 text-center sm:pt-24">
+      {/* CTA penutup, sama dengan landing */}
+      <section className="relative isolate mt-20 overflow-hidden sm:mt-24">
+        <HeroCanvas density={0.55} className="absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,transparent,#000_30%,#000_75%,transparent)]" />
+        <div className="mx-auto max-w-6xl px-5 py-20 text-center sm:px-8 sm:py-28">
           <Reveal>
-            <h2 className="text-4xl font-extrabold tracking-tight sm:text-6xl">
+            <h2 className="text-[clamp(2.4rem,7vw,4.5rem)] font-extrabold leading-[1] tracking-tight">
               Work Fast,
               <br />
               <span className="text-gradient-anim bg-gradient-to-r from-lime-300 via-emerald-300 to-teal-300 bg-clip-text text-transparent">
                 Work Smart.
               </span>
             </h2>
-            <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-zinc-400">
+            <p className="mx-auto mt-5 max-w-md text-base leading-relaxed text-zinc-400">
               Berhenti mengurus banyak key dan banyak langganan. Satu key GreenRouter,
               dan kamu kembali fokus berkarya.
             </p>
-            {loggedIn ? (
-              <Link
-                href="/app"
-                className="btn-shine mt-8 inline-flex items-center gap-2 rounded-full bg-lime-400 px-8 py-4 font-semibold text-zinc-950 shadow-[0_10px_40px_-8px_rgba(163,230,53,0.55)] transition hover:bg-lime-300"
-              >
-                Ke Dashboard <ArrowRight size={18} />
-              </Link>
-            ) : (
-              <Link
-                href="/register"
-                className="btn-shine mt-8 inline-flex items-center gap-2 rounded-full bg-lime-400 px-8 py-4 font-semibold text-zinc-950 shadow-[0_10px_40px_-8px_rgba(163,230,53,0.55)] transition hover:bg-lime-300"
-              >
-                Daftar Gratis Sekarang <ArrowRight size={18} />
-              </Link>
-            )}
+            <div className="mt-8">
+              <Magnetic>
+                <Link
+                  href={loggedIn ? "/app" : "/register"}
+                  className="btn-shine inline-flex items-center gap-2 rounded-full bg-lime-400 px-8 py-4 font-semibold text-zinc-950 shadow-[0_10px_40px_-8px_rgba(163,230,53,0.55)] transition hover:bg-lime-300"
+                >
+                  {loggedIn ? "Ke Dashboard" : "Daftar Gratis Sekarang"} <ArrowRight size={18} />
+                </Link>
+              </Magnetic>
+            </div>
           </Reveal>
-        </section>
+        </div>
+      </section>
 
+      <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
         <SiteFooter />
       </div>
     </main>

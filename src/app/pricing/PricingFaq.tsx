@@ -33,21 +33,27 @@ export default function PricingFaq() {
   const [open, setOpen] = useState<number | null>(0);
   return (
     <section className="mx-auto mt-20 max-w-3xl sm:mt-24">
-      <h2 className="text-center text-2xl font-bold tracking-tight sm:text-3xl">
+      <p className="text-center font-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-lime-300/90">
+        FAQ
+      </p>
+      <h2 className="mt-3 text-center text-2xl font-bold tracking-tight sm:text-3xl">
         Pertanyaan yang sering diajukan
       </h2>
       <div className="mt-8 space-y-3">
         {FAQS.map((item, i) => {
           const isOpen = open === i;
           return (
-            <div key={item.q} className="glass overflow-hidden rounded-3xl">
+            <div key={item.q} className={"spot overflow-hidden rounded-3xl transition " + (isOpen ? "border-lime-300/25" : "")}>
               <button
                 type="button"
                 onClick={() => setOpen(isOpen ? null : i)}
                 className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
                 aria-expanded={isOpen}
               >
-                <span className="font-semibold">{item.q}</span>
+                <span className="flex items-baseline gap-3 font-semibold">
+                  <span className="font-mono text-xs text-lime-300/70">{String(i + 1).padStart(2, "0")}</span>
+                  {item.q}
+                </span>
                 <ChevronDown
                   size={18}
                   className={`shrink-0 text-lime-300 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
@@ -57,7 +63,7 @@ export default function PricingFaq() {
                 className={`grid transition-all duration-300 ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
               >
                 <div className="overflow-hidden">
-                  <p className="px-6 pb-6 text-sm leading-relaxed text-zinc-400">{item.a}</p>
+                  <p className="px-6 pb-6 pl-[3.75rem] text-sm leading-relaxed text-zinc-400">{item.a}</p>
                 </div>
               </div>
             </div>
