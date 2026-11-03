@@ -43,6 +43,7 @@ export type AuthedClient = ApiKey & {
     tokenLimit: number | null;
     requestLimitHourly: number | null;
     createdAt: Date;
+    plan: string;
   } | null;
 };
 
@@ -61,7 +62,7 @@ export async function authenticateClient(
     where: { keyHash: hashClientKey(token) },
     include: {
       user: {
-        select: { id: true, suspendedAt: true, tokenLimit: true, requestLimitHourly: true, createdAt: true },
+        select: { id: true, suspendedAt: true, tokenLimit: true, requestLimitHourly: true, createdAt: true, plan: true },
       },
     },
   });
@@ -395,21 +396,38 @@ export async function logUsage(d: UsageData): Promise<void> {
 type Usage = { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
 
 // ---------- Forward chat completions dengan failover ----------
-export async function forwardChatCompletion(args: {
-  apiKeyId: string;
-  userId?: string | null;
-  modelId: string;
-  candidates: Candidate[];
-  body: Record<string, unknown>;
-  stream: boolean;
-}): Promise<Response> {
-  const started = Date.now();
+// Satu percobaan penuh menyapu daftar kandidat. Mengembalikan
+// "final" bila ada jawaban untuk klien (sukses, atau error yang
+// berasal dari request klien sendiri), atau "exhausted" bila
+// semua kandidat gagal dengan status yang bisa dialihkan.
+type AttemptOutcome =
+  | { kind: "final"; response: Response }
+  | {
+      kind: "exhausted";
+      lastStatus: number;
+      lastBody: string;
+      lastCand: Candidate | null;
+      minRetryAfter: number | null;
+    };
+
+async function attemptChatCompletion(
+  args: {
+    apiKeyId: string;
+    userId?: string | null;
+    modelId: string;
+    candidates: Candidate[];
+    body: Record<string, unknown>;
+    stream: boolean;
+  },
+  candidates: Candidate[],
+  started: number,
+): Promise<AttemptOutcome> {
   let lastStatus = 502;
   let lastBody = "";
   let lastCand: Candidate | null = null;
   let minRetryAfter: number | null = null;
 
-  for (const cand of args.candidates) {
+  for (const cand of candidates) {
     // Cek limit per request untuk provider yang mewajibkannya (Dahl):
     // key yang sisa tokennya habis langsung ditandai LIMITED (perlakuan
     // sama seperti 402) dan dilewati tanpa meneruskan request.
@@ -480,7 +498,7 @@ export async function forwardChatCompletion(args: {
         status: "ERROR",
         error: `upstream ${upstream.status}`,
       });
-      return clientErrorResponse("openai", upstream.status, args.modelId);
+      return { kind: "final", response: clientErrorResponse("openai", upstream.status, args.modelId) };
     }
 
     await markKeySuccess(cand.key);
@@ -503,10 +521,13 @@ export async function forwardChatCompletion(args: {
         latencyMs: Date.now() - started,
         status: "SUCCESS",
       });
-      return new Response(text, {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
+      return {
+        kind: "final",
+        response: new Response(text, {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      };
     }
 
     // Streaming: teruskan chunk apa adanya, pindai usage di ekor stream.
@@ -543,28 +564,66 @@ export async function forwardChatCompletion(args: {
         reader.cancel().catch(() => {});
       },
     });
-    return new Response(bodyStream, {
-      status: 200,
-      headers: {
-        "content-type": "text/event-stream",
-        "cache-control": "no-cache, no-transform",
-        connection: "keep-alive",
-      },
-    });
+    return {
+      kind: "final",
+      response: new Response(bodyStream, {
+        status: 200,
+        headers: {
+          "content-type": "text/event-stream",
+          "cache-control": "no-cache, no-transform",
+          connection: "keep-alive",
+        },
+      }),
+    };
   }
 
-  // Semua kandidat gagal.
+  // Semua kandidat pada percobaan ini gagal dengan status yang bisa
+  // dialihkan; pembungkus yang memutuskan lanjut ke percobaan
+  // berikutnya (prioritas plan) atau berhenti dan mencatat log.
+  return { kind: "exhausted", lastStatus, lastBody, lastCand, minRetryAfter };
+}
+
+export async function forwardChatCompletion(args: {
+  apiKeyId: string;
+  userId?: string | null;
+  modelId: string;
+  candidates: Candidate[];
+  body: Record<string, unknown>;
+  stream: boolean;
+  plan?: string;
+}): Promise<Response> {
+  const started = Date.now();
+  // Prioritas pool: plan berbayar mendapat percobaan ulang saat
+  // semua kandidat gagal (pool ramai atau hulu terganggu sesaat).
+  // Gratis 1 percobaan, Pro 2, Max 3, dengan jeda singkat dan
+  // daftar kandidat diambil ulang di antara percobaan. Satu
+  // request klien tetap menghasilkan tepat satu baris UsageLog:
+  // log final ditulis di sini, bukan di percobaan yang gagal.
+  const maxPasses = args.plan === "max" ? 3 : args.plan === "pro" ? 2 : 1;
+  let outcome = await attemptChatCompletion(args, args.candidates, started);
+  for (let pass = 2; pass <= maxPasses && outcome.kind === "exhausted"; pass++) {
+    await new Promise((r) => setTimeout(r, 1200));
+    const fresh = await getCandidates(args.modelId, "openai");
+    if (!fresh.candidates.length) break;
+    outcome = await attemptChatCompletion(args, fresh.candidates, started);
+  }
+  if (outcome.kind === "final") return outcome.response;
   await logUsage({
     apiKeyId: args.apiKeyId,
     userId: args.userId ?? undefined,
-    providerId: lastCand?.provider.id,
-    upstreamKeyId: lastCand?.key.id,
+    providerId: outcome.lastCand?.provider.id,
+    upstreamKeyId: outcome.lastCand?.key.id,
     modelId: args.modelId,
     latencyMs: Date.now() - started,
     status: "ERROR",
-    error: `upstream ${lastStatus}: ${lastBody.slice(0, 200)}`,
+    error: `upstream ${outcome.lastStatus}: ${outcome.lastBody.slice(0, 200)}`,
   });
-  return clientErrorResponse("openai", lastStatus, args.modelId, lastStatus === 429 ? minRetryAfter : undefined);
+  return clientErrorResponse(
+    "openai",
+    outcome.lastStatus,
+    args.modelId,
+    outcome.lastStatus === 429 ? outcome.minRetryAfter : undefined,
+  );
 }
 
 
@@ -706,23 +765,26 @@ async function tryTranslatedCandidate(
 // hulu ({baseUrl}/messages): header x-api-key + anthropic-version, usage
 // berbentuk { input_tokens, output_tokens }, dan SSE khas Anthropic
 // (message_start/message_delta membawa usage). Failover & pencatatan sama.
-export async function forwardAnthropicMessages(args: {
-  apiKeyId: string;
-  userId?: string | null;
-  modelId: string;
-  candidates: Candidate[];
-  body: Record<string, unknown>;
-  stream: boolean;
-  anthropicVersion?: string;
-  anthropicBeta?: string;
-}): Promise<Response> {
-  const started = Date.now();
+async function attemptAnthropicMessages(
+  args: {
+    apiKeyId: string;
+    userId?: string | null;
+    modelId: string;
+    candidates: Candidate[];
+    body: Record<string, unknown>;
+    stream: boolean;
+    anthropicVersion?: string;
+    anthropicBeta?: string;
+  },
+  candidates: Candidate[],
+  started: number,
+): Promise<AttemptOutcome> {
   let lastStatus = 502;
   let lastBody = "";
   let lastCand: Candidate | null = null;
   let minRetryAfter: number | null = null;
 
-  for (const cand of args.candidates) {
+  for (const cand of candidates) {
     // Cek limit per request untuk provider yang mewajibkannya (Dahl):
     // key yang sisa tokennya habis langsung ditandai LIMITED (perlakuan
     // sama seperti 402) dan dilewati tanpa meneruskan request.
@@ -736,7 +798,7 @@ export async function forwardAnthropicMessages(args: {
     if (!cand.provider.supportsAnthropic) {
       // Provider tanpa endpoint /messages native: lewat penerjemah.
       const outcome = await tryTranslatedCandidate(cand, args, started);
-      if (outcome.kind === "response") return outcome.response;
+      if (outcome.kind === "response") return { kind: "final", response: outcome.response };
       lastStatus = outcome.status;
       lastBody = outcome.body;
       lastCand = cand;
@@ -798,7 +860,7 @@ export async function forwardAnthropicMessages(args: {
         status: "ERROR",
         error: `upstream ${upstream.status}`,
       });
-      return clientErrorResponse("anthropic", upstream.status, args.modelId);
+      return { kind: "final", response: clientErrorResponse("anthropic", upstream.status, args.modelId) };
     }
 
     await markKeySuccess(cand.key);
@@ -826,10 +888,13 @@ export async function forwardAnthropicMessages(args: {
         latencyMs: Date.now() - started,
         status: "SUCCESS",
       });
-      return new Response(text, {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
+      return {
+        kind: "final",
+        response: new Response(text, {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      };
     }
 
     // Streaming: teruskan event apa adanya; usage dipanen dari event
@@ -872,28 +937,63 @@ export async function forwardAnthropicMessages(args: {
         reader.cancel().catch(() => {});
       },
     });
-    return new Response(bodyStream, {
-      status: 200,
-      headers: {
-        "content-type": "text/event-stream",
-        "cache-control": "no-cache, no-transform",
-        connection: "keep-alive",
-      },
-    });
+    return {
+      kind: "final",
+      response: new Response(bodyStream, {
+        status: 200,
+        headers: {
+          "content-type": "text/event-stream",
+          "cache-control": "no-cache, no-transform",
+          connection: "keep-alive",
+        },
+      }),
+    };
   }
 
-  // Semua kandidat gagal.
+  // Semua kandidat pada percobaan ini gagal; pembungkus yang
+  // memutuskan lanjut atau berhenti (lihat forwardChatCompletion).
+  return { kind: "exhausted", lastStatus, lastBody, lastCand, minRetryAfter };
+}
+
+export async function forwardAnthropicMessages(args: {
+  apiKeyId: string;
+  userId?: string | null;
+  modelId: string;
+  candidates: Candidate[];
+  body: Record<string, unknown>;
+  stream: boolean;
+  anthropicVersion?: string;
+  anthropicBeta?: string;
+  plan?: string;
+}): Promise<Response> {
+  const started = Date.now();
+  // Prioritas pool yang sama seperti jalur OpenAI: Gratis 1
+  // percobaan, Pro 2, Max 3, kandidat diambil ulang di antaranya.
+  const maxPasses = args.plan === "max" ? 3 : args.plan === "pro" ? 2 : 1;
+  let outcome = await attemptAnthropicMessages(args, args.candidates, started);
+  for (let pass = 2; pass <= maxPasses && outcome.kind === "exhausted"; pass++) {
+    await new Promise((r) => setTimeout(r, 1200));
+    const fresh = await getCandidates(args.modelId, "anthropic");
+    if (!fresh.candidates.length) break;
+    outcome = await attemptAnthropicMessages(args, fresh.candidates, started);
+  }
+  if (outcome.kind === "final") return outcome.response;
   await logUsage({
     apiKeyId: args.apiKeyId,
     userId: args.userId ?? undefined,
-    providerId: lastCand?.provider.id,
-    upstreamKeyId: lastCand?.key.id,
+    providerId: outcome.lastCand?.provider.id,
+    upstreamKeyId: outcome.lastCand?.key.id,
     modelId: args.modelId,
     latencyMs: Date.now() - started,
     status: "ERROR",
-    error: `upstream ${lastStatus}: ${lastBody.slice(0, 200)}`,
+    error: `upstream ${outcome.lastStatus}: ${outcome.lastBody.slice(0, 200)}`,
   });
-  return clientErrorResponse("anthropic", lastStatus, args.modelId, lastStatus === 429 ? minRetryAfter : undefined);
+  return clientErrorResponse(
+    "anthropic",
+    outcome.lastStatus,
+    args.modelId,
+    outcome.lastStatus === 429 ? outcome.minRetryAfter : undefined,
+  );
 }
 
 // ---------- Tes kesehatan model otomatis (1x per 24 jam) ----------

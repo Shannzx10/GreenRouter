@@ -16,6 +16,7 @@ type ModelRow = {
   inputModalities: string | null;
   capabilities: string | null;
   knowledgeCutoff: string | null;
+  earlyAccessUntil: string | null;
   routeId: string | null;
   target: string | null;
 };
@@ -50,12 +51,23 @@ const inputCls =
 const btnCls =
   "inline-flex items-center justify-center gap-1.5 rounded-full bg-lime-400 px-3.5 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-lime-300 disabled:opacity-50";
 
+// Konversi ISO ke nilai input datetime-local (waktu setempat).
+function isoToLocalInput(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60_000)
+    .toISOString()
+    .slice(0, 16);
+}
+
 function MetaForm({ model, onDone }: { model: ModelRow; onDone: () => void }) {
   const router = useRouter();
   const [name, setName] = useState(model.displayName);
   const [ctx, setCtx] = useState(model.contextTokens?.toString() ?? "");
   const [maxOut, setMaxOut] = useState(model.maxOutputTokens?.toString() ?? "");
   const [cutoff, setCutoff] = useState(model.knowledgeCutoff ?? "");
+  const [early, setEarly] = useState(isoToLocalInput(model.earlyAccessUntil));
   const [mods, setMods] = useState<string[]>(csvToList(model.inputModalities));
   const [caps, setCaps] = useState<string[]>(csvToList(model.capabilities));
   const [busy, setBusy] = useState(false);
@@ -86,6 +98,7 @@ function MetaForm({ model, onDone }: { model: ModelRow; onDone: () => void }) {
           inputModalities: mods,
           capabilities: caps,
           knowledgeCutoff: cutoff === "" ? null : cutoff,
+          earlyAccessUntil: early === "" ? null : new Date(early).toISOString(),
         }),
       });
       if (!res.ok) {
@@ -147,10 +160,18 @@ function MetaForm({ model, onDone }: { model: ModelRow; onDone: () => void }) {
           <span className="mb-1 block text-xs text-zinc-400">Batas pengetahuan (YYYY-MM)</span>
           <input className={`${inputCls} w-44`} placeholder="2025-05" value={cutoff} onChange={(e) => setCutoff(e.target.value)} />
         </label>
+        <label className="block">
+          <span className="mb-1 block text-xs text-zinc-400">Akses awal sampai (khusus plan berbayar)</span>
+          <input className={`${inputCls} w-60`} type="datetime-local" value={early} onChange={(e) => setEarly(e.target.value)} />
+        </label>
         <button type="submit" disabled={busy} className={btnCls}>
           {busy ? "Menyimpan..." : "Simpan Metadata"}
         </button>
       </div>
+      <p className="mt-2 text-xs text-zinc-500">
+        Akses awal: selama tanggal itu belum lewat, model hanya bisa dipakai plan Pro dan Max.
+        Kosongkan untuk membuka ke semua plan.
+      </p>
     </form>
   );
 }

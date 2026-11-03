@@ -58,6 +58,17 @@ export async function PATCH(req: Request, { params }: Ctx) {
     }
     data.knowledgeCutoff = kc || null;
   }
+  if (body.earlyAccessUntil !== undefined) {
+    if (body.earlyAccessUntil === null || body.earlyAccessUntil === "") {
+      data.earlyAccessUntil = null;
+    } else {
+      const d = new Date(String(body.earlyAccessUntil));
+      if (Number.isNaN(d.getTime())) {
+        return Response.json({ error: "Format earlyAccessUntil tidak valid" }, { status: 400 });
+      }
+      data.earlyAccessUntil = d;
+    }
+  }
   if (Object.keys(data).length === 0) {
     return Response.json({ error: "Tidak ada field yang diubah" }, { status: 400 });
   }

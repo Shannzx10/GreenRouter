@@ -22,12 +22,18 @@ export default async function UserModelsPage() {
     select: { modelId: true },
   });
   const routed = new Set(routes.map((r) => r.modelId));
+  const user = await prisma.user.findUnique({
+    where: { id: session.uid },
+    select: { plan: true },
+  });
+  const now = new Date();
 
   const data: CatalogModel[] = models.map((m) => ({
     id: m.id,
     modelId: m.modelId,
     displayName: m.displayName,
     active: routed.has(m.id),
+    earlyAccess: !!m.earlyAccessUntil && m.earlyAccessUntil > now,
     contextTokens: m.contextTokens,
     maxOutputTokens: m.maxOutputTokens,
     knowledgeCutoff: m.knowledgeCutoff,
@@ -43,7 +49,7 @@ export default async function UserModelsPage() {
       </p>
 
       <div className="mt-6">
-        <CatalogExplorer models={data} />
+        <CatalogExplorer models={data} viewerPlan={user?.plan ?? "gratis"} />
       </div>
     </div>
   );

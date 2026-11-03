@@ -21,6 +21,7 @@ export async function GET() {
       id: m.id,
       modelId: m.modelId,
       displayName: m.displayName,
+      earlyAccessUntil: m.earlyAccessUntil?.toISOString() ?? null,
       routes: m.routes.map((r) => ({
         id: r.id,
         providerId: r.providerId,

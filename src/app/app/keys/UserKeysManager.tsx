@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Copy, Plus, RotateCcw, Trash2, X } from "lucide-react";
+import { Check, Copy, Gauge, Plus, RotateCcw, Trash2, X } from "lucide-react";
 import ConfirmModal from "@/app/ConfirmModal";
 
 type ClientKey = {
@@ -10,6 +10,7 @@ type ClientKey = {
   name: string;
   prefix: string;
   isActive: boolean;
+  tokenLimit: number | null;
   lastUsedAt: string | null;
   createdAt: string;
 };
@@ -22,9 +23,20 @@ function fmt(d: string | null) {
   return new Date(d).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
 }
 
-export default function UserKeysManager({ keys }: { keys: ClientKey[] }) {
+export default function UserKeysManager({
+  keys,
+  planId,
+  planName,
+  apiKeyLimit,
+}: {
+  keys: ClientKey[];
+  planId: string;
+  planName: string;
+  apiKeyLimit: number;
+}) {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [createLimit, setCreateLimit] = useState("");
   const [newKey, setNewKey] = useState("");
   const [keyNotice, setKeyNotice] = useState("Key baru dibuat");
   const [copied, setCopied] = useState(false);
@@ -33,6 +45,11 @@ export default function UserKeysManager({ keys }: { keys: ClientKey[] }) {
   const [rotating, setRotating] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ClientKey | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [limitTarget, setLimitTarget] = useState<ClientKey | null>(null);
+  const [limitValue, setLimitValue] = useState("");
+  const [savingLimit, setSavingLimit] = useState(false);
+  const isMax = planId === "max";
+  const atLimit = keys.length >= apiKeyLimit;
 
   async function call(url: string, method: string, body?: unknown) {
     const res = await fetch(url, {
@@ -51,15 +68,45 @@ export default function UserKeysManager({ keys }: { keys: ClientKey[] }) {
     e.preventDefault();
     setErr("");
     try {
-      const res = await call("/api/user/keys", "POST", { name });
+      const body: { name: string; tokenLimit?: number } = { name };
+      if (isMax && createLimit.trim()) {
+        const n = Number(createLimit);
+        if (!Number.isFinite(n) || n <= 0 || Math.round(n) !== n) {
+          throw new Error("Batas token key harus bilangan bulat positif");
+        }
+        body.tokenLimit = n;
+      }
+      const res = await call("/api/user/keys", "POST", body);
       const d = (await res.json()) as { fullKey: string };
       setNewKey(d.fullKey);
       setKeyNotice("Key baru dibuat");
       setCopied(false);
       setName("");
+      setCreateLimit("");
       router.refresh();
     } catch (e2) {
       setErr(e2 instanceof Error ? e2.message : "Gagal membuat key");
+    }
+  }
+
+  async function saveLimit() {
+    if (!limitTarget) return;
+    setSavingLimit(true);
+    setErr("");
+    try {
+      const trimmed = limitValue.trim();
+      const tokenLimit = trimmed === "" ? null : Number(trimmed);
+      if (tokenLimit !== null && (!Number.isFinite(tokenLimit) || tokenLimit <= 0 || Math.round(tokenLimit) !== tokenLimit)) {
+        throw new Error("Batas token key harus bilangan bulat positif, atau kosongkan untuk tanpa batas");
+      }
+      await call(`/api/user/keys/${limitTarget.id}`, "PATCH", { tokenLimit });
+      setLimitTarget(null);
+      router.refresh();
+    } catch (e2) {
+      setErr(e2 instanceof Error ? e2.message : "Gagal menyimpan batas key");
+      setLimitTarget(null);
+    } finally {
+      setSavingLimit(false);
     }
   }
 
@@ -105,6 +152,9 @@ export default function UserKeysManager({ keys }: { keys: ClientKey[] }) {
       <p className="mt-1 text-sm text-zinc-400">
         Kelola API key milikmu, buat yang baru, rotate, atau cabut yang sudah tidak dipakai.
       </p>
+      <p className="mt-1 text-sm text-zinc-500">
+        Kamu memakai {keys.length} dari {apiKeyLimit} key pada plan {planName}.
+      </p>
 
       {err && (
         <p className="mt-4 rounded-xl border border-red-400/25 bg-red-500/10 px-3.5 py-2.5 text-sm text-red-300">{err}</p>
@@ -133,12 +183,30 @@ export default function UserKeysManager({ keys }: { keys: ClientKey[] }) {
         </div>
       )}
 
-      <form onSubmit={create} className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <input className={inputCls} placeholder="Nama key (mis. OpenCode di laptop)" value={name} onChange={(e) => setName(e.target.value)} required />
-        <button type="submit" className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-lime-400 px-5 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-lime-300">
-          <Plus size={16} /> Buat Key
-        </button>
-      </form>
+      {atLimit ? (
+        <p className="mt-6 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-sm text-zinc-400">
+          Batas {apiKeyLimit} key untuk plan {planName} sudah tercapai. Hapus key lama
+          atau naik plan untuk membuat key baru.
+        </p>
+      ) : (
+        <form onSubmit={create} className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <input className={inputCls} placeholder="Nama key (mis. OpenCode di laptop)" value={name} onChange={(e) => setName(e.target.value)} required disabled={atLimit} />
+          {isMax && (
+            <input
+              className={`${inputCls} sm:max-w-60`}
+              type="number"
+              min="1"
+              placeholder="Batas token per siklus (opsional)"
+              value={createLimit}
+              onChange={(e) => setCreateLimit(e.target.value)}
+              title="Batas token per siklus 7 hari untuk key ini, khusus plan Max"
+            />
+          )}
+          <button type="submit" className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-lime-400 px-5 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-lime-300">
+            <Plus size={16} /> Buat Key
+          </button>
+        </form>
+      )}
 
       <div className="mt-6 overflow-x-auto glass rounded-3xl">
         <table className="w-full min-w-[680px] text-left text-sm">
@@ -160,7 +228,14 @@ export default function UserKeysManager({ keys }: { keys: ClientKey[] }) {
             )}
             {keys.map((k) => (
               <tr key={k.id} className="border-t border-white/[0.05]">
-                <td className="px-4 py-2.5 font-medium">{k.name}</td>
+                <td className="px-4 py-2.5 font-medium">
+                  {k.name}
+                  {k.tokenLimit != null && (
+                    <span className="block text-xs font-normal text-zinc-500">
+                      Batas {k.tokenLimit.toLocaleString("id-ID")} token per siklus
+                    </span>
+                  )}
+                </td>
                 <td className="px-4 py-2.5 font-mono text-xs">{k.prefix}…</td>
                 <td className="px-4 py-2.5 text-zinc-400">{fmt(k.createdAt)}</td>
                 <td className="px-4 py-2.5 text-zinc-400">{fmt(k.lastUsedAt)}</td>
@@ -178,6 +253,18 @@ export default function UserKeysManager({ keys }: { keys: ClientKey[] }) {
                   </button>
                 </td>
                 <td className="px-4 py-2.5 text-right">
+                  {isMax && (
+                    <button
+                      onClick={() => {
+                        setLimitTarget(k);
+                        setLimitValue(k.tokenLimit?.toString() ?? "");
+                      }}
+                      className="rounded-lg p-1.5 text-zinc-500 transition hover:bg-white/[0.06] hover:text-lime-300"
+                      title="Atur batas token per siklus untuk key ini"
+                    >
+                      <Gauge size={15} />
+                    </button>
+                  )}
                   <button
                     onClick={() => setRotateTarget(k)}
                     className="rounded-lg p-1.5 text-zinc-500 transition hover:bg-white/[0.06] hover:text-lime-300"
@@ -233,6 +320,47 @@ export default function UserKeysManager({ keys }: { keys: ClientKey[] }) {
           onCancel={() => setDeleteTarget(null)}
           onConfirm={doDelete}
         />
+      )}
+
+      {limitTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="glass w-full max-w-md rounded-3xl p-6">
+            <div className="flex items-start justify-between">
+              <h2 className="text-lg font-bold">Batas Token Key</h2>
+              <button onClick={() => setLimitTarget(null)} className="text-zinc-400 hover:text-zinc-100">
+                <X size={18} />
+              </button>
+            </div>
+            <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">
+              Batas pemakaian token per siklus 7 hari untuk key{" "}
+              <span className="font-medium text-zinc-200">{limitTarget.name}</span>. Kosongkan
+              untuk tanpa batas per key (kuota akun tetap berlaku).
+            </p>
+            <input
+              className={`${inputCls} mt-4`}
+              type="number"
+              min="1"
+              placeholder="Mis. 1000000"
+              value={limitValue}
+              onChange={(e) => setLimitValue(e.target.value)}
+            />
+            <div className="mt-5 flex gap-2.5">
+              <button
+                onClick={saveLimit}
+                disabled={savingLimit}
+                className="flex-1 rounded-full bg-lime-400 px-5 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-lime-300 disabled:opacity-60"
+              >
+                {savingLimit ? "Menyimpan..." : "Simpan Batas"}
+              </button>
+              <button
+                onClick={() => setLimitTarget(null)}
+                className="rounded-full border border-white/10 px-5 py-2.5 text-sm text-zinc-300 transition hover:bg-white/[0.04]"
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

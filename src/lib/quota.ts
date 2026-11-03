@@ -66,6 +66,28 @@ export async function cycleTokensUsed(
   return { used: agg._sum.totalTokens ?? 0, window };
 }
 
+// Pemakaian token SATU key dalam jendela siklus pemiliknya (fitur
+// batas per key plan Max). Jangkar siklus tetap tanggal pembuatan
+// akun pemilik, sama seperti kuota akun, supaya batas key dan batas
+// akun selalu membicarakan jendela yang sama. Dihitung dari baris
+// log yang masih terhubung ke key ini; tidak seperti kuota akun,
+// batas key memang dimaksudkan per key yang masih ada.
+export async function cycleKeyTokensUsed(
+  apiKeyId: string,
+  anchor: Date,
+): Promise<{ used: number; window: CycleWindow }> {
+  const window = cycleWindow(anchor);
+  const agg = await prisma.usageLog.aggregate({
+    _sum: { totalTokens: true },
+    where: {
+      status: "SUCCESS",
+      createdAt: { gte: window.start, lt: window.end },
+      apiKeyId,
+    },
+  });
+  return { used: agg._sum.totalTokens ?? 0, window };
+}
+
 export function fmtDateShort(d: Date): string {
   return d.toLocaleDateString("id-ID", {
     day: "numeric",

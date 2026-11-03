@@ -13,6 +13,7 @@ import {
   PenLine,
   RotateCcw,
   Search,
+  Sparkles,
   Type,
   Video,
   Wrench,
@@ -25,6 +26,7 @@ export type CatalogModel = {
   modelId: string;
   displayName: string;
   active: boolean;
+  earlyAccess: boolean;
   contextTokens: number | null;
   maxOutputTokens: number | null;
   knowledgeCutoff: string | null;
@@ -94,7 +96,13 @@ const chipBtn = (on: boolean) =>
       : "border border-white/10 text-zinc-300 hover:bg-white/[0.04]"
   }`;
 
-export default function CatalogExplorer({ models }: { models: CatalogModel[] }) {
+export default function CatalogExplorer({
+  models,
+  viewerPlan,
+}: {
+  models: CatalogModel[];
+  viewerPlan: string;
+}) {
   const [query, setQuery] = useState("");
   const [family, setFamily] = useState("semua");
   const [caps, setCaps] = useState<Set<string>>(new Set());
@@ -264,11 +272,21 @@ export default function CatalogExplorer({ models }: { models: CatalogModel[] }) 
                     ) : null,
                   )}
                   {cutoff && <Chip icon={CalendarDays}>Data s/d {cutoff}</Chip>}
+                  {m.earlyAccess && <Chip icon={Sparkles}>Akses Awal</Chip>}
                 </div>
 
                 <p className="mt-4 flex items-center gap-2 border-t border-white/[0.05] pt-3 text-xs text-zinc-500">
-                  <span className={`h-1.5 w-1.5 rounded-full ${m.active ? "bg-lime-300" : "bg-zinc-600"}`} />
-                  {m.active ? "Aktif, siap dipakai dengan key kamu" : "Sedang nonaktif"}
+                  {m.earlyAccess && viewerPlan === "gratis" ? (
+                    <>
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
+                      Akses awal, hanya untuk plan Pro dan Max
+                    </>
+                  ) : (
+                    <>
+                      <span className={`h-1.5 w-1.5 rounded-full ${m.active ? "bg-lime-300" : "bg-zinc-600"}`} />
+                      {m.active ? "Aktif, siap dipakai dengan key kamu" : "Sedang nonaktif"}
+                    </>
+                  )}
                 </p>
               </article>
             );

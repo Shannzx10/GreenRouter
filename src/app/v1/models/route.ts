@@ -23,9 +23,17 @@ export async function GET(req: Request) {
     where: { routes: { some: { isActive: true, provider: { isActive: true } } } },
     orderBy: { modelId: "asc" },
   });
+  // Akses awal: model yang masih dalam masa akses awal hanya
+  // tampil untuk plan berbayar; plan Gratis tidak melihatnya.
+  const plan = client === "SUSPENDED" ? "gratis" : (client.user?.plan ?? "gratis");
+  const now = new Date();
+  const visible =
+    plan === "gratis"
+      ? models.filter((m) => !m.earlyAccessUntil || m.earlyAccessUntil <= now)
+      : models;
   return Response.json({
     object: "list",
-    data: models.map((m) => ({
+    data: visible.map((m) => ({
       id: m.modelId,
       object: "model",
       created: Math.floor(m.createdAt.getTime() / 1000),

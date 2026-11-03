@@ -1248,6 +1248,7 @@ export const ApiKeyScalarFieldEnum = {
   prefix: 'prefix',
   keyHash: 'keyHash',
   isActive: 'isActive',
+  tokenLimit: 'tokenLimit',
   lastUsedAt: 'lastUsedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1300,6 +1301,7 @@ export const ModelCatalogScalarFieldEnum = {
   inputModalities: 'inputModalities',
   capabilities: 'capabilities',
   knowledgeCutoff: 'knowledgeCutoff',
+  earlyAccessUntil: 'earlyAccessUntil',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

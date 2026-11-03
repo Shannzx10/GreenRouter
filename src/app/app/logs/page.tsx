@@ -2,14 +2,19 @@ import { connection } from "next/server";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { ChevronLeft, ChevronRight, RotateCcw, SlidersHorizontal } from "lucide-react";
+import { planById } from "@/lib/plans";
+import { ChevronLeft, ChevronRight, Download, RotateCcw, SlidersHorizontal } from "lucide-react";
 
 const PAGE_SIZE = 25;
+// Pilihan periode mengikuti rentang statistik plan: Gratis 7
+// hari, Pro 30 hari, Max 90 hari. Nilai "" berarti seluruh
+// rentang plan (tetap dibatasi statsDays, bukan semua waktu).
 const PERIODS = [
-  { v: "semua", label: "Semua waktu" },
-  { v: "24j", label: "24 jam terakhir" },
-  { v: "7h", label: "7 hari terakhir" },
-  { v: "30h", label: "30 hari terakhir" },
+  { v: "", label: "Seluruh rentang plan" },
+  { v: "24j", label: "24 jam terakhir", days: 1 },
+  { v: "7h", label: "7 hari terakhir", days: 7 },
+  { v: "30h", label: "30 hari terakhir", days: 30 },
+  { v: "90h", label: "90 hari terakhir", days: 90 },
 ] as const;
 
 const selectCls =
@@ -23,30 +28,38 @@ export default async function UserLogsPage({
   await connection();
   const session = await getSession();
   if (!session) return null;
+  const user = await prisma.user.findUnique({
+    where: { id: session.uid },
+    select: { plan: true },
+  });
+  const plan = planById(user?.plan ?? "gratis");
+  const periodOptions = PERIODS.filter(
+    (p) => p.v === "" || p.days <= plan.statsDays,
+  );
   const sp = await searchParams;
   const pick = (k: string) => (typeof sp[k] === "string" ? (sp[k] as string) : "");
 
   const periodRaw = pick("periode");
-  const period = PERIODS.some((p) => p.v === periodRaw) ? periodRaw : "semua";
+  const period = periodOptions.some((p) => p.v === periodRaw) ? periodRaw : "";
   const statusRaw = pick("status");
   const status = statusRaw === "SUCCESS" || statusRaw === "ERROR" ? statusRaw : "";
   const model = pick("model");
   const keyId = pick("key");
   const page = Math.max(1, parseInt(pick("page") || "1", 10) || 1);
-  const hasFilter = period !== "semua" || status !== "" || model !== "" || keyId !== "";
+  const hasFilter = period !== "" || status !== "" || model !== "" || keyId !== "";
 
+  // Lantai rentang selalu statsDays plan; pilihan periode hanya
+  // boleh mempersempit, tidak pernah melampaui rentang plan.
+  const floorSince = new Date(Date.now() - plan.statsDays * 86_400_000);
+  const periodDef = PERIODS.find((p) => p.v === period);
   const since =
-    period === "24j"
-      ? new Date(Date.now() - 86_400_000)
-      : period === "7h"
-        ? new Date(Date.now() - 7 * 86_400_000)
-        : period === "30h"
-          ? new Date(Date.now() - 30 * 86_400_000)
-          : null;
+    periodDef && periodDef.v !== ""
+      ? new Date(Date.now() - periodDef.days * 86_400_000)
+      : floorSince;
 
   const where = {
     userId: session.uid,
-    ...(since ? { createdAt: { gte: since } } : {}),
+    createdAt: { gte: since },
     ...(status ? { status } : {}),
     ...(model ? { modelId: model } : {}),
     ...(keyId ? { apiKeyId: keyId } : {}),
@@ -90,10 +103,25 @@ export default async function UserLogsPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Log Pemakaian</h1>
-      <p className="mt-1 text-sm text-zinc-400">
-        Semua request yang melewati gateway dengan key milikmu.
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">Log Pemakaian</h1>
+          <p className="mt-1 text-sm text-zinc-400">
+            Semua request yang melewati gateway dengan key milikmu.
+          </p>
+          <p className="mt-1 text-sm text-zinc-500">
+            Plan {plan.name} menampilkan log sampai {plan.statsDays} hari terakhir.
+          </p>
+        </div>
+        {plan.id === "max" && (
+          <a
+            href="/api/user/usage/export"
+            className="inline-flex items-center gap-1.5 rounded-full border border-lime-300/30 bg-lime-400/10 px-4 py-2 text-sm font-medium text-lime-200 transition hover:bg-lime-400/20"
+          >
+            <Download size={15} /> Ekspor CSV
+          </a>
+        )}
+      </div>
 
       <form method="GET" action="/app/logs" className="glass mt-6 rounded-3xl p-4 sm:p-5">
         <p className="flex items-center gap-2 text-sm font-semibold">
@@ -101,7 +129,7 @@ export default async function UserLogsPage({
         </p>
         <div className="mt-3 flex flex-wrap gap-2.5">
           <select name="periode" defaultValue={period} className={selectCls} aria-label="Periode">
-            {PERIODS.map((p) => (
+            {periodOptions.map((p) => (
               <option key={p.v} value={p.v}>
                 {p.label}
               </option>

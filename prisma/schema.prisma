@@ -69,6 +69,9 @@ model ApiKey {
   prefix     String
   keyHash    String     @unique
   isActive   Boolean    @default(true)
+  // Batas token per siklus 7 hari untuk key ini saja (fitur plan Max).
+  // NULL = tanpa batas per key; kuota akun tetap berlaku di atasnya.
+  tokenLimit Int?
   lastUsedAt DateTime?
   usageLogs  UsageLog[]
   createdAt  DateTime   @default(now())
@@ -132,6 +135,11 @@ model ModelCatalog {
   inputModalities String? // daftar dipisah koma: text,image,video,pdf,audio
   capabilities    String? // daftar dipisah koma: reasoning,tool_call,structured_output,attachment
   knowledgeCutoff String? // format "YYYY-MM"
+  // Akses awal: selama waktu ini belum lewat, model hanya bisa dipakai
+  // plan berbayar (Pro dan Max); plan Gratis tidak melihatnya di
+  // /v1/models dan gateway menolaknya seperti model tidak dikenal.
+  // NULL atau sudah lewat = terbuka untuk semua plan.
+  earlyAccessUntil DateTime?
   routes          ModelRoute[]
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
