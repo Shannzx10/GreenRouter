@@ -288,3 +288,8 @@ body {
   .hw, .orbit-item, .bar-fill, .alt-pill, .plan-hot { animation: none; }
   .spot-tilt, .magnetic { transition: none; }
 }
+
+/* Dashboard user: cincin kuota mengisi saat dimuat */
+@keyframes ring-in { from { stroke-dashoffset: var(--c); } }
+.ring-in { animation: ring-in 1.3s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+@media (prefers-reduced-motion: reduce) { .ring-in { animation: none; } }

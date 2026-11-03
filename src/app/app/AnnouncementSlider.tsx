@@ -28,7 +28,7 @@ export default function AnnouncementSlider({ items }: { items: AnnouncementItem[
 
   return (
     <div
-      className="glass overflow-hidden rounded-3xl"
+      className="relative overflow-hidden rounded-3xl border border-lime-300/20 bg-gradient-to-r from-lime-400/[0.07] to-transparent"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={() => setPaused(true)}
@@ -39,19 +39,19 @@ export default function AnnouncementSlider({ items }: { items: AnnouncementItem[
         style={{ transform: `translateX(-${idx * 100}%)` }}
       >
         {items.map((a) => (
-          <article key={a.id} className="w-full shrink-0 p-5 sm:p-6">
+          <article key={a.id} className="w-full shrink-0 p-4 sm:p-5">
             <div className="flex items-start gap-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
                 <Megaphone size={19} />
               </span>
               <div className="min-w-0">
-                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-lime-300">
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-lime-300">
                   Pengumuman
                   <span className="ml-2 font-medium normal-case tracking-normal text-zinc-500">
                     {a.dateLabel}
                   </span>
                 </p>
-                <h3 className="mt-1 font-semibold sm:text-lg">{a.title}</h3>
+                <h3 className="mt-1 font-semibold">{a.title}</h3>
                 <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-zinc-400">
                   {a.body}
                 </p>
@@ -62,7 +62,7 @@ export default function AnnouncementSlider({ items }: { items: AnnouncementItem[
       </div>
 
       {n > 1 && (
-        <div className="flex items-center justify-center gap-1.5 pb-4">
+        <div className="flex items-center justify-center gap-1.5 pb-3">
           {items.map((a, i) => (
             <button
               key={a.id}
