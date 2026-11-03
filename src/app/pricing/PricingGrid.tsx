@@ -18,23 +18,24 @@ export type ViewerPlan = "visitor" | "gratis" | "pro" | "max";
 
 const RANK: Record<string, number> = { gratis: 0, pro: 1, max: 2 };
 
+export type PlanPrices = { monthly: string | null; yearly: string | null };
+
 export default function PricingGrid({
   viewerPlan,
   userId,
   email,
-  pricePro,
-  priceMax,
+  prices,
 }: {
   viewerPlan: ViewerPlan;
   userId: string | null;
   email: string | null;
-  pricePro: string | null;
-  priceMax: string | null;
+  prices: { pro: PlanPrices; max: PlanPrices };
 }) {
   const [paddle, setPaddle] = useState<Paddle | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [interval, setInterval] = useState<"monthly" | "yearly">("monthly");
 
   useEffect(() => {
     if (viewerPlan !== "gratis") return;
@@ -66,8 +67,8 @@ export default function PricingGrid({
   }, [viewerPlan]);
 
   function priceIdFor(plan: Plan): string | null {
-    if (plan.id === "pro") return pricePro;
-    if (plan.id === "max") return priceMax;
+    if (plan.id === "pro") return prices.pro[interval];
+    if (plan.id === "max") return prices.max[interval];
     return null;
   }
 
@@ -123,7 +124,7 @@ export default function PricingGrid({
     if (viewerPlan === "visitor") {
       return (
         <Link href="/register" className={btnBase + btnStyle}>
-          {plan.priceUsd > 0 ? "Daftar dan Berlangganan" : "Daftar Gratis"}
+          {plan.priceIdrMonthly > 0 ? "Daftar dan Berlangganan" : "Daftar Gratis"}
         </Link>
       );
     }
@@ -147,7 +148,7 @@ export default function PricingGrid({
         </button>
       );
     }
-    if (plan.priceUsd === 0) {
+    if (plan.id === "gratis") {
       return (
         <p className="mt-8 text-center text-xs leading-relaxed text-zinc-500">
           Turun ke Gratis dengan membatalkan langganan dari portal pelanggan di
@@ -186,10 +187,53 @@ export default function PricingGrid({
           {error}
         </p>
       )}
+      <div className="mb-10 flex justify-center">
+        <div className="glass inline-flex items-center rounded-full p-1">
+          <button
+            type="button"
+            onClick={() => setInterval("monthly")}
+            className={
+              "rounded-full px-5 py-2 text-sm font-semibold transition " +
+              (interval === "monthly"
+                ? "bg-lime-400 text-zinc-950"
+                : "text-zinc-300 hover:text-lime-200")
+            }
+          >
+            Bulanan
+          </button>
+          <button
+            type="button"
+            onClick={() => setInterval("yearly")}
+            className={
+              "inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition " +
+              (interval === "yearly"
+                ? "bg-lime-400 text-zinc-950"
+                : "text-zinc-300 hover:text-lime-200")
+            }
+          >
+            Tahunan
+            <span
+              className={
+                "rounded-full px-2 py-0.5 text-[11px] font-bold " +
+                (interval === "yearly"
+                  ? "bg-zinc-950/15 text-zinc-900"
+                  : "bg-lime-400/15 text-lime-300")
+              }
+            >
+              hemat 17%
+            </span>
+          </button>
+        </div>
+      </div>
       <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-3">
         {PLANS.map((plan) => {
           const featured = plan.id === "pro";
-          const paid = plan.priceUsd > 0;
+          const paid = plan.priceIdrMonthly > 0;
+          const perMonth = paid
+            ? interval === "monthly"
+              ? plan.priceIdrMonthly
+              : Math.round(plan.priceIdrYearly / 12)
+            : 0;
           const isCurrent = viewerPlan !== "visitor" && viewerPlan === plan.id;
           const Icon = plan.id === "pro" ? Zap : plan.id === "max" ? Crown : Sprout;
           return (
@@ -215,12 +259,16 @@ export default function PricingGrid({
               <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">{plan.tagline}</p>
               <p className="mt-6 flex items-baseline gap-1.5">
                 <span className="text-5xl font-extrabold tracking-tight">
-                  {paid ? `$${plan.priceUsd}` : "Rp0"}
+                  {paid ? `Rp${formatIdNumber(perMonth)}` : "Rp0"}
                 </span>
                 <span className="text-sm text-zinc-500">/ bulan</span>
               </p>
               <p className="mt-1 h-5 text-[13px] text-zinc-500">
-                {plan.priceIdrNote ? `${plan.priceIdrNote} per bulan` : "Tanpa kartu, langsung pakai"}
+                {!paid
+                  ? "Tanpa kartu, langsung pakai"
+                  : interval === "monthly"
+                    ? "Ditagih bulanan, sudah termasuk pajak"
+                    : `Ditagih Rp${formatIdNumber(plan.priceIdrYearly)} per tahun, sudah termasuk pajak`}
               </p>
               <ul className="mt-6 flex-1 space-y-3 text-sm text-zinc-300">
                 <li className="flex gap-2.5">
@@ -231,14 +279,12 @@ export default function PricingGrid({
                   <Check size={16} className="mt-0.5 shrink-0 text-lime-300" />
                   {formatIdNumber(plan.requestLimitHourly)} request per jam
                 </li>
-                <li className="flex gap-2.5">
-                  <Check size={16} className="mt-0.5 shrink-0 text-lime-300" />
-                  Akses ke seluruh katalog model
-                </li>
-                <li className="flex gap-2.5">
-                  <Check size={16} className="mt-0.5 shrink-0 text-lime-300" />
-                  Dashboard, log pemakaian, dan dokumentasi
-                </li>
+                {plan.features.map((f) => (
+                  <li key={f} className="flex gap-2.5">
+                    <Check size={16} className="mt-0.5 shrink-0 text-lime-300" />
+                    {f}
+                  </li>
+                ))}
               </ul>
               {actionFor(plan, featured)}
             </div>

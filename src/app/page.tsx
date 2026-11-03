@@ -415,7 +415,7 @@ export default function Home() {
                     <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">{plan.tagline}</p>
                     <p className="mt-5 flex items-baseline gap-1.5">
                       <span className="text-4xl font-extrabold tracking-tight">
-                        {plan.priceUsd > 0 ? `$${plan.priceUsd}` : "Rp0"}
+                        {plan.priceIdrMonthly > 0 ? `Rp${formatIdNumber(plan.priceIdrMonthly)}` : "Rp0"}
                       </span>
                       <span className="text-sm text-zinc-500">/ bulan</span>
                     </p>
@@ -443,7 +443,7 @@ export default function Home() {
                 Lihat Semua Plan <ArrowRight size={18} />
               </Link>
               <p className="mt-4 text-sm text-zinc-500">
-                Perbandingan lengkap, pertanyaan umum, dan pembelian ada di halaman harga.
+                Perbandingan lengkap, pertanyaan umum, dan pembelian ada di halaman harga. Tersedia juga paket tahunan yang lebih hemat 17 persen.
               </p>
             </div>
           </Reveal>

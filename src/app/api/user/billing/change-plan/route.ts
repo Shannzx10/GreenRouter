@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connection } from "next/server";
 import { prisma } from "@/lib/db";
 import { getPaddleInstance } from "@/lib/paddle";
+import { intervalOfPriceId, priceIdForPlan } from "@/lib/plans";
 import { getActiveSession } from "@/lib/session";
 
 // Mengganti plan langganan yang SUDAH aktif (mis. Pro ke Max).
@@ -39,16 +40,20 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   }
-  const priceId =
-    target === "pro" ? process.env.PADDLE_PRICE_PRO : process.env.PADDLE_PRICE_MAX;
-  if (!priceId) {
-    return NextResponse.json(
-      { error: "Plan belum tersedia untuk dibeli." },
-      { status: 503 },
-    );
-  }
   try {
     const paddle = getPaddleInstance();
+    // Interval penagihan dipertahankan: pelanggan tahunan yang
+    // ganti plan tetap ditagih tahunan, begitu juga bulanan.
+    // Interval dibaca dari price id langganan yang sedang berjalan.
+    const current = await paddle.subscriptions.get(user.paddleSubscriptionId);
+    const interval = intervalOfPriceId(current.items[0]?.price?.id);
+    const priceId = priceIdForPlan(target, interval);
+    if (!priceId) {
+      return NextResponse.json(
+        { error: "Plan belum tersedia untuk dibeli." },
+        { status: 503 },
+      );
+    }
     await paddle.subscriptions.update(user.paddleSubscriptionId, {
       items: [{ priceId, quantity: 1 }],
       prorationBillingMode: "prorated_immediately",

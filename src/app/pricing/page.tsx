@@ -137,16 +137,24 @@ export default async function PricingPage() {
             viewerPlan={viewerPlan}
             userId={userId}
             email={email}
-            pricePro={process.env.PADDLE_PRICE_PRO ?? null}
-            priceMax={process.env.PADDLE_PRICE_MAX ?? null}
+            prices={{
+              pro: {
+                monthly: process.env.PADDLE_PRICE_PRO_MONTHLY ?? null,
+                yearly: process.env.PADDLE_PRICE_PRO_YEARLY ?? null,
+              },
+              max: {
+                monthly: process.env.PADDLE_PRICE_MAX_MONTHLY ?? null,
+                yearly: process.env.PADDLE_PRICE_MAX_YEARLY ?? null,
+              },
+            }}
           />
         </Reveal>
 
         <div className="mx-auto mt-12 max-w-2xl space-y-2 text-center text-[13px] leading-relaxed text-zinc-500">
           <p>
-            Harga plan berbayar dalam dolar AS; perkiraan rupiah mengikuti kurs
-            saat penagihan dan pajak yang berlaku di wilayahmu dihitung saat
-            pembayaran.
+            Harga ditampilkan dalam rupiah sebagai perkiraan dari harga dolar
+            AS dan sudah termasuk pajak. Pembayaran diproses dalam dolar AS,
+            jadi angka rupiah yang tertagih mengikuti kurs saat pembayaran.
           </p>
           <p>
             Pembayaran diproses dengan aman oleh Paddle. Langganan diperpanjang
