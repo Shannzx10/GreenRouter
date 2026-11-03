@@ -179,3 +179,112 @@ body {
     0 0 0 1px rgba(190, 242, 100, 0.35),
     0 12px 34px -10px rgba(163, 230, 53, 0.45);
 }
+
+/* =====================================================================
+   Landing v2 (signal / terminal). Dipakai oleh src/app/landing/*
+   ===================================================================== */
+.lp-grid {
+  background-image:
+    linear-gradient(rgba(190, 242, 100, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(190, 242, 100, 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 35%, #000 25%, transparent 78%);
+}
+.lp-grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+.lp-mask-b { mask-image: linear-gradient(to bottom, #000 70%, transparent); }
+
+/* Judul masuk kata demi kata */
+@keyframes word-in {
+  from { opacity: 0; transform: translateY(105%) rotate(5deg); filter: blur(10px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+.hw { animation: word-in 0.95s cubic-bezier(0.2, 0.8, 0.2, 1) both; transform-origin: 0 100%; }
+
+/* Kartu spotlight + tilt */
+.spot {
+  position: relative;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.spot::before,
+.spot::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.spot::before {
+  inset: 0;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(190, 242, 100, 0.13), transparent 45%);
+}
+.spot::after {
+  padding: 1px;
+  background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), rgba(190, 242, 100, 0.85), transparent 42%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+@media (hover: hover) {
+  .spot:hover::before, .spot:hover::after { opacity: 1; }
+}
+.spot-tilt { transition: transform 0.18s ease-out; will-change: transform; }
+.magnetic { transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+/* Marquee dua arah */
+.marquee-rev { animation-direction: reverse; animation-duration: 42s; }
+
+/* Orbit logo provider */
+@keyframes orbit {
+  from { transform: rotate(var(--a)) translateX(64px) rotate(calc(var(--a) * -1)); }
+  to { transform: rotate(calc(var(--a) + 360deg)) translateX(64px) rotate(calc(var(--a) * -1 - 360deg)); }
+}
+.orbit-item { animation: orbit 18s linear infinite; }
+
+@keyframes bar-fill {
+  0% { width: 4%; }
+  55%, 85% { width: var(--w); }
+  100% { width: 4%; }
+}
+.bar-fill { animation: bar-fill 5s ease-in-out infinite; }
+
+@keyframes alt-pill {
+  0%, 45% { color: #d9f99d; border-color: rgba(190, 242, 100, 0.7); background: rgba(190, 242, 100, 0.12); box-shadow: 0 0 22px -4px rgba(190, 242, 100, 0.5); }
+  55%, 100% { color: #71717a; border-color: rgba(255, 255, 255, 0.1); background: transparent; box-shadow: none; }
+}
+.alt-pill { animation: alt-pill 3s ease-in-out infinite; }
+
+/* Timeline langkah */
+.step-fill-x { transform: scaleX(var(--p, 0)); box-shadow: 0 0 12px rgba(190, 242, 100, 0.8); }
+.step-fill-y { transform: scaleY(var(--p, 0)); box-shadow: 0 0 12px rgba(190, 242, 100, 0.8); }
+.step .step-dot span { transform: scale(0); transition: transform 0.4s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.step[data-on="1"] .step-dot { border-color: rgba(190, 242, 100, 0.8); box-shadow: 0 0 18px rgba(190, 242, 100, 0.6); }
+.step[data-on="1"] .step-dot span { transform: scale(1); }
+.step-n { color: transparent; -webkit-text-stroke: 1px rgba(190, 242, 100, 0.3); transition: color 0.6s, -webkit-text-stroke-color 0.6s; }
+.step[data-on="1"] .step-n { color: rgba(190, 242, 100, 0.14); -webkit-text-stroke-color: rgba(190, 242, 100, 0.8); }
+
+/* Kartu plan unggulan: border berputar */
+@property --ang { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+@keyframes spin-ang { to { --ang: 360deg; } }
+.plan-hot {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(#0b1008, #0b1008) padding-box,
+    conic-gradient(from var(--ang), rgba(190, 242, 100, 0.1), #bef264, rgba(94, 234, 212, 0.9), rgba(190, 242, 100, 0.1)) border-box;
+  animation: spin-ang 6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hw, .orbit-item, .bar-fill, .alt-pill, .plan-hot { animation: none; }
+  .spot-tilt, .magnetic { transition: none; }
+}
