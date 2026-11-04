@@ -2,7 +2,7 @@
 
 import { initializePaddle, type Paddle } from "@paddle/paddle-js";
 import { PLANS, formatIdNumber, type Plan } from "@/lib/plans";
-import { Check, Crown, Loader2, Settings2, Sprout, Zap } from "lucide-react";
+import { AlertTriangle, Check, CheckCircle2, Crown, Loader2, RefreshCcw, Settings2, Sprout, Zap } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Spot } from "../landing/Interactive";
@@ -37,6 +37,14 @@ export default function PricingGrid({
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [interval, setInterval] = useState<"monthly" | "yearly">("monthly");
+  // Ganti plan berjalan lewat popup konfirmasi: fase popup adalah
+  // confirm (menunggu ya/tidak), busy (permintaan diproses), done
+  // (berhasil), dan failed (gagal, pesan errornya di dalam popup).
+  // Status pergantian TIDAK lagi ditampilkan sebagai banner di
+  // atas grid.
+  const [changeTarget, setChangeTarget] = useState<Plan | null>(null);
+  const [changePhase, setChangePhase] = useState<"confirm" | "busy" | "done" | "failed">("confirm");
+  const [changeMsg, setChangeMsg] = useState("");
 
   useEffect(() => {
     if (viewerPlan !== "gratis") return;
@@ -93,26 +101,34 @@ export default function PricingGrid({
     }
   }
 
-  async function changePlan(plan: Plan) {
-    setError(null);
-    setBusy(plan.id);
+  function askChange(plan: Plan) {
+    setChangeTarget(plan);
+    setChangePhase("confirm");
+    setChangeMsg("");
+  }
+
+  async function confirmChange() {
+    if (!changeTarget) return;
+    setChangePhase("busy");
     try {
       const res = await fetch("/api/user/billing/change-plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: plan.id }),
+        body: JSON.stringify({ plan: changeTarget.id }),
       });
       const data = (await res.json().catch(() => null)) as { error?: string } | null;
       if (!res.ok) throw new Error(data?.error ?? "Ganti plan gagal diproses.");
-      setNotice(
-        "Permintaan ganti plan terkirim. Kuota barumu aktif dalam beberapa saat, halaman ini akan dimuat ulang.",
-      );
-      window.setTimeout(() => window.location.reload(), 4000);
+      setChangePhase("done");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Ganti plan gagal diproses.");
-    } finally {
-      setBusy(null);
+      setChangeMsg(e instanceof Error ? e.message : "Ganti plan gagal diproses.");
+      setChangePhase("failed");
     }
+  }
+
+  function closeChange(reload: boolean) {
+    if (changePhase === "busy") return;
+    setChangeTarget(null);
+    if (reload) window.location.reload();
   }
 
   function actionFor(plan: Plan, featured: boolean) {
@@ -170,11 +186,9 @@ export default function PricingGrid({
       <>
         <button
           type="button"
-          disabled={busy !== null}
-          onClick={() => changePlan(plan)}
+          onClick={() => askChange(plan)}
           className={btnBase + btnStyle}
         >
-          {busy === plan.id ? <Loader2 size={15} className="mr-2 animate-spin" /> : null}
           {upgrade ? `Upgrade ke ${plan.name}` : `Ganti ke ${plan.name}`}
         </button>
         <p className="mt-3 text-center text-xs leading-relaxed text-zinc-500">
@@ -319,6 +333,109 @@ export default function PricingGrid({
           );
         })}
       </div>
+
+      {changeTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-4 backdrop-blur-sm sm:items-center"
+          onClick={() => closeChange(changePhase === "done")}
+        >
+          <div
+            className="glass w-full max-w-sm rounded-3xl p-5"
+            role="dialog"
+            aria-modal="true"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {changePhase === "confirm" && (
+              <>
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
+                  <RefreshCcw size={19} />
+                </span>
+                <h2 className="mt-3.5 text-base font-semibold">
+                  {RANK[changeTarget.id] > RANK[viewerPlan] ? "Upgrade" : "Ganti"} ke Plan{" "}
+                  {changeTarget.name}?
+                </h2>
+                <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">
+                  Berlaku seketika, selisih harga dihitung proporsional dan ditagih ke
+                  metode pembayaran tersimpan. Interval penagihanmu tetap mengikuti
+                  langganan yang berjalan. Kuota barumu{" "}
+                  {formatIdNumber(changeTarget.tokenLimit)} token per siklus dan{" "}
+                  {formatIdNumber(changeTarget.requestLimitHourly)} request per jam.
+                </p>
+                <div className="mt-5 flex gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => closeChange(false)}
+                    className="flex-1 rounded-full border border-white/[0.12] px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.05]"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmChange}
+                    className="btn-shine flex-1 rounded-full bg-lime-400 px-4 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-lime-300"
+                  >
+                    Ya, Ganti Plan
+                  </button>
+                </div>
+              </>
+            )}
+            {changePhase === "busy" && (
+              <div className="py-4 text-center">
+                <Loader2 size={28} className="mx-auto animate-spin text-lime-300" />
+                <p className="mt-3 text-sm text-zinc-300">Memproses pergantian plan...</p>
+                <p className="mt-1 text-xs text-zinc-500">Sebentar, jangan tutup halaman ini.</p>
+              </div>
+            )}
+            {changePhase === "done" && (
+              <>
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
+                  <CheckCircle2 size={19} />
+                </span>
+                <h2 className="mt-3.5 text-base font-semibold">Plan berhasil diganti</h2>
+                <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">
+                  Planmu sekarang {changeTarget.name}. Kuota dan batas baru diterapkan
+                  dalam beberapa saat, halaman akan dimuat ulang saat kamu menutup popup
+                  ini.
+                </p>
+                <div className="mt-5">
+                  <button
+                    type="button"
+                    onClick={() => closeChange(true)}
+                    className="btn-shine w-full rounded-full bg-lime-400 px-4 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-lime-300"
+                  >
+                    Selesai
+                  </button>
+                </div>
+              </>
+            )}
+            {changePhase === "failed" && (
+              <>
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-400/10 text-red-300 ring-1 ring-red-300/25">
+                  <AlertTriangle size={19} />
+                </span>
+                <h2 className="mt-3.5 text-base font-semibold">Ganti plan gagal</h2>
+                <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">{changeMsg}</p>
+                <div className="mt-5 flex gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => closeChange(false)}
+                    className="flex-1 rounded-full border border-white/[0.12] px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.05]"
+                  >
+                    Tutup
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setChangePhase("confirm")}
+                    className="btn-shine flex-1 rounded-full bg-lime-400 px-4 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-lime-300"
+                  >
+                    Coba Lagi
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

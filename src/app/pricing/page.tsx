@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
-import { ArrowRight, CalendarClock, CreditCard, ShieldCheck } from "lucide-react";
+import { CalendarClock, CreditCard, ShieldCheck } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import Reveal from "../Reveal";
 import SiteFooter from "../SiteFooter";
 import Nav from "../landing/Nav";
-import HeroCanvas from "../landing/HeroCanvas";
-import { Magnetic } from "../landing/Interactive";
-import PricingFaq from "./PricingFaq";
 import PricingGrid, { type ViewerPlan } from "./PricingGrid";
 
 export const metadata: Metadata = {
@@ -120,39 +117,7 @@ export default async function PricingPage() {
             .
           </p>
         </div>
-
-        <PricingFaq />
       </div>
-
-      {/* CTA penutup, sama dengan landing */}
-      <section className="relative isolate mt-20 overflow-hidden sm:mt-24">
-        <HeroCanvas density={0.55} className="absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,transparent,#000_30%,#000_75%,transparent)]" />
-        <div className="mx-auto max-w-6xl px-5 py-20 text-center sm:px-8 sm:py-28">
-          <Reveal>
-            <h2 className="text-[clamp(2.4rem,7vw,4.5rem)] font-extrabold leading-[1] tracking-tight">
-              Work Fast,
-              <br />
-              <span className="text-gradient-anim bg-gradient-to-r from-lime-300 via-emerald-300 to-teal-300 bg-clip-text text-transparent">
-                Work Smart.
-              </span>
-            </h2>
-            <p className="mx-auto mt-5 max-w-md text-base leading-relaxed text-zinc-400">
-              Berhenti mengurus banyak key dan banyak langganan. Satu key GreenRouter,
-              dan kamu kembali fokus berkarya.
-            </p>
-            <div className="mt-8">
-              <Magnetic>
-                <Link
-                  href={loggedIn ? "/app" : "/register"}
-                  className="btn-shine inline-flex items-center gap-2 rounded-full bg-lime-400 px-8 py-4 font-semibold text-zinc-950 shadow-[0_10px_40px_-8px_rgba(163,230,53,0.55)] transition hover:bg-lime-300"
-                >
-                  {loggedIn ? "Ke Dashboard" : "Daftar Gratis Sekarang"} <ArrowRight size={18} />
-                </Link>
-              </Magnetic>
-            </div>
-          </Reveal>
-        </div>
-      </section>
 
       <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
         <SiteFooter />
