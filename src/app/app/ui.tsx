@@ -51,7 +51,7 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
         <p className="flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.26em] text-lime-300/85">
           <span className="h-1.5 w-1.5 bg-lime-300" />
@@ -60,7 +60,13 @@ export function PageHeader({
         <h1 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">{title}</h1>
         {children && <div className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">{children}</div>}
       </div>
-      {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
+      {/* Di mobile aksi melayang di kanan atas sejajar judul; di layar
+          sm ke atas kembali sebaris di kanan blok judul. */}
+      {actions && (
+        <div className="absolute right-0 top-0 flex shrink-0 flex-wrap items-center gap-2 sm:static">
+          {actions}
+        </div>
+      )}
     </div>
   );
 }
