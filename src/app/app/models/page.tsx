@@ -2,7 +2,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { ArrowUpRight } from "lucide-react";
+import { Activity } from "lucide-react";
 import { PageHeader } from "../ui";
 import CatalogExplorer, { type CatalogModel } from "./CatalogExplorer";
 
@@ -52,9 +52,9 @@ export default async function UserModelsPage() {
         actions={
           <Link
             href="/app/performa"
-            className="inline-flex items-center gap-1 text-sm font-medium text-lime-300 transition hover:text-lime-200"
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.03] px-4 py-2 text-sm font-semibold text-zinc-100 transition hover:border-lime-300/50 hover:text-lime-200"
           >
-            Lihat Performa <ArrowUpRight size={15} />
+            <Activity size={15} /> Lihat Performa
           </Link>
         }
       >
