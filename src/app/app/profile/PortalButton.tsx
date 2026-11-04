@@ -36,12 +36,12 @@ export default function PortalButton() {
         type="button"
         disabled={busy}
         onClick={openPortal}
-        className="glass inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-zinc-100 transition hover:border-lime-300/40 hover:text-lime-200 disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex border border-white/15 bg-white/[0.03] items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-zinc-100 transition hover:border-lime-300/40 hover:text-lime-200 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {busy ? <Loader2 size={15} className="animate-spin" /> : <ExternalLink size={15} />}
         Kelola Langganan
       </button>
-      {error && <span className="text-sm text-red-300">{error}</span>}
+      {error && <span role="alert" className="text-sm text-red-300">{error}</span>}
     </span>
   );
 }

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 
 // Pembungkus UI bersama untuk halaman dashboard user.
 export const PANEL = "rounded-3xl border border-white/[0.08] bg-white/[0.02]";
@@ -61,5 +62,41 @@ export function PageHeader({
       </div>
       {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
     </div>
+  );
+}
+
+// Kartu seksi bergaya konsisten: ikon + judul di kiri, keterangan kecil di kanan.
+export function Card({
+  icon: Icon,
+  title,
+  aside,
+  tone = "lime",
+  className = "",
+  children,
+}: {
+  icon: LucideIcon;
+  title: string;
+  aside?: ReactNode;
+  tone?: "lime" | "red";
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className={`${PANEL} p-5 sm:p-6 ${className}`}>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="flex items-center gap-3 font-semibold">
+          <span
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ring-1 ${
+              tone === "red" ? "bg-red-500/10 text-red-300 ring-red-400/20" : "bg-lime-400/10 text-lime-300 ring-lime-300/20"
+            }`}
+          >
+            <Icon size={18} />
+          </span>
+          {title}
+        </h2>
+        {aside}
+      </div>
+      {children}
+    </section>
   );
 }

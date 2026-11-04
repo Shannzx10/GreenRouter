@@ -18,7 +18,7 @@ export default function LogoutSection() {
 
   return (
     <>
-      <div className="glass mt-6 flex flex-wrap items-center gap-4 rounded-3xl p-6">
+      <div className="mt-4 flex flex-wrap items-center gap-4 rounded-3xl border border-red-400/15 bg-red-500/[0.03] p-5 sm:p-6">
         <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-red-500/10 text-red-300 ring-1 ring-red-400/20">
           <LogOut size={18} />
         </span>
@@ -29,7 +29,7 @@ export default function LogoutSection() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="rounded-full border border-red-400/30 px-5 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+          className="rounded-full border border-red-400/30 px-5 py-2.5 text-sm font-semibold text-red-300 outline-none transition hover:bg-red-500/10 focus-visible:ring-2 focus-visible:ring-red-300/50"
         >
           Keluar
         </button>
@@ -41,7 +41,7 @@ export default function LogoutSection() {
           onClick={() => !busy && setOpen(false)}
         >
           <div
-            className="glass w-full max-w-sm rounded-3xl p-6"
+            className="w-full max-w-sm rounded-3xl border border-white/10 bg-zinc-950/95 p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-500/10 text-red-300 ring-1 ring-red-400/20">
