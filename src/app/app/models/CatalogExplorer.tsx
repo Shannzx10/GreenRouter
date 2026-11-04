@@ -1,25 +1,24 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Brain,
   Braces,
-  CalendarDays,
-  Expand,
   Eye,
   FileText,
   Mic,
   Paperclip,
-  PenLine,
   RotateCcw,
   Search,
   Sparkles,
   Type,
   Video,
   Wrench,
+  X,
 } from "lucide-react";
 import ProviderIcon, { familyLabel, modelFamily } from "../../ProviderIcon";
 import CopyModelId from "./CopyModelId";
+import { Spot } from "../../landing/Interactive";
 
 export type CatalogModel = {
   id: string;
@@ -90,11 +89,20 @@ function Chip({ icon: Icon, children }: { icon: typeof Type; children: React.Rea
 }
 
 const chipBtn = (on: boolean) =>
-  `rounded-full px-3.5 py-1.5 text-xs font-medium transition ${
+  `inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-lime-300/60 ${
     on
-      ? "bg-lime-400 font-semibold text-zinc-950"
-      : "border border-white/10 text-zinc-300 hover:bg-white/[0.04]"
+      ? "bg-lime-400 font-semibold text-zinc-950 shadow-[0_6px_20px_-6px_rgba(163,230,53,0.6)]"
+      : "border border-white/10 text-zinc-300 hover:border-lime-300/40 hover:text-lime-200"
   }`;
+
+function Spec({ label, value }: { label: string; value: string | null }) {
+  return (
+    <div className="min-w-0 rounded-xl bg-white/[0.03] px-3 py-2.5">
+      <dt className="truncate text-[11px] text-zinc-500">{label}</dt>
+      <dd className="mt-0.5 truncate text-sm font-semibold tabular-nums text-zinc-100">{value ?? "-"}</dd>
+    </div>
+  );
+}
 
 export default function CatalogExplorer({
   models,
@@ -106,6 +114,7 @@ export default function CatalogExplorer({
   const [query, setQuery] = useState("");
   const [family, setFamily] = useState("semua");
   const [caps, setCaps] = useState<Set<string>>(new Set());
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const families = useMemo(() => {
     const seen: { key: string; label: string }[] = [];
@@ -114,6 +123,12 @@ export default function CatalogExplorer({
       if (!seen.some((s) => s.key === f)) seen.push({ key: f, label: familyLabel(m.modelId) });
     }
     return seen;
+  }, [models]);
+
+  const familyCount = useMemo(() => {
+    const c = new Map<string, number>();
+    for (const m of models) c.set(modelFamily(m.modelId), (c.get(modelFamily(m.modelId)) ?? 0) + 1);
+    return c;
   }, [models]);
 
   const availableCapFilters = useMemo(
@@ -157,58 +172,84 @@ export default function CatalogExplorer({
     setQuery("");
   }
 
+  const rowCls = "flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] sm:flex-wrap sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden";
+  const labelCls = "mb-2 block font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500 sm:mb-0 sm:w-24 sm:shrink-0";
+
   return (
     <div>
-      <div className="glass rounded-3xl p-4 sm:p-5">
+      <div className="z-20 rounded-3xl border border-white/[0.08] bg-[#080b07]/90 p-4 backdrop-blur-xl sm:p-5 lg:sticky lg:top-4">
         <div className="relative">
           <Search
             size={16}
             className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500"
           />
           <input
+            ref={searchRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Cari model, misalnya deepseek atau glm"
-            className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 pl-10 pr-3.5 text-sm outline-none transition placeholder:text-zinc-500 focus:border-lime-300/60"
+            aria-label="Cari model"
+            className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 pl-10 pr-10 text-sm outline-none transition placeholder:text-zinc-500 focus:border-lime-300/60 focus:ring-2 focus:ring-lime-300/15"
           />
-        </div>
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="w-20 shrink-0 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-            Merek
-          </span>
-          <button type="button" onClick={() => setFamily("semua")} className={chipBtn(family === "semua")}>
-            Semua
-          </button>
-          {families.map((f) => (
+          {query && (
             <button
-              key={f.key}
               type="button"
-              onClick={() => setFamily(f.key)}
-              className={chipBtn(family === f.key)}
+              aria-label="Hapus pencarian"
+              onClick={() => {
+                setQuery("");
+                searchRef.current?.focus();
+              }}
+              className="absolute right-2.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-white/[0.06] hover:text-zinc-200"
             >
-              {f.label}
+              <X size={15} />
             </button>
-          ))}
+          )}
         </div>
-        {availableCapFilters.length > 0 && (
-          <div className="mt-2.5 flex flex-wrap items-center gap-2">
-            <span className="w-20 shrink-0 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-              Kemampuan
-            </span>
-            {availableCapFilters.map((f) => (
+
+        <div className="mt-4 sm:flex sm:items-center">
+          <span className={labelCls}>Merek</span>
+          <div className={rowCls}>
+            <button type="button" aria-pressed={family === "semua"} onClick={() => setFamily("semua")} className={chipBtn(family === "semua")}>
+              Semua
+            </button>
+            {families.map((f) => (
               <button
                 key={f.key}
                 type="button"
-                onClick={() => toggleCap(f.key)}
-                className={chipBtn(caps.has(f.key))}
+                aria-pressed={family === f.key}
+                onClick={() => setFamily(f.key)}
+                className={chipBtn(family === f.key)}
               >
                 {f.label}
+                <span className={`text-[10px] ${family === f.key ? "text-zinc-950/60" : "text-zinc-500"}`}>
+                  {familyCount.get(f.key)}
+                </span>
               </button>
             ))}
           </div>
+        </div>
+
+        {availableCapFilters.length > 0 && (
+          <div className="mt-3 sm:flex sm:items-center">
+            <span className={labelCls}>Kemampuan</span>
+            <div className={rowCls}>
+              {availableCapFilters.map((f) => (
+                <button
+                  key={f.key}
+                  type="button"
+                  aria-pressed={caps.has(f.key)}
+                  onClick={() => toggleCap(f.key)}
+                  className={chipBtn(caps.has(f.key))}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
-        <div className="mt-4 flex items-center justify-between gap-3">
-          <p className="text-sm text-zinc-400">
+
+        <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/[0.07] pt-3">
+          <p className="text-sm text-zinc-400" aria-live="polite">
             Menampilkan{" "}
             <span className="font-semibold text-zinc-100">{filtered.length}</span> dari{" "}
             {models.length} model
@@ -226,69 +267,89 @@ export default function CatalogExplorer({
       </div>
 
       {filtered.length === 0 ? (
-        <div className="glass mt-5 rounded-3xl px-6 py-12 text-center text-sm text-zinc-500">
-          Tidak ada model yang cocok dengan filter ini.
+        <div className="mt-5 flex flex-col items-center rounded-3xl border border-white/[0.08] bg-white/[0.02] px-6 py-14 text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.05] text-zinc-400">
+            <Search size={20} />
+          </span>
+          <p className="mt-4 text-sm text-zinc-400">Tidak ada model yang cocok dengan filter ini.</p>
+          <button type="button" onClick={reset} className="mt-3 text-sm font-medium text-lime-300 transition hover:text-lime-200">
+            Atur Ulang
+          </button>
         </div>
       ) : (
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
-          {filtered.map((m) => {
+        <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {filtered.map((m, i) => {
             const ctx = fmtTokens(m.contextTokens);
             const out = fmtTokens(m.maxOutputTokens);
             const cutoff = fmtCutoff(m.knowledgeCutoff);
+            const locked = m.earlyAccess && viewerPlan === "gratis";
             return (
-              <article
-                key={m.id}
-                className="glass group min-w-0 rounded-3xl p-4 transition duration-300 hover:-translate-y-0.5 hover:border-lime-300/25 sm:p-5"
-              >
-                <div className="flex items-start gap-3">
-                  <ProviderIcon modelId={m.modelId} className="h-10 w-10 sm:h-11 sm:w-11" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-500">
-                      {familyLabel(m.modelId)}
+              <div key={m.id} className="card-in min-w-0" style={{ animationDelay: `${Math.min(i, 8) * 45}ms` }}>
+                <Spot className="h-full rounded-3xl">
+                  <article className="flex h-full min-w-0 flex-col p-4 sm:p-5">
+                    <div className="flex items-start gap-3">
+                      <ProviderIcon modelId={m.modelId} className="h-11 w-11 shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+                          {familyLabel(m.modelId)}
+                        </p>
+                        <h2 className="mt-0.5 truncate font-semibold leading-snug">{m.displayName}</h2>
+                      </div>
+                      {m.earlyAccess && (
+                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-400/10 px-2 py-0.5 text-[11px] font-medium text-amber-300">
+                          <Sparkles size={11} /> Akses Awal
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-3 flex items-center gap-2 rounded-xl border border-white/[0.07] bg-black/30 py-1.5 pl-3 pr-1.5">
+                      <code className="min-w-0 flex-1 truncate font-mono text-xs text-lime-300/90" title={m.modelId}>
+                        {m.modelId}
+                      </code>
+                      <CopyModelId modelId={m.modelId} />
+                    </div>
+
+                    <dl className="mt-3 grid grid-cols-3 gap-2">
+                      <Spec label="Konteks" value={ctx} />
+                      <Spec label="Output maks" value={out} />
+                      <Spec label="Data s/d" value={cutoff} />
+                    </dl>
+
+                    {(m.modalities.some((x) => MOD_META[x]) || m.capabilities.some((x) => CAP_META[x])) && (
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {m.modalities.map((mod) =>
+                          MOD_META[mod] ? (
+                            <Chip key={mod} icon={MOD_META[mod].icon}>
+                              {MOD_META[mod].label}
+                            </Chip>
+                          ) : null,
+                        )}
+                        {m.capabilities.map((cap) =>
+                          CAP_META[cap] ? (
+                            <Chip key={cap} icon={CAP_META[cap].icon}>
+                              {CAP_META[cap].label}
+                            </Chip>
+                          ) : null,
+                        )}
+                      </div>
+                    )}
+
+                    <div className="mt-auto" /><p className="mt-4 flex items-center gap-2 border-t border-white/[0.06] pt-3 text-xs text-zinc-500">
+                      {locked ? (
+                        <>
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-300" />
+                          Akses awal, hanya untuk plan Pro dan Max
+                        </>
+                      ) : (
+                        <>
+                          <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${m.active ? "bg-lime-300 shadow-[0_0_8px_rgba(190,242,100,0.8)]" : "bg-zinc-600"}`} />
+                          {m.active ? "Aktif, siap dipakai dengan key kamu" : "Sedang nonaktif"}
+                        </>
+                      )}
                     </p>
-                    <h2 className="mt-0.5 truncate font-semibold leading-snug">{m.displayName}</h2>
-                    <code className="block break-all font-mono text-xs leading-relaxed text-lime-300/90">
-                      {m.modelId}
-                    </code>
-                  </div>
-                  <CopyModelId modelId={m.modelId} />
-                </div>
-
-                <div className="mt-4 flex flex-wrap gap-1.5">
-                  {ctx && <Chip icon={Expand}>Konteks {ctx}</Chip>}
-                  {out && <Chip icon={PenLine}>Output maks {out}</Chip>}
-                  {m.modalities.map((mod) =>
-                    MOD_META[mod] ? (
-                      <Chip key={mod} icon={MOD_META[mod].icon}>
-                        {MOD_META[mod].label}
-                      </Chip>
-                    ) : null,
-                  )}
-                  {m.capabilities.map((cap) =>
-                    CAP_META[cap] ? (
-                      <Chip key={cap} icon={CAP_META[cap].icon}>
-                        {CAP_META[cap].label}
-                      </Chip>
-                    ) : null,
-                  )}
-                  {cutoff && <Chip icon={CalendarDays}>Data s/d {cutoff}</Chip>}
-                  {m.earlyAccess && <Chip icon={Sparkles}>Akses Awal</Chip>}
-                </div>
-
-                <p className="mt-4 flex items-center gap-2 border-t border-white/[0.05] pt-3 text-xs text-zinc-500">
-                  {m.earlyAccess && viewerPlan === "gratis" ? (
-                    <>
-                      <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
-                      Akses awal, hanya untuk plan Pro dan Max
-                    </>
-                  ) : (
-                    <>
-                      <span className={`h-1.5 w-1.5 rounded-full ${m.active ? "bg-lime-300" : "bg-zinc-600"}`} />
-                      {m.active ? "Aktif, siap dipakai dengan key kamu" : "Sedang nonaktif"}
-                    </>
-                  )}
-                </p>
-              </article>
+                  </article>
+                </Spot>
+              </div>
             );
           })}
         </div>

@@ -293,3 +293,8 @@ body {
 @keyframes ring-in { from { stroke-dashoffset: var(--c); } }
 .ring-in { animation: ring-in 1.3s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
 @media (prefers-reduced-motion: reduce) { .ring-in { animation: none; } }
+
+/* Kartu daftar muncul bergantian */
+@keyframes card-in { from { opacity: 0; transform: translateY(10px); } }
+.card-in { animation: card-in 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+@media (prefers-reduced-motion: reduce) { .card-in { animation: none; } }
