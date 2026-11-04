@@ -54,7 +54,7 @@ export default async function UserModelsPage() {
             href="/app/performa"
             className="inline-flex items-center gap-1 text-sm font-medium text-lime-300 transition hover:text-lime-200"
           >
-            Cek Performa <ArrowUpRight size={15} />
+            Lihat Performa <ArrowUpRight size={15} />
           </Link>
         }
       >
