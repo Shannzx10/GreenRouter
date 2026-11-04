@@ -196,10 +196,13 @@ export default function PlaygroundChat({
     <div>
       {/* ===== Panel kontrol ===== */}
       <div className={PANEL}>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex min-w-0 flex-1 items-center gap-3">
+        {/* Di mobile pemilih model dapat baris sendiri selebar panel dan
+            kedua tombol berbagi baris di bawahnya; mulai sm tombol naik
+            sebaris di kanan pemilih. */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="flex min-w-0 items-center gap-3 sm:flex-1">
             {model && <ProviderIcon modelId={model.modelId} className="h-10 w-10 shrink-0" />}
-            <div className="relative w-full max-w-sm">
+            <div className="relative w-full sm:max-w-sm">
               <select
                 value={modelId}
                 onChange={(e) => setModelId(e.target.value)}
@@ -220,12 +223,12 @@ export default function PlaygroundChat({
               />
             </div>
           </div>
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="grid shrink-0 grid-cols-2 gap-2 sm:flex sm:items-center">
             <button
               type="button"
               onClick={() => setShowSettings((v) => !v)}
               aria-expanded={showSettings}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${
+              className={`inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${
                 showSettings
                   ? "bg-lime-400 text-zinc-950 hover:bg-lime-300"
                   : "border border-white/15 bg-white/[0.03] text-zinc-100 hover:border-lime-300/50 hover:text-lime-200"
@@ -237,7 +240,7 @@ export default function PlaygroundChat({
               type="button"
               onClick={reset}
               disabled={busy || messages.length === 0}
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.03] px-4 py-2 text-sm font-semibold text-zinc-100 transition hover:border-lime-300/50 hover:text-lime-200 disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.03] px-4 py-2 text-sm font-semibold text-zinc-100 transition hover:border-lime-300/50 hover:text-lime-200 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <RotateCcw size={15} /> Percakapan Baru
             </button>
@@ -260,7 +263,7 @@ export default function PlaygroundChat({
         )}
 
         {showSettings && (
-          <div className="mt-4 grid gap-4 border-t border-white/[0.07] pt-4 sm:grid-cols-3">
+          <div className="mt-5 grid gap-5 border-t border-white/[0.07] pt-5 sm:grid-cols-3 sm:gap-4">
             <div className="sm:col-span-3">
               <label htmlFor="pg-system" className={labelCls}>
                 Pesan Sistem (opsional)
