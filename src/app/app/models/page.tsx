@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { connection } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { ArrowUpRight } from "lucide-react";
 import { PageHeader } from "../ui";
 import CatalogExplorer, { type CatalogModel } from "./CatalogExplorer";
 
@@ -44,7 +46,18 @@ export default async function UserModelsPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl">
-      <PageHeader eyebrow="Gateway" title="Katalog Model">
+      <PageHeader
+        eyebrow="Gateway"
+        title="Katalog Model"
+        actions={
+          <Link
+            href="/app/performa"
+            className="inline-flex items-center gap-1 text-sm font-medium text-lime-300 transition hover:text-lime-200"
+          >
+            Cek Performa <ArrowUpRight size={15} />
+          </Link>
+        }
+      >
         <p>Model yang bisa kamu pakai lewat gateway, lengkap dengan konteks dan kemampuannya.</p>
       </PageHeader>
 
