@@ -39,22 +39,6 @@ function dayStart(d: Date): Date {
   return x;
 }
 
-type ModelStatus = { label: string; dot: string; pill: string };
-
-function statusFor(count24: number, success24: number, total30: number): ModelStatus {
-  if (count24 === 0) {
-    return total30 > 0
-      ? { label: "Senyap", dot: "bg-zinc-500", pill: "bg-white/[0.06] text-zinc-400" }
-      : { label: "Belum ada data", dot: "bg-zinc-600", pill: "bg-white/[0.06] text-zinc-500" };
-  }
-  const rate = (success24 / count24) * 100;
-  if (rate >= 95)
-    return { label: "Sehat", dot: "bg-lime-300", pill: "bg-lime-400/10 text-lime-300" };
-  if (rate >= 80)
-    return { label: "Perlu perhatian", dot: "bg-amber-300", pill: "bg-amber-400/10 text-amber-300" };
-  return { label: "Terganggu", dot: "bg-red-400", pill: "bg-red-500/15 text-red-300" };
-}
-
 export default async function UserOverviewPage() {
   await connection();
   const session = await getSession();
@@ -68,8 +52,6 @@ export default async function UserOverviewPage() {
   const startOfDay = dayStart(now);
   const mine = { apiKey: { userId: session.uid } };
   const trendStart = new Date(dayStart(now).getTime() - 13 * DAY_MS);
-  const perfStart = new Date(now.getTime() - 30 * DAY_MS);
-  const dayAgo = new Date(now.getTime() - DAY_MS);
 
   const [
     activeKeys,
@@ -79,10 +61,6 @@ export default async function UserOverviewPage() {
     recent,
     announcements,
     trendLogs,
-    perfLogs,
-    catalog,
-    healthChecks,
-    healthPerf,
   ] = await Promise.all([
     prisma.apiKey.count({ where: { userId: session.uid, isActive: true } }),
     prisma.usageLog.count({ where: { ...mine, createdAt: { gte: startOfDay } } }),
@@ -101,19 +79,6 @@ export default async function UserOverviewPage() {
     prisma.usageLog.findMany({
       where: { ...mine, createdAt: { gte: trendStart } },
       select: { createdAt: true, totalTokens: true },
-    }),
-    prisma.usageLog.findMany({
-      where: { createdAt: { gte: perfStart } },
-      select: { modelId: true, status: true, latencyMs: true, createdAt: true },
-    }),
-    prisma.modelCatalog.findMany({ orderBy: { displayName: "asc" } }),
-    prisma.modelHealthCheck.findMany({
-      orderBy: { checkedAt: "desc" },
-      distinct: ["modelId"],
-    }),
-    prisma.modelHealthCheck.findMany({
-      where: { checkedAt: { gte: perfStart } },
-      select: { modelId: true, status: true, latencyMs: true, checkedAt: true },
     }),
   ]);
 
@@ -157,82 +122,6 @@ export default async function UserOverviewPage() {
   const total14 = last7 + prev7;
   const changePct = prev7 > 0 ? ((last7 - prev7) / prev7) * 100 : null;
 
-  // ===== Performa & status model (global, 30 hari) =====
-  type Agg = {
-    total: number;
-    success: number;
-    latencySum: number;
-    latencyCount: number;
-    lastAt: Date | null;
-    count24: number;
-    success24: number;
-  };
-  const aggByModel = new Map<string, Agg>();
-  for (const log of perfLogs) {
-    const agg = aggByModel.get(log.modelId) ?? {
-      total: 0,
-      success: 0,
-      latencySum: 0,
-      latencyCount: 0,
-      lastAt: null,
-      count24: 0,
-      success24: 0,
-    };
-    agg.total += 1;
-    if (log.status === "SUCCESS") agg.success += 1;
-    if (log.latencyMs != null) {
-      agg.latencySum += log.latencyMs;
-      agg.latencyCount += 1;
-    }
-    if (!agg.lastAt || log.createdAt > agg.lastAt) agg.lastAt = log.createdAt;
-    if (log.createdAt >= dayAgo) {
-      agg.count24 += 1;
-      if (log.status === "SUCCESS") agg.success24 += 1;
-    }
-    aggByModel.set(log.modelId, agg);
-  }
-  // Tes kesehatan harian ikut terhitung di tabel performa global ini
-  // (request, sukses, latensi, status 24 jam), walau tidak tercatat
-  // sebagai log pemakaian user.
-  for (const h of healthPerf) {
-    const agg = aggByModel.get(h.modelId) ?? {
-      total: 0,
-      success: 0,
-      latencySum: 0,
-      latencyCount: 0,
-      lastAt: null,
-      count24: 0,
-      success24: 0,
-    };
-    agg.total += 1;
-    if (h.status === "SUCCESS") agg.success += 1;
-    agg.latencySum += h.latencyMs;
-    agg.latencyCount += 1;
-    if (!agg.lastAt || h.checkedAt > agg.lastAt) agg.lastAt = h.checkedAt;
-    if (h.checkedAt >= dayAgo) {
-      agg.count24 += 1;
-      if (h.status === "SUCCESS") agg.success24 += 1;
-    }
-    aggByModel.set(h.modelId, agg);
-  }
-  const healthByModel = new Map(healthChecks.map((h) => [h.modelId, h]));
-  const modelRows = catalog
-    .map((m) => {
-      const agg = aggByModel.get(m.modelId);
-      return {
-        modelId: m.modelId,
-        displayName: m.displayName,
-        health: healthByModel.get(m.modelId) ?? null,
-        total: agg?.total ?? 0,
-        successRate: agg && agg.total > 0 ? (agg.success / agg.total) * 100 : null,
-        avgLatency:
-          agg && agg.latencyCount > 0 ? Math.round(agg.latencySum / agg.latencyCount) : null,
-        lastAt: agg?.lastAt ?? null,
-        status: statusFor(agg?.count24 ?? 0, agg?.success24 ?? 0, agg?.total ?? 0),
-      };
-    })
-    .sort((a, b) => b.total - a.total || a.displayName.localeCompare(b.displayName));
-  const healthyCount = modelRows.filter((r) => r.status.label === "Sehat").length;
   const displayName = me?.name ?? session.email.split("@")[0];
 
   const fmtDT = (d: Date) => d.toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
@@ -570,121 +459,6 @@ export default async function UserOverviewPage() {
               </div>
             </>
           )}
-        </div>
-      </Reveal>
-
-      {/* ===== Performa & status model ===== */}
-      <Reveal className="mt-12">
-        <SectionHead eyebrow="Katalog Model" title="Performa dan Status Model">
-          Dari seluruh request di GreenRouter selama 30 hari terakhir. {healthyCount} dari {modelRows.length} model
-          berstatus sehat dalam 24 jam terakhir. Setiap model juga dites otomatis sekali sehari dan hasil tesnya ikut
-          terhitung sebagai request di tabel ini, dengan rincian terakhir di kolom Tes Terakhir.
-        </SectionHead>
-        <div className={`${PANEL} mt-4 overflow-hidden`}>
-          <ul className="divide-y divide-white/[0.06] md:hidden">
-            {modelRows.map((r) => (
-              <li key={r.modelId} className="px-4 py-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate font-medium text-zinc-100">{r.displayName}</p>
-                    <p className="truncate font-mono text-[11px] text-zinc-500">{r.modelId}</p>
-                  </div>
-                  <Pill className={r.status.pill}>
-                    <span className={`h-1.5 w-1.5 rounded-full ${r.status.dot}`} />
-                    {r.status.label}
-                  </Pill>
-                </div>
-                <dl className="mt-3 grid grid-cols-3 gap-2 text-xs">
-                  <div className="rounded-xl bg-white/[0.03] px-3 py-2">
-                    <dt className="text-zinc-500">Request</dt>
-                    <dd className="mt-0.5 font-semibold tabular-nums">{r.total.toLocaleString("id-ID")}</dd>
-                  </div>
-                  <div className="rounded-xl bg-white/[0.03] px-3 py-2">
-                    <dt className="text-zinc-500">Sukses</dt>
-                    <dd className="mt-0.5 font-semibold tabular-nums">
-                      {r.successRate !== null ? `${r.successRate.toFixed(1).replace(".", ",")}%` : "-"}
-                    </dd>
-                  </div>
-                  <div className="rounded-xl bg-white/[0.03] px-3 py-2">
-                    <dt className="text-zinc-500">Latensi</dt>
-                    <dd className="mt-0.5 font-semibold tabular-nums">
-                      {r.avgLatency !== null ? `${r.avgLatency.toLocaleString("id-ID")} ms` : "-"}
-                    </dd>
-                  </div>
-                </dl>
-                <p className="mt-2.5 text-[11px] leading-relaxed text-zinc-500">
-                  Tes terakhir:{" "}
-                  {r.health ? (
-                    <>
-                      <span className={r.health.status === "SUCCESS" ? "text-lime-300" : "text-red-300"}>
-                        {r.health.status === "SUCCESS" ? "Berhasil" : "Gagal"}
-                      </span>{" "}
-                      · {fmtDT(r.health.checkedAt)} · {r.health.latencyMs.toLocaleString("id-ID")} ms
-                    </>
-                  ) : (
-                    "Belum dites"
-                  )}
-                  <br />
-                  Terakhir aktif: {r.lastAt ? fmtDT(r.lastAt) : "-"}
-                </p>
-              </li>
-            ))}
-          </ul>
-
-          <div className="hidden max-h-[560px] overflow-auto md:block">
-            <table className="w-full min-w-[820px] text-left text-sm">
-              <thead className="sticky top-0 z-10 bg-[#0b0f09] text-xs uppercase tracking-wider text-zinc-500">
-                <tr>
-                  <th className="px-4 py-3 font-medium">Model</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">Tes Terakhir</th>
-                  <th className="px-4 py-3 text-right font-medium">Request</th>
-                  <th className="px-4 py-3 text-right font-medium">Sukses</th>
-                  <th className="px-4 py-3 text-right font-medium">Latensi Rata-rata</th>
-                  <th className="px-4 py-3 font-medium">Terakhir Aktif</th>
-                </tr>
-              </thead>
-              <tbody>
-                {modelRows.map((r) => (
-                  <tr key={r.modelId} className="border-t border-white/[0.05] transition hover:bg-white/[0.025]">
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-zinc-200">{r.displayName}</p>
-                      <p className="font-mono text-[11px] text-zinc-500">{r.modelId}</p>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Pill className={r.status.pill}>
-                        <span className={`h-1.5 w-1.5 rounded-full ${r.status.dot}`} />
-                        {r.status.label}
-                      </Pill>
-                    </td>
-                    <td className="px-4 py-3">
-                      {r.health ? (
-                        <>
-                          <Pill className={r.health.status === "SUCCESS" ? okPill : badPill}>
-                            <span className={`h-1.5 w-1.5 rounded-full ${r.health.status === "SUCCESS" ? "bg-lime-300" : "bg-red-400"}`} />
-                            {r.health.status === "SUCCESS" ? "Berhasil" : "Gagal"}
-                          </Pill>
-                          <p className="mt-1 whitespace-nowrap text-[11px] text-zinc-500">
-                            {fmtDT(r.health.checkedAt)} · {r.health.latencyMs.toLocaleString("id-ID")} ms
-                          </p>
-                        </>
-                      ) : (
-                        <span className="text-zinc-500">Belum dites</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums">{r.total.toLocaleString("id-ID")}</td>
-                    <td className="px-4 py-3 text-right tabular-nums">
-                      {r.successRate !== null ? `${r.successRate.toFixed(1).replace(".", ",")}%` : "-"}
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums">
-                      {r.avgLatency !== null ? `${r.avgLatency.toLocaleString("id-ID")} ms` : "-"}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-zinc-400">{r.lastAt ? fmtDT(r.lastAt) : "-"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
         </div>
       </Reveal>
     </div>
