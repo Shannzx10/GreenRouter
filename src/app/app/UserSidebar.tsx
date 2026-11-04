@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Activity,
   BookOpen,
   ChevronsLeft,
   ChevronsRight,
@@ -21,6 +22,7 @@ const NAV = [
   { href: "/app", label: "Ringkasan", short: "Ringkasan", icon: LayoutDashboard, exact: true },
   { href: "/app/keys", label: "Key Saya", short: "Key", icon: KeyRound, exact: false },
   { href: "/app/models", label: "Katalog Model", short: "Model", icon: Layers, exact: false },
+  { href: "/app/performa", label: "Performa", short: "Performa", icon: Activity, exact: false },
   { href: "/app/logs", label: "Log Pemakaian", short: "Log", icon: ScrollText, exact: false },
   { href: "/app/docs", label: "Dokumentasi", short: "Docs", icon: BookOpen, exact: false },
   { href: "/app/profile", label: "Profil", short: "Profil", icon: User, exact: false },
@@ -42,10 +44,11 @@ function Brand({ compact = false }: { compact?: boolean }) {
   );
 }
 
-// Sama seperti admin: bar bawah mobile hanya 4 tab utama + tombol More;
-// sisanya (Docs, Profil) masuk panel "More". Sidebar desktop tetap lengkap.
-const MOBILE_MAIN = NAV.slice(0, 4);
-const MOBILE_MORE = NAV.slice(4);
+// Bar bawah mobile hanya 4 tab utama + tombol More; sisanya (Performa,
+// Docs, Profil) masuk panel "More". Sidebar desktop tetap lengkap.
+const MOBILE_MAIN_HREFS = ["/app", "/app/keys", "/app/models", "/app/logs"];
+const MOBILE_MAIN = NAV.filter((item) => MOBILE_MAIN_HREFS.includes(item.href));
+const MOBILE_MORE = NAV.filter((item) => !MOBILE_MAIN_HREFS.includes(item.href));
 
 export default function UserSidebar({ email, role, plan }: { email: string; role: string; plan: string }) {
   const pathname = usePathname();
