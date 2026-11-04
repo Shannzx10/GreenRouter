@@ -61,6 +61,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("[paddle] gagal ganti plan:", e);
+    // Penolakan pembayaran (mis. kartu tanpa saldo) datang dari Paddle
+    // dengan kode subscription_payment_declined. Tampilkan alasannya
+    // apa adanya supaya pengguna tahu harus memperbaiki apa, jangan
+    // ditelan jadi pesan generik. Langganan TIDAK berubah pada kasus
+    // ini: Paddle menolak pembaruannya sebelum berlaku.
+    const err = e as { code?: string; detail?: string } | null;
+    if (err?.code === "subscription_payment_declined" || /declin/i.test(err?.detail ?? "")) {
+      return NextResponse.json(
+        {
+          error:
+            "Pembayaran ditolak oleh penerbit kartu, jadi plan tidak berubah dan tidak ada tagihan yang terpotong. Periksa saldo, atau perbarui metode pembayaran lewat Kelola Langganan di halaman Profil, lalu coba lagi.",
+        },
+        { status: 400 },
+      );
+    }
     return NextResponse.json(
       { error: "Ganti plan gagal diproses, coba lagi nanti." },
       { status: 502 },
