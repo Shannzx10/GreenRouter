@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   ChevronDown,
+  Paperclip,
   RotateCcw,
   Send,
   SlidersHorizontal,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 import ProviderIcon from "../../ProviderIcon";
 import { PANEL } from "../ui";
+import Markdown from "./Markdown";
 
 export type PlaygroundModel = {
   modelId: string;
@@ -20,11 +22,13 @@ export type PlaygroundModel = {
   maxOutputTokens: number | null;
   earlyAccess: boolean;
   locked: boolean;
+  supportsImage: boolean;
 };
 
 type Msg = {
   role: "user" | "assistant";
   content: string;
+  images?: string[];
   tokens?: number | null;
   secs?: number;
   stopped?: boolean;
@@ -71,12 +75,51 @@ export default function PlaygroundChat({
   const [temperature, setTemperature] = useState(0.7);
   const [maxTokens, setMaxTokens] = useState(2048);
   const [quotaUsed, setQuotaUsed] = useState(quota?.used ?? 0);
+  const [attachments, setAttachments] = useState<string[]>([]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const model = models.find((m) => m.modelId === modelId) ?? models[0];
+
+  function changeModel(id: string) {
+    setModelId(id);
+    const next = models.find((m) => m.modelId === id);
+    // Lampiran hanya untuk model berkemampuan gambar; ganti ke model
+    // tanpa kemampuan itu membersihkan lampiran yang belum terkirim.
+    if (next && !next.supportsImage) setAttachments([]);
+  }
+
+  function pickFiles(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    const list = Array.from(files);
+    for (const f of list) {
+      if (!f.type.startsWith("image/")) {
+        setError("Lampiran hanya boleh berupa gambar.");
+        return;
+      }
+      if (f.size > 3 * 1024 * 1024) {
+        setError(`Gambar "${f.name}" melebihi ukuran maksimal 3 MB.`);
+        return;
+      }
+    }
+    if (attachments.length + list.length > 3) {
+      setError("Maksimal 3 gambar per pesan.");
+      return;
+    }
+    setError(null);
+    for (const f of list) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          setAttachments((prev) => [...prev, reader.result as string]);
+        }
+      };
+      reader.readAsDataURL(f);
+    }
+  }
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -94,10 +137,15 @@ export default function PlaygroundChat({
 
   async function send(raw: string) {
     const content = raw.trim();
-    if (!content || busy || !model || model.locked) return;
-    const history: Msg[] = [...messages, { role: "user", content }];
+    if ((!content && attachments.length === 0) || busy || !model || model.locked) return;
+    const sentImages = attachments.length > 0 ? [...attachments] : undefined;
+    const history: Msg[] = [
+      ...messages,
+      { role: "user", content, ...(sentImages ? { images: sentImages } : {}) },
+    ];
     setMessages([...history, { role: "assistant", content: "", pending: true }]);
     setInput("");
+    setAttachments([]);
     if (inputRef.current) inputRef.current.style.height = "auto";
     setError(null);
     setBusy(true);
@@ -114,7 +162,20 @@ export default function PlaygroundChat({
         signal: ctrl.signal,
         body: JSON.stringify({
           model: model.modelId,
-          messages: history.map((m) => ({ role: m.role, content: m.content })),
+          messages: history.map((m) => {
+            // Riwayat berisi gambar hanya diteruskan ke model
+            // berkemampuan gambar, dalam format bagian konten OpenAI.
+            if (m.images && m.images.length > 0 && model.supportsImage) {
+              return {
+                role: m.role,
+                content: [
+                  ...(m.content ? [{ type: "text", text: m.content }] : []),
+                  ...m.images.map((url) => ({ type: "image_url", image_url: { url } })),
+                ],
+              };
+            }
+            return { role: m.role, content: m.content };
+          }),
           system: system.trim() || undefined,
           temperature,
           maxTokens,
@@ -205,7 +266,7 @@ export default function PlaygroundChat({
             <div className="relative w-full sm:max-w-sm">
               <select
                 value={modelId}
-                onChange={(e) => setModelId(e.target.value)}
+                onChange={(e) => changeModel(e.target.value)}
                 disabled={busy}
                 aria-label="Pilih model"
                 className="w-full appearance-none truncate rounded-xl border border-white/10 bg-white/[0.04] py-2.5 pl-3.5 pr-10 text-sm font-medium outline-none transition focus:border-lime-300/60 focus:ring-2 focus:ring-lime-300/15 disabled:opacity-50 [&>option]:bg-zinc-900"
@@ -254,6 +315,7 @@ export default function PlaygroundChat({
             {fmtTokens(model.maxOutputTokens) && (
               <span>· Output maks {fmtTokens(model.maxOutputTokens)}</span>
             )}
+            {model.supportsImage && <span>· Mendukung lampiran gambar</span>}
             {model.earlyAccess && (
               <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/10 px-2 py-0.5 text-[11px] font-medium text-amber-300">
                 <Sparkles size={11} /> Akses Awal
@@ -353,8 +415,21 @@ export default function PlaygroundChat({
             messages.map((m, i) =>
               m.role === "user" ? (
                 <div key={i} className="flex justify-end">
-                  <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-3xl rounded-br-md bg-lime-400 px-4 py-3 text-sm font-medium leading-relaxed text-zinc-950 sm:max-w-[75%]">
-                    {m.content}
+                  <div className="max-w-[85%] rounded-3xl rounded-br-md bg-lime-400 px-4 py-3 text-sm font-medium leading-relaxed text-zinc-950 sm:max-w-[75%]">
+                    {m.images && m.images.length > 0 && (
+                      <div className="mb-2 flex flex-wrap gap-1.5">
+                        {m.images.map((src, j) => (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            key={j}
+                            src={src}
+                            alt={`Lampiran ${j + 1}`}
+                            className="h-20 w-20 rounded-lg object-cover sm:h-24 sm:w-24"
+                          />
+                        ))}
+                      </div>
+                    )}
+                    {m.content && <p className="whitespace-pre-wrap break-words">{m.content}</p>}
                   </div>
                 </div>
               ) : (
@@ -381,10 +456,10 @@ export default function PlaygroundChat({
                           Model tidak memberikan jawaban. Coba lagi, atau pilih model lain.
                         </p>
                       ) : (
-                        <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-zinc-200">
-                          {m.content}
-                          {m.pending && <span className="ml-1 animate-pulse text-lime-300">▍</span>}
-                        </p>
+                        <div>
+                          <Markdown>{m.content}</Markdown>
+                          {m.pending && <span className="animate-pulse text-lime-300">▍</span>}
+                        </div>
                       )}
                     </div>
                     {!m.pending && (m.tokens != null || m.secs != null || m.stopped) && (
@@ -426,7 +501,54 @@ export default function PlaygroundChat({
           }}
           className="border-t border-white/[0.06] p-3 sm:p-4"
         >
+          {attachments.length > 0 && (
+            <div className="mb-2.5 flex flex-wrap gap-2 px-0.5">
+              {attachments.map((src, i) => (
+                <div key={i} className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={src}
+                    alt={`Lampiran ${i + 1}`}
+                    className="h-16 w-16 rounded-xl border border-white/10 object-cover"
+                  />
+                  <button
+                    type="button"
+                    aria-label={`Hapus lampiran ${i + 1}`}
+                    onClick={() => setAttachments((prev) => prev.filter((_, j) => j !== i))}
+                    className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border border-white/15 bg-zinc-800 text-zinc-300 transition hover:text-white"
+                  >
+                    <X size={11} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="flex items-end gap-2">
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              multiple
+              hidden
+              onChange={(e) => {
+                pickFiles(e.target.files);
+                e.target.value = "";
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={!model?.supportsImage || busy}
+              title={
+                model?.supportsImage
+                  ? "Lampirkan gambar (maksimal 3, masing-masing 3 MB)"
+                  : "Model ini tidak mendukung lampiran gambar"
+              }
+              aria-label="Lampirkan gambar"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/[0.03] text-zinc-100 transition hover:border-lime-300/50 hover:text-lime-200 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-white/15 disabled:hover:text-zinc-100"
+            >
+              <Paperclip size={17} />
+            </button>
             <textarea
               ref={inputRef}
               value={input}
@@ -458,7 +580,7 @@ export default function PlaygroundChat({
             ) : (
               <button
                 type="submit"
-                disabled={input.trim() === "" || !model || model.locked}
+                disabled={(input.trim() === "" && attachments.length === 0) || !model || model.locked}
                 aria-label="Kirim pesan"
                 className="btn-shine flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-lime-400 text-zinc-950 transition hover:bg-lime-300 disabled:cursor-not-allowed disabled:opacity-40"
               >

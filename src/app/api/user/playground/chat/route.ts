@@ -10,11 +10,20 @@ import { forwardChatCompletion, getCandidates, openAiError } from "@/server/gate
 // streaming (SSE format OpenAI) agar UI bisa menampilkan jawaban
 // kata demi kata.
 
-type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
+type ContentPart =
+  | { type: "text"; text: string }
+  | { type: "image_url"; image_url: { url: string } };
+type ChatMessage = {
+  role: "system" | "user" | "assistant";
+  content: string | ContentPart[];
+};
 
 const MAX_MESSAGES = 41;
 const MAX_CONTENT = 8000;
 const MAX_SYSTEM = 2000;
+const MAX_IMAGES_PER_MESSAGE = 3;
+// Data URI base64 dari berkas 3 MB berukuran sekitar 4 juta karakter.
+const MAX_IMAGE_CHARS = 4_500_000;
 // Pagu token jawaban khusus Playground, melindungi kuota dari model
 // penalaran yang bisa membakar token sangat panjang dalam satu balas.
 const MAX_PLAYGROUND_TOKENS = 8192;
@@ -49,16 +58,58 @@ export async function POST(req: Request) {
     return openAiError(400, `Percakapan terlalu panjang, maksimal ${MAX_MESSAGES} pesan`);
   }
   const messages: ChatMessage[] = [];
+  let hasImage = false;
   for (const m of body.messages as unknown[]) {
     const msg = m as { role?: unknown; content?: unknown };
-    if (
-      (msg.role !== "user" && msg.role !== "assistant") ||
-      typeof msg.content !== "string" ||
-      msg.content.trim() === ""
-    ) {
-      return openAiError(400, "Setiap pesan wajib berisi role (user/assistant) dan content teks");
+    if (msg.role !== "user" && msg.role !== "assistant") {
+      return openAiError(400, "Setiap pesan wajib berisi role (user/assistant) dan content");
     }
-    messages.push({ role: msg.role, content: msg.content.slice(0, MAX_CONTENT) });
+    if (typeof msg.content === "string") {
+      if (msg.content.trim() === "") {
+        return openAiError(400, "Content pesan tidak boleh kosong");
+      }
+      messages.push({ role: msg.role, content: msg.content.slice(0, MAX_CONTENT) });
+      continue;
+    }
+    // Bentuk bagian konten (teks + lampiran gambar) hanya untuk
+    // pesan pengguna; lampiran wajib data URI gambar, bukan URL luar.
+    if (msg.role !== "user" || !Array.isArray(msg.content)) {
+      return openAiError(400, "Content pesan harus berupa teks atau daftar bagian konten");
+    }
+    if (msg.content.length === 0 || msg.content.length > MAX_IMAGES_PER_MESSAGE + 1) {
+      return openAiError(400, "Bagian konten pesan tidak valid");
+    }
+    const parts: ContentPart[] = [];
+    let images = 0;
+    let hasText = false;
+    for (const p of msg.content as unknown[]) {
+      const part = p as { type?: unknown; text?: unknown; image_url?: { url?: unknown } };
+      if (part.type === "text" && typeof part.text === "string") {
+        if (part.text.trim() !== "") hasText = true;
+        parts.push({ type: "text", text: part.text.slice(0, MAX_CONTENT) });
+      } else if (
+        part.type === "image_url" &&
+        typeof part.image_url?.url === "string" &&
+        part.image_url.url.startsWith("data:image/") &&
+        part.image_url.url.length <= MAX_IMAGE_CHARS
+      ) {
+        images++;
+        hasImage = true;
+        parts.push({ type: "image_url", image_url: { url: part.image_url.url } });
+      } else {
+        return openAiError(
+          400,
+          "Bagian konten tidak didukung. Lampiran harus berupa gambar data URI, maksimal 3 MB per gambar.",
+        );
+      }
+    }
+    if (images > MAX_IMAGES_PER_MESSAGE) {
+      return openAiError(400, `Maksimal ${MAX_IMAGES_PER_MESSAGE} gambar per pesan`);
+    }
+    if (!hasText && images === 0) {
+      return openAiError(400, "Content pesan tidak boleh kosong");
+    }
+    messages.push({ role: msg.role, content: parts });
   }
   if (messages[messages.length - 1].role !== "user") {
     return openAiError(400, "Pesan terakhir harus dari pengguna");
@@ -110,6 +161,19 @@ export async function POST(req: Request) {
   // model yang tidak dikenal, sama seperti gateway publik.
   if (catalog.earlyAccessUntil && catalog.earlyAccessUntil > new Date() && user.plan === "gratis") {
     return openAiError(404, `Model '${model}' tidak ditemukan`, "invalid_request_error", "model_not_found");
+  }
+  // Lampiran gambar hanya diteruskan ke model berkemampuan gambar;
+  // UI menonaktifkan tombol lampirannya, gerbang ini lapisan kedua.
+  if (hasImage) {
+    const mods = (catalog.inputModalities ?? "").split(",").map((x) => x.trim());
+    if (!mods.includes("image")) {
+      return openAiError(
+        400,
+        `Model '${model}' tidak mendukung lampiran gambar`,
+        "invalid_request_error",
+        "image_not_supported",
+      );
+    }
   }
   if (!candidates.length) {
     return openAiError(503, `Model '${model}' sedang dalam pemeliharaan sementara. Silakan coba model lain atau coba lagi nanti.`, "api_error", "service_unavailable");

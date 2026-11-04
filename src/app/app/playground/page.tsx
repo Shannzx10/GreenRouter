@@ -46,6 +46,10 @@ export default async function PlaygroundPage({
         maxOutputTokens: m.maxOutputTokens,
         earlyAccess,
         locked: earlyAccess && plan === "gratis",
+        supportsImage: (m.inputModalities ?? "")
+          .split(",")
+          .map((x) => x.trim())
+          .includes("image"),
       };
     });
 
