@@ -195,7 +195,7 @@ export default function PlaygroundChat({
   return (
     <div>
       {/* ===== Panel kontrol ===== */}
-      <div className={PANEL}>
+      <div className={`${PANEL} p-5 sm:p-6`}>
         {/* Di mobile pemilih model dapat baris sendiri selebar panel dan
             kedua tombol berbagi baris di bawahnya; mulai sm tombol naik
             sebaris di kanan pemilih. */}
