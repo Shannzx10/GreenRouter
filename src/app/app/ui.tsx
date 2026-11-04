@@ -36,3 +36,30 @@ export function Pill({ className = "", children }: { className?: string; childre
     </span>
   );
 }
+
+// Kepala halaman standar dashboard user (dipakai halaman selain Ringkasan).
+export function PageHeader({
+  eyebrow,
+  title,
+  children,
+  actions,
+}: {
+  eyebrow: string;
+  title: string;
+  children?: ReactNode;
+  actions?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="min-w-0">
+        <p className="flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.26em] text-lime-300/85">
+          <span className="h-1.5 w-1.5 bg-lime-300" />
+          {eyebrow}
+        </p>
+        <h1 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">{title}</h1>
+        {children && <div className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">{children}</div>}
+      </div>
+      {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
+    </div>
+  );
+}
