@@ -4,7 +4,7 @@ import { prisma } from "./db";
 
 export const SESSION_COOKIE = "gr_session";
 
-export type SessionWithStatus = Session & { suspended: boolean };
+export type SessionWithStatus = Session & { suspended: boolean; plan: string };
 
 // Sesi login apa pun yang valid (user biasa maupun admin). Selain memeriksa
 // tanda tangan token, status akun SELALU disegarkan dari database: akun
@@ -18,10 +18,10 @@ export async function getSession(): Promise<SessionWithStatus | null> {
   if (!s) return null;
   const user = await prisma.user.findUnique({
     where: { id: s.uid },
-    select: { email: true, role: true, suspendedAt: true },
+    select: { email: true, role: true, suspendedAt: true, plan: true },
   });
   if (!user) return null;
-  return { ...s, email: user.email, role: user.role, suspended: user.suspendedAt !== null };
+  return { ...s, email: user.email, role: user.role, suspended: user.suspendedAt !== null, plan: user.plan };
 }
 
 // Sesi untuk aktivitas normal: user tersuspend dianggap tidak login.

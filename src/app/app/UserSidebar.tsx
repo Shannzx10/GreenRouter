@@ -47,8 +47,11 @@ function Brand({ compact = false }: { compact?: boolean }) {
 const MOBILE_MAIN = NAV.slice(0, 4);
 const MOBILE_MORE = NAV.slice(4);
 
-export default function UserSidebar({ email, role }: { email: string; role: string }) {
+export default function UserSidebar({ email, role, plan }: { email: string; role: string; plan: string }) {
   const pathname = usePathname();
+  // Label upgrade hanya untuk plan di bawah Max; plan Max sudah mentok
+  // dan tidak bisa naik lagi, selaras tombol di kartu Plan halaman Profil.
+  const canUpgrade = plan !== "max";
   const [moreOpen, setMoreOpen] = useState(false);
   // Sidebar desktop bisa diciutkan jadi rel ikon; DEFAULT-nya ciut, pilihan
   // terakhir user diingat per area (yang tersimpan hanya pengecualiannya).
@@ -123,15 +126,17 @@ export default function UserSidebar({ email, role }: { email: string; role: stri
           )}
         </nav>
         <div className="mt-auto border-t border-white/[0.07] pt-4">
-          <Link
-            href="/pricing"
-            title={min ? "Upgrade Plan" : undefined}
-            className={`mb-1 flex items-center gap-3 whitespace-nowrap rounded-2xl border border-lime-300/20 bg-lime-400/[0.07] py-2.5 text-sm font-medium text-lime-200 transition hover:bg-lime-400/15 ${FOCUS} ${
-              min ? "justify-center px-0" : "px-3.5"
-            }`}
-          >
-            <Zap size={18} className="shrink-0" /> {!min && "Upgrade Plan"}
-          </Link>
+          {canUpgrade && (
+            <Link
+              href="/pricing"
+              title={min ? "Upgrade Plan" : undefined}
+              className={`mb-1 flex items-center gap-3 whitespace-nowrap rounded-2xl border border-lime-300/20 bg-lime-400/[0.07] py-2.5 text-sm font-medium text-lime-200 transition hover:bg-lime-400/15 ${FOCUS} ${
+                min ? "justify-center px-0" : "px-3.5"
+              }`}
+            >
+              <Zap size={18} className="shrink-0" /> {!min && "Upgrade Plan"}
+            </Link>
+          )}
           <button
             onClick={toggleMin}
             title={min ? "Lebarkan sidebar" : "Ciutkan sidebar"}
@@ -154,12 +159,14 @@ export default function UserSidebar({ email, role }: { email: string; role: stri
       {/* ===== Topbar mobile ===== */}
       <header className="fixed inset-x-0 top-0 z-40 flex items-center border-b border-white/[0.07] bg-[#060806]/85 px-4 py-3 backdrop-blur-xl lg:hidden">
         <Brand />
-        <Link
-          href="/pricing"
-          className={`ml-auto inline-flex items-center gap-1.5 rounded-full border border-lime-300/25 bg-lime-400/10 px-3 py-1.5 text-xs font-semibold text-lime-200 ${FOCUS}`}
-        >
-          <Zap size={13} /> Upgrade
-        </Link>
+        {canUpgrade && (
+          <Link
+            href="/pricing"
+            className={`ml-auto inline-flex items-center gap-1.5 rounded-full border border-lime-300/25 bg-lime-400/10 px-3 py-1.5 text-xs font-semibold text-lime-200 ${FOCUS}`}
+          >
+            <Zap size={13} /> Upgrade
+          </Link>
+        )}
       </header>
 
       {/* ===== Navigasi bawah mobile: 4 tab utama + More ===== */}
