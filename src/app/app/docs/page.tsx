@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import SmoothAnchors from "../../SmoothAnchors";
+import { PageHeader } from "../ui";
 import ProviderIcon from "../../ProviderIcon";
 import CodeBlock from "./CodeBlock";
 import ExampleTabs from "./ExampleTabs";
@@ -35,7 +36,10 @@ function Section({
 }) {
   return (
     <section id={id} className="scroll-mt-36 py-12 first:pt-0 last:pb-0 lg:scroll-mt-24">
-      <h2 className="text-xl font-bold tracking-tight">{title}</h2>
+      <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.26em] text-lime-300/80">
+        {String(NAV.findIndex((n) => n.id === id) + 1).padStart(2, "0")}
+      </p>
+      <h2 className="mt-1.5 text-2xl font-extrabold tracking-tight">{title}</h2>
       <div className="mt-4 space-y-5 text-[15px] leading-relaxed text-zinc-300">{children}</div>
     </section>
   );
@@ -59,19 +63,23 @@ export default async function AppDocsPage() {
   const models = await prisma.modelCatalog.findMany({ orderBy: { displayName: "asc" } });
 
   return (
-    <div>
+    <div className="mx-auto w-full max-w-6xl">
       <SmoothAnchors />
-      <h1 className="text-2xl font-bold">Dokumentasi</h1>
-      <p className="mt-1 max-w-2xl text-sm leading-relaxed text-zinc-400">
-        Panduan memakai GreenRouter, satu API key untuk semua model dengan API yang kompatibel
-        dengan OpenAI dan Anthropic. Cukup ganti base URL dan key pada SDK atau tool yang sudah
-        kamu kenal.
-      </p>
+      <PageHeader eyebrow="Panduan" title="Dokumentasi">
+        <p>
+          Panduan memakai GreenRouter, satu API key untuk semua model dengan API yang kompatibel
+          dengan OpenAI dan Anthropic. Cukup ganti base URL dan key pada SDK atau tool yang sudah
+          kamu kenal.
+        </p>
+      </PageHeader>
 
-      {/* Navigasi section, lengket mengikuti scroll + penanda aktif */}
-      <DocsNav items={NAV} />
+      <div className="lg:mt-10 lg:grid lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-12">
+        {/* Navigasi section: bilah lengket (mobile) / daftar isi kiri (desktop) */}
+        <aside className="contents lg:block">
+          <DocsNav items={NAV} />
+        </aside>
 
-      <div className="mt-10 divide-y divide-white/10">
+        <div className="mt-10 min-w-0 divide-y divide-white/10 lg:mt-0">
         <Section id="mulai-cepat" title="Mulai Cepat">
           <ol className="list-decimal space-y-2.5 pl-5">
             <li>
@@ -132,9 +140,9 @@ export default async function AppDocsPage() {
             Setiap request wajib membawa API key milikmu. Ada dua cara yang diterima, pakai salah
             satu:
           </p>
-          <div className="overflow-x-auto glass rounded-3xl">
+          <div className="overflow-x-auto rounded-3xl border border-white/[0.08] bg-white/[0.02]">
             <table className="w-full min-w-[560px] text-sm">
-              <thead className="bg-white/[0.04] text-zinc-400">
+              <thead className="bg-white/[0.03] text-xs uppercase tracking-wider text-zinc-500">
                 <tr>
                   <th className={thCls}>Cara</th>
                   <th className={thCls}>Format</th>
@@ -162,7 +170,7 @@ export default async function AppDocsPage() {
             </table>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="glass rounded-3xl p-5">
+            <div className="rounded-3xl border border-white/[0.08] bg-white/[0.02] p-5">
               <p className="text-sm font-semibold text-zinc-100">Base URL OpenAI</p>
               <code className="mt-2 block break-all font-mono text-[13px] text-lime-200">
                 {BASE}/v1
@@ -171,7 +179,7 @@ export default async function AppDocsPage() {
                 Untuk SDK OpenAI dan semua client yang kompatibel dengannya.
               </p>
             </div>
-            <div className="glass rounded-3xl p-5">
+            <div className="rounded-3xl border border-white/[0.08] bg-white/[0.02] p-5">
               <p className="text-sm font-semibold text-zinc-100">Base URL Anthropic</p>
               <code className="mt-2 block break-all font-mono text-[13px] text-lime-200">
                 {BASE}
@@ -190,9 +198,9 @@ export default async function AppDocsPage() {
 
         <Section id="endpoint" title="Endpoint">
           <p>Tiga endpoint utama, semuanya di bawah base URL yang sama:</p>
-          <div className="overflow-x-auto glass rounded-3xl">
+          <div className="overflow-x-auto rounded-3xl border border-white/[0.08] bg-white/[0.02]">
             <table className="w-full min-w-[560px] text-sm">
-              <thead className="bg-white/[0.04] text-zinc-400">
+              <thead className="bg-white/[0.03] text-xs uppercase tracking-wider text-zinc-500">
                 <tr>
                   <th className={thCls}>Method</th>
                   <th className={thCls}>Path</th>
@@ -233,9 +241,9 @@ export default async function AppDocsPage() {
 
           <h3 className="pt-2 text-lg font-semibold text-zinc-100">POST /v1/chat/completions</h3>
           <p>Mengikuti format OpenAI. Parameter yang umum dipakai:</p>
-          <div className="overflow-x-auto glass rounded-3xl">
+          <div className="overflow-x-auto rounded-3xl border border-white/[0.08] bg-white/[0.02]">
             <table className="w-full min-w-[560px] text-sm">
-              <thead className="bg-white/[0.04] text-zinc-400">
+              <thead className="bg-white/[0.03] text-xs uppercase tracking-wider text-zinc-500">
                 <tr>
                   <th className={thCls}>Parameter</th>
                   <th className={thCls}>Wajib</th>
@@ -362,9 +370,9 @@ console.log(res.choices[0].message.content);`,
             </Link>
             .
           </p>
-          <div className="overflow-x-auto glass rounded-3xl">
+          <div className="overflow-x-auto rounded-3xl border border-white/[0.08] bg-white/[0.02]">
             <table className="w-full min-w-[620px] text-sm">
-              <thead className="bg-white/[0.04] text-zinc-400">
+              <thead className="bg-white/[0.03] text-xs uppercase tracking-wider text-zinc-500">
                 <tr>
                   <th className={thCls}>Model</th>
                   <th className={thCls}>ID Model</th>
@@ -470,9 +478,9 @@ for chunk in stream:
             <code className="font-mono text-[13px]">/v1/chat/completions</code>, gaya Anthropic
             untuk <code className="font-mono text-[13px]">/v1/messages</code>.
           </p>
-          <div className="overflow-x-auto glass rounded-3xl">
+          <div className="overflow-x-auto rounded-3xl border border-white/[0.08] bg-white/[0.02]">
             <table className="w-full min-w-[560px] text-sm">
-              <thead className="bg-white/[0.04] text-zinc-400">
+              <thead className="bg-white/[0.03] text-xs uppercase tracking-wider text-zinc-500">
                 <tr>
                   <th className={thCls}>Status</th>
                   <th className={thCls}>Arti</th>
@@ -504,7 +512,7 @@ for chunk in stream:
 
         <Section id="faq" title="FAQ">
           <div className="space-y-4">
-            <div className="glass rounded-3xl p-5">
+            <div className="rounded-3xl border border-white/[0.08] bg-white/[0.02] p-5">
               <p className="font-semibold text-zinc-100">Bisakah ganti model di tengah pemakaian?</p>
               <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">
                 Bisa. Model ditentukan per request lewat field model, jadi kamu bebas memakai model
@@ -512,7 +520,7 @@ for chunk in stream:
                 mengubah key atau base URL.
               </p>
             </div>
-            <div className="glass rounded-3xl p-5">
+            <div className="rounded-3xl border border-white/[0.08] bg-white/[0.02] p-5">
               <p className="font-semibold text-zinc-100">Model mana yang bisa membaca gambar?</p>
               <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">
                 Model dengan kemampuan Vision di katalog, kirim konten gambar mengikuti format
@@ -523,7 +531,7 @@ for chunk in stream:
                 .
               </p>
             </div>
-            <div className="glass rounded-3xl p-5">
+            <div className="rounded-3xl border border-white/[0.08] bg-white/[0.02] p-5">
               <p className="font-semibold text-zinc-100">Apa saja yang tercatat dari request saya?</p>
               <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">
                 Hanya metadata pemakaian: model yang dipakai, jumlah token, waktu respons, dan
@@ -535,7 +543,7 @@ for chunk in stream:
                 .
               </p>
             </div>
-            <div className="glass rounded-3xl p-5">
+            <div className="rounded-3xl border border-white/[0.08] bg-white/[0.02] p-5">
               <p className="font-semibold text-zinc-100">Key saya bocor, apa yang harus dilakukan?</p>
               <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">
                 Segera rotate key itu di halaman{" "}
@@ -549,6 +557,7 @@ for chunk in stream:
             </div>
           </div>
         </Section>
+        </div>
       </div>
     </div>
   );

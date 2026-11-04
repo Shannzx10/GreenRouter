@@ -23,22 +23,24 @@ export default function ExampleTabs({ examples }: { examples: Example[] }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch {
-      // Clipboard tidak tersedia — abaikan.
+      // Clipboard tidak tersedia, tombol tetap berlabel "Salin".
     }
   }
 
   if (!current) return null;
 
   return (
-    <div className="glass overflow-hidden rounded-3xl">
-      <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] px-3 py-2">
-        <div className="flex gap-1 overflow-x-auto">
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/50">
+      <div className="flex items-center justify-between gap-2 border-b border-white/[0.07] bg-white/[0.03] px-3 py-2">
+        <div role="tablist" className="flex gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {examples.map((e) => (
             <button
               key={e.id}
               type="button"
+              role="tab"
+              aria-selected={e.id === active}
               onClick={() => setActive(e.id)}
-              className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs transition ${
+              className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs outline-none transition focus-visible:ring-2 focus-visible:ring-lime-300/60 ${
                 e.id === active
                   ? "bg-lime-400 font-semibold text-zinc-950"
                   : "text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-100"
@@ -57,10 +59,10 @@ export default function ExampleTabs({ examples }: { examples: Example[] }) {
           {copied ? "Disalin" : "Salin"}
         </button>
       </div>
-      <p className="border-b border-white/[0.06] px-5 py-2 font-mono text-xs text-zinc-500">
+      <p className="border-b border-white/[0.06] px-4 py-2 font-mono text-xs text-zinc-500 sm:px-5">
         {current.title}
       </p>
-      <pre className="overflow-x-auto bg-black/50 px-5 py-4 font-mono text-[12.5px] leading-relaxed text-zinc-200">
+      <pre className="overflow-x-auto px-4 py-4 sm:px-5 font-mono text-[12.5px] leading-relaxed text-zinc-200">
         {current.code}
       </pre>
     </div>
