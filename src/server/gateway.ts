@@ -375,7 +375,7 @@ async function markKeySuccess(key: UpstreamKey): Promise<void> {
 // ---------- Log pemakaian ----------
 type UsageData = {
   userId?: string | null;
-  apiKeyId?: string;
+  apiKeyId?: string | null;
   providerId?: string;
   upstreamKeyId?: string;
   modelId: string;
@@ -412,7 +412,7 @@ type AttemptOutcome =
 
 async function attemptChatCompletion(
   args: {
-    apiKeyId: string;
+    apiKeyId: string | null;
     userId?: string | null;
     modelId: string;
     candidates: Candidate[];
@@ -584,7 +584,9 @@ async function attemptChatCompletion(
 }
 
 export async function forwardChatCompletion(args: {
-  apiKeyId: string;
+  // null khusus Playground dashboard: request tanpa API key, log
+  // pemakaian tetap tercatat dengan userId pemilik sesi.
+  apiKeyId: string | null;
   userId?: string | null;
   modelId: string;
   candidates: Candidate[];

@@ -8,6 +8,7 @@ import {
   BookOpen,
   ChevronsLeft,
   ChevronsRight,
+  FlaskConical,
   KeyRound,
   Layers,
   LayoutDashboard,
@@ -23,6 +24,7 @@ const NAV = [
   { href: "/app/keys", label: "Key Saya", short: "Key", icon: KeyRound, exact: false },
   { href: "/app/models", label: "Katalog Model", short: "Model", icon: Layers, exact: false },
   { href: "/app/performa", label: "Performa", short: "Performa", icon: Activity, exact: false },
+  { href: "/app/playground", label: "Playground", short: "Playground", icon: FlaskConical, exact: false },
   { href: "/app/logs", label: "Log Pemakaian", short: "Log", icon: ScrollText, exact: false },
   { href: "/app/docs", label: "Dokumentasi", short: "Docs", icon: BookOpen, exact: false },
   { href: "/app/profile", label: "Profil", short: "Profil", icon: User, exact: false },
@@ -45,7 +47,7 @@ function Brand({ compact = false }: { compact?: boolean }) {
 }
 
 // Bar bawah mobile hanya 4 tab utama + tombol More; sisanya (Performa,
-// Docs, Profil) masuk panel "More". Sidebar desktop tetap lengkap.
+// Playground, Docs, Profil) masuk panel "More". Sidebar desktop lengkap.
 const MOBILE_MAIN_HREFS = ["/app", "/app/keys", "/app/models", "/app/logs"];
 const MOBILE_MAIN = NAV.filter((item) => MOBILE_MAIN_HREFS.includes(item.href));
 const MOBILE_MORE = NAV.filter((item) => !MOBILE_MAIN_HREFS.includes(item.href));
