@@ -32,13 +32,13 @@ export function familyLabel(modelId: string): string {
     case "qwen":
       return "Qwen";
     case "mimo":
-      return "MiMo";
+      return "Xiaomi";
     case "minicpm":
       return "MiniCPM";
     case "atria":
       return "Atria";
     case "mercury":
-      return "Mercury";
+      return "Inception";
     case "hunyuan":
       return "Tencent";
     default:

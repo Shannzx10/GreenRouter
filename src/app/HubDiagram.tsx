@@ -13,10 +13,10 @@ const MODEL_TILES = [
   { modelId: "deepseek-v4-flash-0731", name: "DeepSeek" },
   { modelId: "glm-5.3", name: "Z.ai" },
   { modelId: "minimax-m2.7", name: "MiniMax" },
-  { modelId: "mimo-v2.5", name: "MiMo" },
+  { modelId: "mimo-v2.5", name: "Xiaomi" },
   { modelId: "deepseek-v3", name: "DeepSeek" },
   { modelId: "kimi-k2.5", name: "Moonshot" },
-  { modelId: "mercury-3", name: "Mercury" },
+  { modelId: "mercury-3", name: "Inception" },
   { modelId: "glm-5.3-flash", name: "Z.ai" },
   { modelId: "hy4-preview", name: "Tencent" },
 ];

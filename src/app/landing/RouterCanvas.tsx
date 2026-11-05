@@ -27,9 +27,9 @@ const MODELS = [
   { name: "DeepSeek", src: "/assets/providers/deepseek.png" },
   { name: "Z.ai", src: "/assets/providers/zai.png" },
   { name: "MiniMax", mm: true },
-  { name: "MiMo", src: "/assets/providers/mimo.png" },
-  { name: "Kimi", src: "/assets/providers/kimi.png" },
-  { name: "Mercury", src: "/assets/providers/mercury.png" },
+  { name: "Xiaomi", src: "/assets/providers/mimo.png" },
+  { name: "Moonshot", src: "/assets/providers/kimi.png" },
+  { name: "Inception", src: "/assets/providers/mercury.png" },
 ];
 const TOOLS = [
   { name: "OpenCode", src: "/assets/tools/opencode.svg" },
