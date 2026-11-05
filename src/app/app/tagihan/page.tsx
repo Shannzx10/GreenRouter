@@ -7,6 +7,7 @@ import { getSession } from "@/lib/session";
 import { getPaddleInstance } from "@/lib/paddle";
 import { intervalOfPriceId, planById, planByPriceId } from "@/lib/plans";
 import { PageHeader, PANEL, Pill } from "../ui";
+import PortalButton from "../profile/PortalButton";
 
 // Halaman Tagihan: status langganan berjalan dari cerminan database,
 // plus riwayat pembayaran yang dibaca langsung dari Paddle saat
@@ -140,11 +141,12 @@ export default async function TagihanPage() {
               <p className="leading-relaxed text-zinc-400">
                 Langganan dijadwalkan berakhir pada {fmtDate(user.paddleCancelAt)}. Kamu tetap
                 memakai plan ini sampai tanggal itu, sesudahnya akun kembali ke plan Gratis.
+                Penjadwalan ini bisa dibatalkan kapan saja dari portal pelanggan.
               </p>
             ) : user.paddleSubStatus === "past_due" ? (
               <p className="leading-relaxed text-zinc-400">
                 Pembayaran terakhir belum berhasil. Perbarui metode pembayaranmu dari portal
-                pelanggan di halaman Profil agar langganan tidak berhenti.
+                pelanggan agar langganan tidak berhenti.
               </p>
             ) : (
               <>
@@ -155,12 +157,16 @@ export default async function TagihanPage() {
                   </div>
                 )}
                 <p className="leading-relaxed text-zinc-400">
-                  Langganan diperpanjang otomatis. Ubah metode pembayaran, unduh invoice, atau
-                  batalkan dari portal pelanggan di halaman Profil.
+                  Langganan diperpanjang otomatis setiap periode.
                 </p>
               </>
             )}
           </dl>
+        )}
+        {user.plan !== "gratis" && (
+          <div className="mt-5">
+            <PortalButton />
+          </div>
         )}
       </section>
 
