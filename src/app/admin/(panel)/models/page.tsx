@@ -61,6 +61,7 @@ export default async function ModelsPage() {
       inputModalities: m.inputModalities,
       capabilities: m.capabilities,
       knowledgeCutoff: m.knowledgeCutoff,
+      earlyAccessUntil: m.earlyAccessUntil?.toISOString() ?? null,
       routeId: route?.id ?? null,
       target: route?.upstreamModelId ?? null,
     };

@@ -4,7 +4,7 @@ import {
   getCandidates,
   openAiError,
 } from "@/server/gateway";
-import { cycleTokensUsed, fmtDateShort, hourlyRequestsUsed } from "@/lib/quota";
+import { cycleKeyTokensUsed, cycleTokensUsed, fmtDateShort, hourlyRequestsUsed } from "@/lib/quota";
 
 
 // POST /v1/chat/completions — OpenAI-compatible, dengan failover antar key/provider.
@@ -58,8 +58,32 @@ export async function POST(req: Request) {
     }
   }
 
+  // Batas token per key (fitur plan Max): key ini punya pagu sendiri
+  // di dalam jendela siklus pemiliknya, di luar kuota akun.
+  if (client.tokenLimit != null && client.user) {
+    const { used, window } = await cycleKeyTokensUsed(client.id, client.user.createdAt);
+    if (used >= client.tokenLimit) {
+      return openAiError(
+        429,
+        `Batas token key ini untuk siklus ini sudah tercapai (${used.toLocaleString("id-ID")} dari ${client.tokenLimit.toLocaleString("id-ID")} token). Batas diperbarui otomatis pada ${fmtDateShort(window.end)}, atau naikkan batasnya di halaman Key.`,
+        "rate_limit_error",
+        "key_quota_exceeded",
+      );
+    }
+  }
+
   const { catalog, candidates } = await getCandidates(model);
   if (!catalog) {
+    return openAiError(404, `Model '${model}' tidak ditemukan`, "invalid_request_error", "model_not_found");
+  }
+  // Akses awal: selama masa akses awal, model baru hanya terbuka
+  // untuk plan berbayar. Plan Gratis menerima jawaban yang sama
+  // seperti model yang tidak dikenal.
+  if (
+    catalog.earlyAccessUntil &&
+    catalog.earlyAccessUntil > new Date() &&
+    (client.user?.plan ?? "gratis") === "gratis"
+  ) {
     return openAiError(404, `Model '${model}' tidak ditemukan`, "invalid_request_error", "model_not_found");
   }
   if (!candidates.length) {
@@ -73,5 +97,6 @@ export async function POST(req: Request) {
     candidates,
     body,
     stream: body.stream === true,
+    plan: client.user?.plan,
   });
 }

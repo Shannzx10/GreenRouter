@@ -1218,6 +1218,12 @@ export const UserScalarFieldEnum = {
   requestLimitHourly: 'requestLimitHourly',
   suspendedAt: 'suspendedAt',
   suspendReason: 'suspendReason',
+  plan: 'plan',
+  paddleCustomerId: 'paddleCustomerId',
+  paddleSubscriptionId: 'paddleSubscriptionId',
+  paddleSubStatus: 'paddleSubStatus',
+  paddleLastEventAt: 'paddleLastEventAt',
+  paddleCancelAt: 'paddleCancelAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1242,6 +1248,7 @@ export const ApiKeyScalarFieldEnum = {
   prefix: 'prefix',
   keyHash: 'keyHash',
   isActive: 'isActive',
+  tokenLimit: 'tokenLimit',
   lastUsedAt: 'lastUsedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1294,6 +1301,7 @@ export const ModelCatalogScalarFieldEnum = {
   inputModalities: 'inputModalities',
   capabilities: 'capabilities',
   knowledgeCutoff: 'knowledgeCutoff',
+  earlyAccessUntil: 'earlyAccessUntil',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

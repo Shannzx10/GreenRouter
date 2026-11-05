@@ -4,7 +4,7 @@ import {
   forwardAnthropicMessages,
   getCandidates,
 } from "@/server/gateway";
-import { cycleTokensUsed, fmtDateShort, hourlyRequestsUsed } from "@/lib/quota";
+import { cycleKeyTokensUsed, cycleTokensUsed, fmtDateShort, hourlyRequestsUsed } from "@/lib/quota";
 
 // POST /v1/messages — kompatibel Anthropic (Claude Code & Anthropic SDK).
 // Key klien, kuota siklus, routing, dan pencatatan sama seperti jalur OpenAI;
@@ -57,8 +57,29 @@ export async function POST(req: Request) {
     }
   }
 
-  const { catalog, candidates } = await getCandidates(model, "anthropic");
+  // Batas token per key (fitur plan Max), sama seperti jalur OpenAI.
+  if (client.tokenLimit != null && client.user) {
+    const { used, window } = await cycleKeyTokensUsed(client.id, client.user.createdAt);
+    if (used >= client.tokenLimit) {
+      return anthropicError(
+        429,
+        `Batas token key ini untuk siklus ini sudah tercapai (${used.toLocaleString("id-ID")} dari ${client.tokenLimit.toLocaleString("id-ID")} token). Batas diperbarui otomatis pada ${fmtDateShort(window.end)}, atau naikkan batasnya di halaman Key.`,
+        "rate_limit_error",
+      );
+    }
+  }
+
+  const { catalog, candidates } = await getCandidates(model);
   if (!catalog) {
+    return anthropicError(404, `Model '${model}' tidak ditemukan`, "not_found_error");
+  }
+  // Akses awal: plan Gratis menerima jawaban yang sama seperti
+  // model yang tidak dikenal selama masa akses awal berjalan.
+  if (
+    catalog.earlyAccessUntil &&
+    catalog.earlyAccessUntil > new Date() &&
+    (client.user?.plan ?? "gratis") === "gratis"
+  ) {
     return anthropicError(404, `Model '${model}' tidak ditemukan`, "not_found_error");
   }
   if (!candidates.length) {
@@ -74,5 +95,6 @@ export async function POST(req: Request) {
     stream: body.stream === true,
     anthropicVersion: req.headers.get("anthropic-version") ?? undefined,
     anthropicBeta: req.headers.get("anthropic-beta") ?? undefined,
+    plan: client.user?.plan,
   });
 }

@@ -49,6 +49,12 @@ export type UserMinAggregateOutputType = {
   requestLimitHourly: number | null
   suspendedAt: Date | null
   suspendReason: string | null
+  plan: string | null
+  paddleCustomerId: string | null
+  paddleSubscriptionId: string | null
+  paddleSubStatus: string | null
+  paddleLastEventAt: Date | null
+  paddleCancelAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,6 +72,12 @@ export type UserMaxAggregateOutputType = {
   requestLimitHourly: number | null
   suspendedAt: Date | null
   suspendReason: string | null
+  plan: string | null
+  paddleCustomerId: string | null
+  paddleSubscriptionId: string | null
+  paddleSubStatus: string | null
+  paddleLastEventAt: Date | null
+  paddleCancelAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -83,6 +95,12 @@ export type UserCountAggregateOutputType = {
   requestLimitHourly: number
   suspendedAt: number
   suspendReason: number
+  plan: number
+  paddleCustomerId: number
+  paddleSubscriptionId: number
+  paddleSubStatus: number
+  paddleLastEventAt: number
+  paddleCancelAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -112,6 +130,12 @@ export type UserMinAggregateInputType = {
   requestLimitHourly?: true
   suspendedAt?: true
   suspendReason?: true
+  plan?: true
+  paddleCustomerId?: true
+  paddleSubscriptionId?: true
+  paddleSubStatus?: true
+  paddleLastEventAt?: true
+  paddleCancelAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -129,6 +153,12 @@ export type UserMaxAggregateInputType = {
   requestLimitHourly?: true
   suspendedAt?: true
   suspendReason?: true
+  plan?: true
+  paddleCustomerId?: true
+  paddleSubscriptionId?: true
+  paddleSubStatus?: true
+  paddleLastEventAt?: true
+  paddleCancelAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -146,6 +176,12 @@ export type UserCountAggregateInputType = {
   requestLimitHourly?: true
   suspendedAt?: true
   suspendReason?: true
+  plan?: true
+  paddleCustomerId?: true
+  paddleSubscriptionId?: true
+  paddleSubStatus?: true
+  paddleLastEventAt?: true
+  paddleCancelAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -250,6 +286,12 @@ export type UserGroupByOutputType = {
   requestLimitHourly: number | null
   suspendedAt: Date | null
   suspendReason: string | null
+  plan: string
+  paddleCustomerId: string | null
+  paddleSubscriptionId: string | null
+  paddleSubStatus: string | null
+  paddleLastEventAt: Date | null
+  paddleCancelAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -290,6 +332,12 @@ export type UserWhereInput = {
   requestLimitHourly?: Prisma.IntNullableFilter<"User"> | number | null
   suspendedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   suspendReason?: Prisma.StringNullableFilter<"User"> | string | null
+  plan?: Prisma.StringFilter<"User"> | string
+  paddleCustomerId?: Prisma.StringNullableFilter<"User"> | string | null
+  paddleSubscriptionId?: Prisma.StringNullableFilter<"User"> | string | null
+  paddleSubStatus?: Prisma.StringNullableFilter<"User"> | string | null
+  paddleLastEventAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  paddleCancelAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   apiKeys?: Prisma.ApiKeyListRelationFilter
@@ -308,6 +356,12 @@ export type UserOrderByWithRelationInput = {
   requestLimitHourly?: Prisma.SortOrderInput | Prisma.SortOrder
   suspendedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   suspendReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  paddleCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  paddleSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  paddleSubStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  paddleLastEventAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  paddleCancelAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   apiKeys?: Prisma.ApiKeyOrderByRelationAggregateInput
@@ -329,6 +383,12 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   requestLimitHourly?: Prisma.IntNullableFilter<"User"> | number | null
   suspendedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   suspendReason?: Prisma.StringNullableFilter<"User"> | string | null
+  plan?: Prisma.StringFilter<"User"> | string
+  paddleCustomerId?: Prisma.StringNullableFilter<"User"> | string | null
+  paddleSubscriptionId?: Prisma.StringNullableFilter<"User"> | string | null
+  paddleSubStatus?: Prisma.StringNullableFilter<"User"> | string | null
+  paddleLastEventAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  paddleCancelAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   apiKeys?: Prisma.ApiKeyListRelationFilter
@@ -347,6 +407,12 @@ export type UserOrderByWithAggregationInput = {
   requestLimitHourly?: Prisma.SortOrderInput | Prisma.SortOrder
   suspendedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   suspendReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  paddleCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  paddleSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  paddleSubStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  paddleLastEventAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  paddleCancelAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -372,6 +438,12 @@ export type UserScalarWhereWithAggregatesInput = {
   requestLimitHourly?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   suspendedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   suspendReason?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  plan?: Prisma.StringWithAggregatesFilter<"User"> | string
+  paddleCustomerId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  paddleSubscriptionId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  paddleSubStatus?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  paddleLastEventAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  paddleCancelAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -389,6 +461,12 @@ export type UserCreateInput = {
   requestLimitHourly?: number | null
   suspendedAt?: Date | string | null
   suspendReason?: string | null
+  plan?: string
+  paddleCustomerId?: string | null
+  paddleSubscriptionId?: string | null
+  paddleSubStatus?: string | null
+  paddleLastEventAt?: Date | string | null
+  paddleCancelAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
@@ -407,6 +485,12 @@ export type UserUncheckedCreateInput = {
   requestLimitHourly?: number | null
   suspendedAt?: Date | string | null
   suspendReason?: string | null
+  plan?: string
+  paddleCustomerId?: string | null
+  paddleSubscriptionId?: string | null
+  paddleSubStatus?: string | null
+  paddleLastEventAt?: Date | string | null
+  paddleCancelAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
@@ -425,6 +509,12 @@ export type UserUpdateInput = {
   requestLimitHourly?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  paddleCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paddleSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paddleSubStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paddleLastEventAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paddleCancelAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
@@ -443,6 +533,12 @@ export type UserUncheckedUpdateInput = {
   requestLimitHourly?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  paddleCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paddleSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paddleSubStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paddleLastEventAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paddleCancelAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
@@ -461,6 +557,12 @@ export type UserCreateManyInput = {
   requestLimitHourly?: number | null
   suspendedAt?: Date | string | null
   suspendReason?: string | null
+  plan?: string
+  paddleCustomerId?: string | null
+  paddleSubscriptionId?: string | null
+  paddleSubStatus?: string | null
+  paddleLastEventAt?: Date | string | null
+  paddleCancelAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -478,6 +580,12 @@ export type UserUpdateManyMutationInput = {
   requestLimitHourly?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  paddleCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paddleSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paddleSubStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paddleLastEventAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paddleCancelAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -495,6 +603,12 @@ export type UserUncheckedUpdateManyInput = {
   requestLimitHourly?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  paddleCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paddleSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paddleSubStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paddleLastEventAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paddleCancelAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -512,6 +626,12 @@ export type UserCountOrderByAggregateInput = {
   requestLimitHourly?: Prisma.SortOrder
   suspendedAt?: Prisma.SortOrder
   suspendReason?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  paddleCustomerId?: Prisma.SortOrder
+  paddleSubscriptionId?: Prisma.SortOrder
+  paddleSubStatus?: Prisma.SortOrder
+  paddleLastEventAt?: Prisma.SortOrder
+  paddleCancelAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -534,6 +654,12 @@ export type UserMaxOrderByAggregateInput = {
   requestLimitHourly?: Prisma.SortOrder
   suspendedAt?: Prisma.SortOrder
   suspendReason?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  paddleCustomerId?: Prisma.SortOrder
+  paddleSubscriptionId?: Prisma.SortOrder
+  paddleSubStatus?: Prisma.SortOrder
+  paddleLastEventAt?: Prisma.SortOrder
+  paddleCancelAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -551,6 +677,12 @@ export type UserMinOrderByAggregateInput = {
   requestLimitHourly?: Prisma.SortOrder
   suspendedAt?: Prisma.SortOrder
   suspendReason?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  paddleCustomerId?: Prisma.SortOrder
+  paddleSubscriptionId?: Prisma.SortOrder
+  paddleSubStatus?: Prisma.SortOrder
+  paddleLastEventAt?: Prisma.SortOrder
+  paddleCancelAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -622,6 +754,12 @@ export type UserCreateWithoutApiKeysInput = {
   requestLimitHourly?: number | null
   suspendedAt?: Date | string | null
   suspendReason?: string | null
+  plan?: string
+  paddleCustomerId?: string | null
+  paddleSubscriptionId?: string | null
+  paddleSubStatus?: string | null
+  paddleLastEventAt?: Date | string | null
+  paddleCancelAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -639,6 +777,12 @@ export type UserUncheckedCreateWithoutApiKeysInput = {
   requestLimitHourly?: number | null
   suspendedAt?: Date | string | null
   suspendReason?: string | null
+  plan?: string
+  paddleCustomerId?: string | null
+  paddleSubscriptionId?: string | null
+  paddleSubStatus?: string | null
+  paddleLastEventAt?: Date | string | null
+  paddleCancelAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -672,6 +816,12 @@ export type UserUpdateWithoutApiKeysInput = {
   requestLimitHourly?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  paddleCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paddleSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paddleSubStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paddleLastEventAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paddleCancelAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -689,6 +839,12 @@ export type UserUncheckedUpdateWithoutApiKeysInput = {
   requestLimitHourly?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  paddleCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paddleSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paddleSubStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paddleLastEventAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paddleCancelAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -737,6 +893,12 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   requestLimitHourly?: boolean
   suspendedAt?: boolean
   suspendReason?: boolean
+  plan?: boolean
+  paddleCustomerId?: boolean
+  paddleSubscriptionId?: boolean
+  paddleSubStatus?: boolean
+  paddleLastEventAt?: boolean
+  paddleCancelAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   apiKeys?: boolean | Prisma.User$apiKeysArgs<ExtArgs>
@@ -756,6 +918,12 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   requestLimitHourly?: boolean
   suspendedAt?: boolean
   suspendReason?: boolean
+  plan?: boolean
+  paddleCustomerId?: boolean
+  paddleSubscriptionId?: boolean
+  paddleSubStatus?: boolean
+  paddleLastEventAt?: boolean
+  paddleCancelAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -773,6 +941,12 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   requestLimitHourly?: boolean
   suspendedAt?: boolean
   suspendReason?: boolean
+  plan?: boolean
+  paddleCustomerId?: boolean
+  paddleSubscriptionId?: boolean
+  paddleSubStatus?: boolean
+  paddleLastEventAt?: boolean
+  paddleCancelAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -790,11 +964,17 @@ export type UserSelectScalar = {
   requestLimitHourly?: boolean
   suspendedAt?: boolean
   suspendReason?: boolean
+  plan?: boolean
+  paddleCustomerId?: boolean
+  paddleSubscriptionId?: boolean
+  paddleSubStatus?: boolean
+  paddleLastEventAt?: boolean
+  paddleCancelAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "role" | "name" | "image" | "authProviders" | "isActive" | "tokenLimit" | "requestLimitHourly" | "suspendedAt" | "suspendReason" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "role" | "name" | "image" | "authProviders" | "isActive" | "tokenLimit" | "requestLimitHourly" | "suspendedAt" | "suspendReason" | "plan" | "paddleCustomerId" | "paddleSubscriptionId" | "paddleSubStatus" | "paddleLastEventAt" | "paddleCancelAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   apiKeys?: boolean | Prisma.User$apiKeysArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -820,6 +1000,12 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     requestLimitHourly: number | null
     suspendedAt: Date | null
     suspendReason: string | null
+    plan: string
+    paddleCustomerId: string | null
+    paddleSubscriptionId: string | null
+    paddleSubStatus: string | null
+    paddleLastEventAt: Date | null
+    paddleCancelAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1258,6 +1444,12 @@ export interface UserFieldRefs {
   readonly requestLimitHourly: Prisma.FieldRef<"User", 'Int'>
   readonly suspendedAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly suspendReason: Prisma.FieldRef<"User", 'String'>
+  readonly plan: Prisma.FieldRef<"User", 'String'>
+  readonly paddleCustomerId: Prisma.FieldRef<"User", 'String'>
+  readonly paddleSubscriptionId: Prisma.FieldRef<"User", 'String'>
+  readonly paddleSubStatus: Prisma.FieldRef<"User", 'String'>
+  readonly paddleLastEventAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly paddleCancelAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }

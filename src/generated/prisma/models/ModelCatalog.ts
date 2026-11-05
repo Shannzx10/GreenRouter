@@ -45,6 +45,7 @@ export type ModelCatalogMinAggregateOutputType = {
   inputModalities: string | null
   capabilities: string | null
   knowledgeCutoff: string | null
+  earlyAccessUntil: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -58,6 +59,7 @@ export type ModelCatalogMaxAggregateOutputType = {
   inputModalities: string | null
   capabilities: string | null
   knowledgeCutoff: string | null
+  earlyAccessUntil: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -71,6 +73,7 @@ export type ModelCatalogCountAggregateOutputType = {
   inputModalities: number
   capabilities: number
   knowledgeCutoff: number
+  earlyAccessUntil: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -96,6 +99,7 @@ export type ModelCatalogMinAggregateInputType = {
   inputModalities?: true
   capabilities?: true
   knowledgeCutoff?: true
+  earlyAccessUntil?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -109,6 +113,7 @@ export type ModelCatalogMaxAggregateInputType = {
   inputModalities?: true
   capabilities?: true
   knowledgeCutoff?: true
+  earlyAccessUntil?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -122,6 +127,7 @@ export type ModelCatalogCountAggregateInputType = {
   inputModalities?: true
   capabilities?: true
   knowledgeCutoff?: true
+  earlyAccessUntil?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -222,6 +228,7 @@ export type ModelCatalogGroupByOutputType = {
   inputModalities: string | null
   capabilities: string | null
   knowledgeCutoff: string | null
+  earlyAccessUntil: Date | null
   createdAt: Date
   updatedAt: Date
   _count: ModelCatalogCountAggregateOutputType | null
@@ -258,6 +265,7 @@ export type ModelCatalogWhereInput = {
   inputModalities?: Prisma.StringNullableFilter<"ModelCatalog"> | string | null
   capabilities?: Prisma.StringNullableFilter<"ModelCatalog"> | string | null
   knowledgeCutoff?: Prisma.StringNullableFilter<"ModelCatalog"> | string | null
+  earlyAccessUntil?: Prisma.DateTimeNullableFilter<"ModelCatalog"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ModelCatalog"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ModelCatalog"> | Date | string
   routes?: Prisma.ModelRouteListRelationFilter
@@ -272,6 +280,7 @@ export type ModelCatalogOrderByWithRelationInput = {
   inputModalities?: Prisma.SortOrderInput | Prisma.SortOrder
   capabilities?: Prisma.SortOrderInput | Prisma.SortOrder
   knowledgeCutoff?: Prisma.SortOrderInput | Prisma.SortOrder
+  earlyAccessUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   routes?: Prisma.ModelRouteOrderByRelationAggregateInput
@@ -289,6 +298,7 @@ export type ModelCatalogWhereUniqueInput = Prisma.AtLeast<{
   inputModalities?: Prisma.StringNullableFilter<"ModelCatalog"> | string | null
   capabilities?: Prisma.StringNullableFilter<"ModelCatalog"> | string | null
   knowledgeCutoff?: Prisma.StringNullableFilter<"ModelCatalog"> | string | null
+  earlyAccessUntil?: Prisma.DateTimeNullableFilter<"ModelCatalog"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ModelCatalog"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ModelCatalog"> | Date | string
   routes?: Prisma.ModelRouteListRelationFilter
@@ -303,6 +313,7 @@ export type ModelCatalogOrderByWithAggregationInput = {
   inputModalities?: Prisma.SortOrderInput | Prisma.SortOrder
   capabilities?: Prisma.SortOrderInput | Prisma.SortOrder
   knowledgeCutoff?: Prisma.SortOrderInput | Prisma.SortOrder
+  earlyAccessUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ModelCatalogCountOrderByAggregateInput
@@ -324,6 +335,7 @@ export type ModelCatalogScalarWhereWithAggregatesInput = {
   inputModalities?: Prisma.StringNullableWithAggregatesFilter<"ModelCatalog"> | string | null
   capabilities?: Prisma.StringNullableWithAggregatesFilter<"ModelCatalog"> | string | null
   knowledgeCutoff?: Prisma.StringNullableWithAggregatesFilter<"ModelCatalog"> | string | null
+  earlyAccessUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"ModelCatalog"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ModelCatalog"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ModelCatalog"> | Date | string
 }
@@ -337,6 +349,7 @@ export type ModelCatalogCreateInput = {
   inputModalities?: string | null
   capabilities?: string | null
   knowledgeCutoff?: string | null
+  earlyAccessUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   routes?: Prisma.ModelRouteCreateNestedManyWithoutModelInput
@@ -351,6 +364,7 @@ export type ModelCatalogUncheckedCreateInput = {
   inputModalities?: string | null
   capabilities?: string | null
   knowledgeCutoff?: string | null
+  earlyAccessUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   routes?: Prisma.ModelRouteUncheckedCreateNestedManyWithoutModelInput
@@ -365,6 +379,7 @@ export type ModelCatalogUpdateInput = {
   inputModalities?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capabilities?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   knowledgeCutoff?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  earlyAccessUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   routes?: Prisma.ModelRouteUpdateManyWithoutModelNestedInput
@@ -379,6 +394,7 @@ export type ModelCatalogUncheckedUpdateInput = {
   inputModalities?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capabilities?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   knowledgeCutoff?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  earlyAccessUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   routes?: Prisma.ModelRouteUncheckedUpdateManyWithoutModelNestedInput
@@ -393,6 +409,7 @@ export type ModelCatalogCreateManyInput = {
   inputModalities?: string | null
   capabilities?: string | null
   knowledgeCutoff?: string | null
+  earlyAccessUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -406,6 +423,7 @@ export type ModelCatalogUpdateManyMutationInput = {
   inputModalities?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capabilities?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   knowledgeCutoff?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  earlyAccessUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -419,6 +437,7 @@ export type ModelCatalogUncheckedUpdateManyInput = {
   inputModalities?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capabilities?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   knowledgeCutoff?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  earlyAccessUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -432,6 +451,7 @@ export type ModelCatalogCountOrderByAggregateInput = {
   inputModalities?: Prisma.SortOrder
   capabilities?: Prisma.SortOrder
   knowledgeCutoff?: Prisma.SortOrder
+  earlyAccessUntil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -450,6 +470,7 @@ export type ModelCatalogMaxOrderByAggregateInput = {
   inputModalities?: Prisma.SortOrder
   capabilities?: Prisma.SortOrder
   knowledgeCutoff?: Prisma.SortOrder
+  earlyAccessUntil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -463,6 +484,7 @@ export type ModelCatalogMinOrderByAggregateInput = {
   inputModalities?: Prisma.SortOrder
   capabilities?: Prisma.SortOrder
   knowledgeCutoff?: Prisma.SortOrder
+  earlyAccessUntil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -500,6 +522,7 @@ export type ModelCatalogCreateWithoutRoutesInput = {
   inputModalities?: string | null
   capabilities?: string | null
   knowledgeCutoff?: string | null
+  earlyAccessUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -513,6 +536,7 @@ export type ModelCatalogUncheckedCreateWithoutRoutesInput = {
   inputModalities?: string | null
   capabilities?: string | null
   knowledgeCutoff?: string | null
+  earlyAccessUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -542,6 +566,7 @@ export type ModelCatalogUpdateWithoutRoutesInput = {
   inputModalities?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capabilities?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   knowledgeCutoff?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  earlyAccessUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -555,6 +580,7 @@ export type ModelCatalogUncheckedUpdateWithoutRoutesInput = {
   inputModalities?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capabilities?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   knowledgeCutoff?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  earlyAccessUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -599,6 +625,7 @@ export type ModelCatalogSelect<ExtArgs extends runtime.Types.Extensions.Internal
   inputModalities?: boolean
   capabilities?: boolean
   knowledgeCutoff?: boolean
+  earlyAccessUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   routes?: boolean | Prisma.ModelCatalog$routesArgs<ExtArgs>
@@ -614,6 +641,7 @@ export type ModelCatalogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   inputModalities?: boolean
   capabilities?: boolean
   knowledgeCutoff?: boolean
+  earlyAccessUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["modelCatalog"]>
@@ -627,6 +655,7 @@ export type ModelCatalogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   inputModalities?: boolean
   capabilities?: boolean
   knowledgeCutoff?: boolean
+  earlyAccessUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["modelCatalog"]>
@@ -640,11 +669,12 @@ export type ModelCatalogSelectScalar = {
   inputModalities?: boolean
   capabilities?: boolean
   knowledgeCutoff?: boolean
+  earlyAccessUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ModelCatalogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "modelId" | "displayName" | "contextTokens" | "maxOutputTokens" | "inputModalities" | "capabilities" | "knowledgeCutoff" | "createdAt" | "updatedAt", ExtArgs["result"]["modelCatalog"]>
+export type ModelCatalogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "modelId" | "displayName" | "contextTokens" | "maxOutputTokens" | "inputModalities" | "capabilities" | "knowledgeCutoff" | "earlyAccessUntil" | "createdAt" | "updatedAt", ExtArgs["result"]["modelCatalog"]>
 export type ModelCatalogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   routes?: boolean | Prisma.ModelCatalog$routesArgs<ExtArgs>
   _count?: boolean | Prisma.ModelCatalogCountOutputTypeDefaultArgs<ExtArgs>
@@ -666,6 +696,7 @@ export type $ModelCatalogPayload<ExtArgs extends runtime.Types.Extensions.Intern
     inputModalities: string | null
     capabilities: string | null
     knowledgeCutoff: string | null
+    earlyAccessUntil: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["modelCatalog"]>
@@ -1100,6 +1131,7 @@ export interface ModelCatalogFieldRefs {
   readonly inputModalities: Prisma.FieldRef<"ModelCatalog", 'String'>
   readonly capabilities: Prisma.FieldRef<"ModelCatalog", 'String'>
   readonly knowledgeCutoff: Prisma.FieldRef<"ModelCatalog", 'String'>
+  readonly earlyAccessUntil: Prisma.FieldRef<"ModelCatalog", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"ModelCatalog", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ModelCatalog", 'DateTime'>
 }

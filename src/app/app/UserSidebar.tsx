@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Activity,
   BookOpen,
   ChevronsLeft,
   ChevronsRight,
+  FlaskConical,
   KeyRound,
   Layers,
   LayoutDashboard,
@@ -14,16 +16,21 @@ import {
   ScrollText,
   ShieldCheck,
   User,
+  Zap,
 } from "lucide-react";
 
 const NAV = [
   { href: "/app", label: "Ringkasan", short: "Ringkasan", icon: LayoutDashboard, exact: true },
   { href: "/app/keys", label: "Key Saya", short: "Key", icon: KeyRound, exact: false },
   { href: "/app/models", label: "Katalog Model", short: "Model", icon: Layers, exact: false },
+  { href: "/app/performa", label: "Performa", short: "Performa", icon: Activity, exact: false },
+  { href: "/app/playground", label: "Playground", short: "Playground", icon: FlaskConical, exact: false },
   { href: "/app/logs", label: "Log Pemakaian", short: "Log", icon: ScrollText, exact: false },
   { href: "/app/docs", label: "Dokumentasi", short: "Docs", icon: BookOpen, exact: false },
   { href: "/app/profile", label: "Profil", short: "Profil", icon: User, exact: false },
 ];
+
+const FOCUS = "outline-none focus-visible:ring-2 focus-visible:ring-lime-300/60";
 
 function Brand({ compact = false }: { compact?: boolean }) {
   return (
@@ -39,32 +46,56 @@ function Brand({ compact = false }: { compact?: boolean }) {
   );
 }
 
-// Sama seperti admin: bar bawah mobile hanya 4 tab utama + tombol More;
-// sisanya (Docs, Profil) masuk panel "More". Sidebar desktop tetap lengkap.
-const MOBILE_MAIN = NAV.slice(0, 4);
-const MOBILE_MORE = NAV.slice(4);
+// Bar bawah mobile hanya 4 tab utama + tombol More; sisanya (Performa,
+// Playground, Docs, Profil) masuk panel "More". Sidebar desktop lengkap.
+const MOBILE_MAIN_HREFS = ["/app", "/app/keys", "/app/models", "/app/logs"];
+const MOBILE_MAIN = NAV.filter((item) => MOBILE_MAIN_HREFS.includes(item.href));
+const MOBILE_MORE = NAV.filter((item) => !MOBILE_MAIN_HREFS.includes(item.href));
 
-export default function UserSidebar({ email, role }: { email: string; role: string }) {
-  const pathname = usePathname();
-  const [moreOpen, setMoreOpen] = useState(false);
-  // Sidebar desktop bisa diciutkan jadi rel ikon; DEFAULT-nya ciut, pilihan
-  // terakhir user diingat per area (yang tersimpan hanya pengecualiannya).
-  const [min, setMin] = useState(true);
+// Status ciut sidebar desktop disimpan di localStorage dan dibaca
+// lewat external store: snapshot server selalu default ciut (HTML
+// awal konsisten), snapshot klien membaca pilihan tersimpan user.
+const SIDEBAR_EVENT = "gr-user-sidebar-change";
 
-  useEffect(() => {
-    setMin(localStorage.getItem("gr-user-sidebar") !== "full");
-  }, []);
+function subscribeSidebar(cb: () => void) {
+  window.addEventListener(SIDEBAR_EVENT, cb);
+  window.addEventListener("storage", cb);
+  return () => {
+    window.removeEventListener(SIDEBAR_EVENT, cb);
+    window.removeEventListener("storage", cb);
+  };
+}
 
+function useSidebarMin(): [boolean, () => void] {
+  const min = useSyncExternalStore(
+    subscribeSidebar,
+    () => localStorage.getItem("gr-user-sidebar") !== "full",
+    () => true,
+  );
   function toggleMin() {
-    setMin((v) => {
-      localStorage.setItem("gr-user-sidebar", v ? "full" : "min");
-      return !v;
-    });
+    localStorage.setItem("gr-user-sidebar", min ? "full" : "min");
+    window.dispatchEvent(new Event(SIDEBAR_EVENT));
   }
+  return [min, toggleMin];
+}
 
-  useEffect(() => {
+export default function UserSidebar({ email, role, plan }: { email: string; role: string; plan: string }) {
+  const pathname = usePathname();
+  // Label upgrade hanya untuk plan di bawah Max; plan Max sudah mentok
+  // dan tidak bisa naik lagi, selaras tombol di kartu Plan halaman Profil.
+  const canUpgrade = plan !== "max";
+  const [moreOpen, setMoreOpen] = useState(false);
+  // Sidebar desktop bisa diciutkan jadi rel ikon; DEFAULT-nya ciut,
+  // pilihan terakhir user diingat (yang tersimpan hanya pengecualiannya).
+  const [min, toggleMin] = useSidebarMin();
+
+  // Panel "More" tertutup tiap pindah halaman (penyesuaian saat render,
+  // bukan efek).
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
     setMoreOpen(false);
-  }, [pathname]);
+  }
 
   const active = (item: (typeof NAV)[number]) =>
     item.exact ? pathname === item.href : pathname.startsWith(item.href);
@@ -73,13 +104,16 @@ export default function UserSidebar({ email, role }: { email: string; role: stri
     <>
       {/* ===== Sidebar desktop (bisa diciutkan) ===== */}
       <aside
-        className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-white/[0.06] bg-white/[0.02] px-4 py-6 transition-[width] duration-300 lg:flex ${
+        className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-white/[0.07] bg-[#070a06]/80 px-3.5 py-6 backdrop-blur-xl transition-[width] duration-300 lg:flex ${
           min ? "w-[76px]" : "w-64"
         }`}
       >
         <div className={`mb-8 ${min ? "flex justify-center" : "px-2"}`}>
           <Brand compact={min} />
         </div>
+        {!min && (
+          <p className="mb-2 px-3.5 font-mono text-[10px] font-semibold uppercase tracking-[0.26em] text-zinc-600">Menu</p>
+        )}
         <nav className="flex flex-col gap-1">
           {NAV.map((item) => {
             const Icon = item.icon;
@@ -89,17 +123,18 @@ export default function UserSidebar({ email, role }: { email: string; role: stri
                 key={item.href}
                 href={item.href}
                 title={min ? item.label : undefined}
-                className={`flex items-center gap-3 whitespace-nowrap rounded-2xl py-2.5 text-sm transition ${
+                aria-current={on ? "page" : undefined}
+                className={`relative flex items-center gap-3 whitespace-nowrap rounded-2xl py-2.5 text-sm transition ${FOCUS} ${
                   min ? "justify-center px-0" : "px-3.5"
                 } ${
                   on
                     ? "bg-lime-400/10 font-medium text-lime-200"
-                    : "text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-100"
+                    : "text-zinc-400 hover:bg-white/[0.05] hover:text-zinc-100"
                 }`}
               >
+                {on && <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-lime-300 shadow-[0_0_10px_rgba(190,242,100,0.8)]" />}
                 <Icon size={18} className="shrink-0" />
                 {!min && item.label}
-                {on && !min && <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-lime-300" />}
               </Link>
             );
           })}
@@ -115,7 +150,18 @@ export default function UserSidebar({ email, role }: { email: string; role: stri
             </Link>
           )}
         </nav>
-        <div className="mt-auto border-t border-white/[0.06] pt-4">
+        <div className="mt-auto border-t border-white/[0.07] pt-4">
+          {canUpgrade && (
+            <Link
+              href="/pricing"
+              title={min ? "Upgrade Plan" : undefined}
+              className={`mb-1 flex items-center gap-3 whitespace-nowrap rounded-2xl border border-lime-300/20 bg-lime-400/[0.07] py-2.5 text-sm font-medium text-lime-200 transition hover:bg-lime-400/15 ${FOCUS} ${
+                min ? "justify-center px-0" : "px-3.5"
+              }`}
+            >
+              <Zap size={18} className="shrink-0" /> {!min && "Upgrade Plan"}
+            </Link>
+          )}
           <button
             onClick={toggleMin}
             title={min ? "Lebarkan sidebar" : "Ciutkan sidebar"}
@@ -126,13 +172,26 @@ export default function UserSidebar({ email, role }: { email: string; role: stri
             {min ? <ChevronsRight size={18} className="shrink-0" /> : <ChevronsLeft size={18} className="shrink-0" />}
             {!min && "Ciutkan"}
           </button>
-          {!min && <p className="truncate px-2 text-xs text-zinc-500">{email}</p>}
+          <div className={`mt-2 flex items-center gap-2.5 ${min ? "justify-center" : "px-2"}`} title={min ? email : undefined}>
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-lime-400 text-sm font-extrabold text-zinc-950">
+              {email.charAt(0).toUpperCase()}
+            </span>
+            {!min && <p className="min-w-0 truncate text-xs text-zinc-400">{email}</p>}
+          </div>
         </div>
       </aside>
 
       {/* ===== Topbar mobile ===== */}
-      <header className="fixed inset-x-0 top-0 z-40 flex items-center border-b border-white/[0.06] bg-[#060806]/85 px-4 py-3 backdrop-blur-md lg:hidden">
+      <header className="fixed inset-x-0 top-0 z-40 flex items-center border-b border-white/[0.07] bg-[#060806]/85 px-4 py-3 backdrop-blur-xl lg:hidden">
         <Brand />
+        {canUpgrade && (
+          <Link
+            href="/pricing"
+            className={`ml-auto inline-flex items-center gap-1.5 rounded-full border border-lime-300/25 bg-lime-400/10 px-3 py-1.5 text-xs font-semibold text-lime-200 ${FOCUS}`}
+          >
+            <Zap size={13} /> Upgrade
+          </Link>
+        )}
       </header>
 
       {/* ===== Navigasi bawah mobile: 4 tab utama + More ===== */}
@@ -143,7 +202,7 @@ export default function UserSidebar({ email, role }: { email: string; role: stri
             onClick={() => setMoreOpen(false)}
           />
           <div
-            className="glass fixed inset-x-3 z-40 rounded-3xl p-2 lg:hidden"
+            className="fixed inset-x-3 z-40 rounded-3xl border border-white/10 bg-zinc-950/95 p-2 shadow-2xl backdrop-blur-xl lg:hidden"
             style={{ bottom: "calc(76px + env(safe-area-inset-bottom))" }}
           >
             <p className="px-3 pb-1.5 pt-2 text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-500">
@@ -193,7 +252,7 @@ export default function UserSidebar({ email, role }: { email: string; role: stri
         </>
       )}
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.06] bg-[#060806]/92 backdrop-blur-md lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.07] bg-[#060806]/92 backdrop-blur-xl lg:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <div className="grid grid-cols-5">
@@ -204,10 +263,12 @@ export default function UserSidebar({ email, role }: { email: string; role: stri
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition ${
+                aria-current={on ? "page" : undefined}
+                className={`relative flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition ${FOCUS} ${
                   on ? "text-lime-300" : "text-zinc-500 hover:text-zinc-300"
                 }`}
               >
+                {on && <span className="absolute top-0 h-[2px] w-8 rounded-b-full bg-lime-300 shadow-[0_0_10px_rgba(190,242,100,0.9)]" />}
                 <Icon size={20} strokeWidth={on ? 2.4 : 2} />
                 {item.short}
               </Link>

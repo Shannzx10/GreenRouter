@@ -13,11 +13,11 @@ const MODEL_TILES = [
   { modelId: "deepseek-v4-flash-0731", name: "DeepSeek" },
   { modelId: "glm-5.3", name: "Z.ai" },
   { modelId: "minimax-m2.7", name: "MiniMax" },
-  { modelId: "mimo-v2.6-flash", name: "MiMo" },
-  { modelId: "minicpm-v-4.7-35b-a3b", name: "MiniCPM" },
+  { modelId: "mimo-v2.5", name: "MiMo" },
+  { modelId: "deepseek-v4-flash", name: "DeepSeek" },
   { modelId: "kimi-k2.6", name: "Kimi" },
   { modelId: "mercury-3", name: "Mercury" },
-  { modelId: "atria-dawn", name: "Atria" },
+  { modelId: "glm-5.3-flash", name: "Z.ai" },
 ];
 
 const TOOL_TILES = [

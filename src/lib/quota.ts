@@ -1,12 +1,13 @@
 import { prisma } from "@/lib/db";
+import {
+  CYCLE_DAYS,
+  DEFAULT_REQUEST_LIMIT_HOURLY,
+  DEFAULT_TOKEN_LIMIT,
+} from "@/lib/limits";
 
-// Kuota token per SIKLUS: jendela 7 hari berjangkar pada tanggal akun dibuat
-// (createdAt). Siklus bergulir otomatis — begitu jendela lewat, pemakaian
-// dihitung dari nol lagi untuk jendela berikutnya. Tanpa cron/penjadwal:
-// jendela selalu dihitung dari waktu saat ini.
-export const DEFAULT_TOKEN_LIMIT = 5_000_000;
-export const DEFAULT_REQUEST_LIMIT_HOURLY = 300;
-export const CYCLE_DAYS = 7;
+// Konstanta batas hidup di lib/limits (modul murni data) dan
+// diekspor ulang dari sini agar impor lama tetap bekerja.
+export { CYCLE_DAYS, DEFAULT_REQUEST_LIMIT_HOURLY, DEFAULT_TOKEN_LIMIT };
 
 const HOUR_MS = 3600 * 1000;
 
@@ -60,6 +61,28 @@ export async function cycleTokensUsed(
       status: "SUCCESS",
       createdAt: { gte: window.start, lt: window.end },
       userId,
+    },
+  });
+  return { used: agg._sum.totalTokens ?? 0, window };
+}
+
+// Pemakaian token SATU key dalam jendela siklus pemiliknya (fitur
+// batas per key plan Max). Jangkar siklus tetap tanggal pembuatan
+// akun pemilik, sama seperti kuota akun, supaya batas key dan batas
+// akun selalu membicarakan jendela yang sama. Dihitung dari baris
+// log yang masih terhubung ke key ini; tidak seperti kuota akun,
+// batas key memang dimaksudkan per key yang masih ada.
+export async function cycleKeyTokensUsed(
+  apiKeyId: string,
+  anchor: Date,
+): Promise<{ used: number; window: CycleWindow }> {
+  const window = cycleWindow(anchor);
+  const agg = await prisma.usageLog.aggregate({
+    _sum: { totalTokens: true },
+    where: {
+      status: "SUCCESS",
+      createdAt: { gte: window.start, lt: window.end },
+      apiKeyId,
     },
   });
   return { used: agg._sum.totalTokens ?? 0, window };
