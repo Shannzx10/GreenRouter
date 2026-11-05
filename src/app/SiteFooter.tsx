@@ -38,8 +38,8 @@ export default function SiteFooter() {
             <li><Link href="/login" className="transition hover:text-lime-200">Masuk</Link></li>
             <li><Link href="/app/docs" className="transition hover:text-lime-200">Dokumentasi</Link></li>
             <li><Link href="/pricing" className="transition hover:text-lime-200">Harga</Link></li>
-            <li><a href="/#model" className="transition hover:text-lime-200">Katalog Model</a></li>
-            <li><a href="/#kuota" className="transition hover:text-lime-200">Kuota Akun Baru</a></li>
+            <li><Link href="/#model" className="transition hover:text-lime-200">Katalog Model</Link></li>
+            <li><Link href="/#kuota" className="transition hover:text-lime-200">Kuota Akun Baru</Link></li>
           </ul>
         </div>
         <div>

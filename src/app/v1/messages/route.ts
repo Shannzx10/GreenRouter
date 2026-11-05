@@ -69,7 +69,7 @@ export async function POST(req: Request) {
     }
   }
 
-  const { catalog, candidates } = await getCandidates(model, "anthropic");
+  const { catalog, candidates } = await getCandidates(model);
   if (!catalog) {
     return anthropicError(404, `Model '${model}' tidak ditemukan`, "not_found_error");
   }

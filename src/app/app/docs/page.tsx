@@ -410,7 +410,7 @@ console.log(res.choices[0].message.content);`,
         <Section id="streaming" title="Streaming">
           <p>
             Kedua endpoint chat mendukung streaming lewat Server-Sent Events. Tambahkan{" "}
-            <code className="font-mono text-[13px] text-lime-200">"stream": true</code> pada
+            <code className="font-mono text-[13px] text-lime-200">{"\"stream\": true"}</code> pada
             request, dan jawaban akan tiba potongan demi potongan sampai penanda selesai (pada
             format OpenAI penandanya <code className="font-mono text-[13px]">[DONE]</code>).
           </p>
@@ -428,7 +428,7 @@ for chunk in stream:
             Untuk format OpenAI, ringkasan pemakaian token pada stream dikirim di potongan
             terakhir bila kamu menyertakan{" "}
             <code className="font-mono text-[13px] text-lime-200">
-              "stream_options": {"{"}"include_usage": true{"}"}
+              {"\"stream_options\": {\"include_usage\": true}"}
             </code>
             . GreenRouter menambahkan opsi ini secara otomatis, jadi pemakaianmu selalu tercatat
             utuh di halaman{" "}

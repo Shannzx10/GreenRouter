@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Eye, EyeOff, KeyRound, Loader2, User, X } from "lucide-react";
 import ConfirmModal from "@/app/ConfirmModal";
 import { Card } from "../ui";
@@ -78,23 +78,18 @@ export default function ProfileForms({
   const [pwErr, setPwErr] = useState(false);
   const [pwBusy, setPwBusy] = useState(false);
   const [pwConfirmOpen, setPwConfirmOpen] = useState(false);
-  const [notice, setNotice] = useState("");
-  const [noticeErr, setNoticeErr] = useState(false);
 
-  // Kabar dari alur hubungkan akun OAuth (?linked= / ?error= di URL)
-  useEffect(() => {
-    const q = new URLSearchParams(window.location.search);
-    const linked = q.get("linked");
-    const err = q.get("error");
-    if (linked) {
-      setNotice(
-        `Akun ${linked === "google" ? "Google" : linked === "github" ? "GitHub" : linked} berhasil dihubungkan. Sekarang kamu bisa masuk dengan metode itu juga.`,
-      );
-    } else if (err) {
-      setNoticeErr(true);
-      setNotice(err);
-    }
-  }, []);
+  // Kabar dari alur hubungkan akun OAuth (?linked= / ?error= di URL),
+  // dibaca langsung dari parameter URL sebagai nilai awal state.
+  const searchParams = useSearchParams();
+  const linked = searchParams.get("linked");
+  const urlError = searchParams.get("error");
+  const [notice, setNotice] = useState(() =>
+    linked
+      ? `Akun ${linked === "google" ? "Google" : linked === "github" ? "GitHub" : linked} berhasil dihubungkan. Sekarang kamu bisa masuk dengan metode itu juga.`
+      : (urlError ?? ""),
+  );
+  const [noticeErr] = useState(() => !linked && !!urlError);
 
   async function saveName(e: React.FormEvent) {
     e.preventDefault();

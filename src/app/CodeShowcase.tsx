@@ -1,3 +1,6 @@
+/* eslint-disable react/no-unescaped-entities -- Komponen contoh kode:
+   tanda kutip di dalam JSX adalah ISI kode contoh yang ditampilkan
+   apa adanya, bukan teks prosa. */
 "use client";
 
 import { useState, type ReactNode } from "react";

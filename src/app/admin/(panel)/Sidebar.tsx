@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -14,7 +14,6 @@ import {
   Menu,
   Network,
   ScrollText,
-  Server,
   Users,
 } from "lucide-react";
 import ConfirmModal from "@/app/ConfirmModal";
@@ -47,30 +46,50 @@ function Brand({ compact = false }: { compact?: boolean }) {
 const MOBILE_MAIN = NAV.slice(0, 4);
 const MOBILE_MORE = NAV.slice(4);
 
+// Status ciut sidebar desktop disimpan di localStorage dan dibaca
+// lewat external store: snapshot server selalu default ciut (HTML
+// awal konsisten), snapshot klien membaca pilihan tersimpan user.
+const SIDEBAR_EVENT = "gr-admin-sidebar-change";
+
+function subscribeSidebar(cb: () => void) {
+  window.addEventListener(SIDEBAR_EVENT, cb);
+  window.addEventListener("storage", cb);
+  return () => {
+    window.removeEventListener(SIDEBAR_EVENT, cb);
+    window.removeEventListener("storage", cb);
+  };
+}
+
+function useSidebarMin(): [boolean, () => void] {
+  const min = useSyncExternalStore(
+    subscribeSidebar,
+    () => localStorage.getItem("gr-admin-sidebar") !== "full",
+    () => true,
+  );
+  function toggleMin() {
+    localStorage.setItem("gr-admin-sidebar", min ? "full" : "min");
+    window.dispatchEvent(new Event(SIDEBAR_EVENT));
+  }
+  return [min, toggleMin];
+}
+
 export default function Sidebar({ email }: { email: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
-  // Sidebar desktop bisa diciutkan jadi rel ikon; DEFAULT-nya ciut, pilihan
-  // terakhir user diingat per area (yang tersimpan hanya pengecualiannya).
-  const [min, setMin] = useState(true);
+  // Sidebar desktop bisa diciutkan jadi rel ikon; DEFAULT-nya ciut,
+  // pilihan terakhir user diingat (yang tersimpan hanya pengecualiannya).
+  const [min, toggleMin] = useSidebarMin();
 
-  useEffect(() => {
-    setMin(localStorage.getItem("gr-admin-sidebar") !== "full");
-  }, []);
-
-  function toggleMin() {
-    setMin((v) => {
-      localStorage.setItem("gr-admin-sidebar", v ? "full" : "min");
-      return !v;
-    });
-  }
-
-  useEffect(() => {
+  // Panel "More" tertutup tiap pindah halaman (penyesuaian saat render,
+  // bukan efek).
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
     setMoreOpen(false);
-  }, [pathname]);
+  }
 
   async function doLogout() {
     setLoggingOut(true);

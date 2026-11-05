@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { connection } from "next/server";
 import { prisma } from "@/lib/db";
@@ -274,10 +275,12 @@ export default async function ProfilePage() {
         </div>
       </Card>
 
-      <ProfileForms
-        initialName={user.name ?? ""}
-        hasPassword={!user.passwordHash.startsWith("oauth:")}
-      />
+      <Suspense fallback={null}>
+        <ProfileForms
+          initialName={user.name ?? ""}
+          hasPassword={!user.passwordHash.startsWith("oauth:")}
+        />
+      </Suspense>
 
       <LogoutSection />
     </div>

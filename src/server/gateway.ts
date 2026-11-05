@@ -86,10 +86,6 @@ const cursors = new Map<string, number>();
 
 export async function getCandidates(
   modelId: string,
-  // Parameter format dipertahankan untuk kejelasan pemanggil; pemilihan
-  // native vs terjemahan untuk jalur Anthropic kini diputuskan per
-  // kandidat di forwardAnthropicMessages berdasarkan supportsAnthropic.
-  format: "openai" | "anthropic" = "openai",
 ): Promise<{ catalog: ModelCatalog | null; candidates: Candidate[] }> {
   const catalog = await prisma.modelCatalog.findUnique({ where: { modelId } });
   if (!catalog) return { catalog: null, candidates: [] };
@@ -605,7 +601,7 @@ export async function forwardChatCompletion(args: {
   let outcome = await attemptChatCompletion(args, args.candidates, started);
   for (let pass = 2; pass <= maxPasses && outcome.kind === "exhausted"; pass++) {
     await new Promise((r) => setTimeout(r, 1200));
-    const fresh = await getCandidates(args.modelId, "openai");
+    const fresh = await getCandidates(args.modelId);
     if (!fresh.candidates.length) break;
     outcome = await attemptChatCompletion(args, fresh.candidates, started);
   }
@@ -703,9 +699,9 @@ async function tryTranslatedCandidate(
 
   if (!args.stream || !upstream.body) {
     const text = stripSseTrailer(await upstream.text());
-    let json: Record<string, any> | null = null;
+    let json: Record<string, unknown> | null = null;
     try {
-      json = JSON.parse(text) as Record<string, any>;
+      json = JSON.parse(text) as Record<string, unknown>;
     } catch {
       /* respons sukses tapi bukan JSON: perlakukan sebagai gangguan hulu */
     }
@@ -975,7 +971,7 @@ export async function forwardAnthropicMessages(args: {
   let outcome = await attemptAnthropicMessages(args, args.candidates, started);
   for (let pass = 2; pass <= maxPasses && outcome.kind === "exhausted"; pass++) {
     await new Promise((r) => setTimeout(r, 1200));
-    const fresh = await getCandidates(args.modelId, "anthropic");
+    const fresh = await getCandidates(args.modelId);
     if (!fresh.candidates.length) break;
     outcome = await attemptAnthropicMessages(args, fresh.candidates, started);
   }

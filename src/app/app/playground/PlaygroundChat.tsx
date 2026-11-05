@@ -63,9 +63,14 @@ const labelCls =
 // ini model yang lama berpikir terlihat diam lalu "tidak menjawab".
 function ReasoningBlock({ text, live }: { text: string; live: boolean }) {
   const [open, setOpen] = useState(live);
-  useEffect(() => {
+  // Blok mengikuti status alir: terbuka selama berpikir, terlipat
+  // begitu selesai (penyesuaian saat render, bukan efek); user tetap
+  // bisa membuka atau menutupnya manual di antara perubahan status.
+  const [prevLive, setPrevLive] = useState(live);
+  if (prevLive !== live) {
+    setPrevLive(live);
     setOpen(live);
-  }, [live]);
+  }
   return (
     <div className="mt-1.5 overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02]">
       <button

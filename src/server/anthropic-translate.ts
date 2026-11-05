@@ -11,7 +11,14 @@
 // blok thinking pada riwayat asisten tidak diteruskan balik ke hulu;
 // input non-teks mengikuti kemampuan model hulu apa adanya.
 
-type Any = Record<string, any>;
+type Any = Record<string, unknown>;
+
+// Bentuk longgar tool_call OpenAI yang dibaca penerjemah.
+type ToolCallLike = {
+  id?: unknown;
+  index?: unknown;
+  function?: { name?: unknown; arguments?: unknown };
+};
 
 function textOfBlocks(blocks: unknown): string {
   if (typeof blocks === "string") return blocks;
@@ -178,7 +185,7 @@ export function openAIToAnthropic(
   if (typeof m.content === "string" && m.content) {
     content.push({ type: "text", text: m.content });
   }
-  for (const tc of (m.tool_calls as Any[]) ?? []) {
+  for (const tc of (m.tool_calls as ToolCallLike[]) ?? []) {
     let input: unknown = {};
     try {
       input = JSON.parse(String(tc?.function?.arguments ?? "{}"));
@@ -273,10 +280,11 @@ export function translateOpenAIStream(
   };
 
   const handleChunk = (chunk: Any) => {
-    if (chunk?.usage) {
-      if (typeof chunk.usage.prompt_tokens === "number") promptTokens = chunk.usage.prompt_tokens;
-      if (typeof chunk.usage.completion_tokens === "number") {
-        completionTokens = chunk.usage.completion_tokens;
+    const usage = chunk?.usage as { prompt_tokens?: unknown; completion_tokens?: unknown } | undefined;
+    if (usage) {
+      if (typeof usage.prompt_tokens === "number") promptTokens = usage.prompt_tokens;
+      if (typeof usage.completion_tokens === "number") {
+        completionTokens = usage.completion_tokens;
       }
     }
     if (chunk?.error) {
@@ -320,7 +328,7 @@ export function translateOpenAIStream(
         delta: { type: "text_delta", text: delta.content },
       });
     }
-    for (const tc of (delta.tool_calls as Any[]) ?? []) {
+    for (const tc of (delta.tool_calls as ToolCallLike[]) ?? []) {
       const key = `tc${typeof tc?.index === "number" ? tc.index : toolBlocks.size}`;
       ensureStarted();
       if (!toolBlocks.has(key)) {

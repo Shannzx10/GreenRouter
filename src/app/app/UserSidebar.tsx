@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -52,30 +52,50 @@ const MOBILE_MAIN_HREFS = ["/app", "/app/keys", "/app/models", "/app/logs"];
 const MOBILE_MAIN = NAV.filter((item) => MOBILE_MAIN_HREFS.includes(item.href));
 const MOBILE_MORE = NAV.filter((item) => !MOBILE_MAIN_HREFS.includes(item.href));
 
+// Status ciut sidebar desktop disimpan di localStorage dan dibaca
+// lewat external store: snapshot server selalu default ciut (HTML
+// awal konsisten), snapshot klien membaca pilihan tersimpan user.
+const SIDEBAR_EVENT = "gr-user-sidebar-change";
+
+function subscribeSidebar(cb: () => void) {
+  window.addEventListener(SIDEBAR_EVENT, cb);
+  window.addEventListener("storage", cb);
+  return () => {
+    window.removeEventListener(SIDEBAR_EVENT, cb);
+    window.removeEventListener("storage", cb);
+  };
+}
+
+function useSidebarMin(): [boolean, () => void] {
+  const min = useSyncExternalStore(
+    subscribeSidebar,
+    () => localStorage.getItem("gr-user-sidebar") !== "full",
+    () => true,
+  );
+  function toggleMin() {
+    localStorage.setItem("gr-user-sidebar", min ? "full" : "min");
+    window.dispatchEvent(new Event(SIDEBAR_EVENT));
+  }
+  return [min, toggleMin];
+}
+
 export default function UserSidebar({ email, role, plan }: { email: string; role: string; plan: string }) {
   const pathname = usePathname();
   // Label upgrade hanya untuk plan di bawah Max; plan Max sudah mentok
   // dan tidak bisa naik lagi, selaras tombol di kartu Plan halaman Profil.
   const canUpgrade = plan !== "max";
   const [moreOpen, setMoreOpen] = useState(false);
-  // Sidebar desktop bisa diciutkan jadi rel ikon; DEFAULT-nya ciut, pilihan
-  // terakhir user diingat per area (yang tersimpan hanya pengecualiannya).
-  const [min, setMin] = useState(true);
+  // Sidebar desktop bisa diciutkan jadi rel ikon; DEFAULT-nya ciut,
+  // pilihan terakhir user diingat (yang tersimpan hanya pengecualiannya).
+  const [min, toggleMin] = useSidebarMin();
 
-  useEffect(() => {
-    setMin(localStorage.getItem("gr-user-sidebar") !== "full");
-  }, []);
-
-  function toggleMin() {
-    setMin((v) => {
-      localStorage.setItem("gr-user-sidebar", v ? "full" : "min");
-      return !v;
-    });
-  }
-
-  useEffect(() => {
+  // Panel "More" tertutup tiap pindah halaman (penyesuaian saat render,
+  // bukan efek).
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
     setMoreOpen(false);
-  }, [pathname]);
+  }
 
   const active = (item: (typeof NAV)[number]) =>
     item.exact ? pathname === item.href : pathname.startsWith(item.href);

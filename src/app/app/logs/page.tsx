@@ -65,11 +65,13 @@ export default async function UserLogsPage({
 
   // Lantai rentang selalu statsDays plan; pilihan periode hanya
   // boleh mempersempit, tidak pernah melampaui rentang plan.
+  // eslint-disable-next-line react-hooks/purity -- komponen server: waktu request dibaca saat render memang disengaja
   const floorSince = new Date(Date.now() - plan.statsDays * 86_400_000);
   const periodDef = PERIODS.find((p) => p.v === period);
   const since =
     periodDef && periodDef.v !== ""
-      ? new Date(Date.now() - periodDef.days * 86_400_000)
+      ? // eslint-disable-next-line react-hooks/purity -- sama seperti di atas
+        new Date(Date.now() - periodDef.days * 86_400_000)
       : floorSince;
 
   const where = {

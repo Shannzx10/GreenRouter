@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import OAuthButtons from "../OAuthButtons";
 
@@ -10,14 +10,11 @@ export default function LoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
   // Pesan error dari alur OAuth (callback mengarahkan ke /login?error=...)
-  useEffect(() => {
-    const e = new URLSearchParams(window.location.search).get("error");
-    if (e) setError(e);
-  }, []);
+  const searchParams = useSearchParams();
+  const [error, setError] = useState(() => searchParams.get("error") ?? "");
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

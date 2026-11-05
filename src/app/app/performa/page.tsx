@@ -156,6 +156,7 @@ export default async function PerformaPage() {
     checksByModel.set(c.modelId, arr);
   }
 
+  // eslint-disable-next-line react-hooks/purity -- komponen server: waktu request dibaca saat render memang disengaja
   const since7 = new Date(Date.now() - 7 * 86400_000);
   const usage = await prisma.usageLog.groupBy({
     by: ["modelId", "status"],
