@@ -283,6 +283,14 @@ export default async function AppDocsPage() {
             sebagai pesan.
           </p>
 
+          <h3 className="pt-2 text-lg font-semibold text-zinc-100">POST /v1/messages/count_tokens</h3>
+          <p>
+            Memperkirakan jumlah token masukan sebuah request{" "}
+            <code className="font-mono text-[13px] text-lime-200">/v1/messages</code> tanpa
+            menjalankannya, mengikuti endpoint count_tokens Anthropic. Hasilnya perkiraan dan
+            endpoint ini tidak memotong kuota.
+          </p>
+
           <h3 className="pt-2 text-lg font-semibold text-zinc-100">GET /v1/models</h3>
           <p>
             Mengembalikan daftar model aktif beserta metadatanya, antara lain konteks maksimum
