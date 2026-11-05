@@ -32,6 +32,8 @@ const MODELS = [
   { id: "kimi-k2.5", label: "Kimi K2.5" },
   { id: "glm-5.3", label: "GLM 5.3" },
   { id: "mercury-3", label: "Mercury 3" },
+  { id: "hy4-preview", label: "Hy4 Preview" },
+  { id: "deepseek-v4.1-flash-uncensored", label: "DeepSeek V4.1 Flash Uncensored" },
 ];
 
 const FEATURES = [

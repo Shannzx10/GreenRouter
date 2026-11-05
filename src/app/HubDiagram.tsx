@@ -18,6 +18,7 @@ const MODEL_TILES = [
   { modelId: "kimi-k2.5", name: "Kimi" },
   { modelId: "mercury-3", name: "Mercury" },
   { modelId: "glm-5.3-flash", name: "Z.ai" },
+  { modelId: "hy4-preview", name: "Hunyuan" },
 ];
 
 const TOOL_TILES = [
