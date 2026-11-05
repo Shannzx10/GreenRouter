@@ -27,9 +27,9 @@ const MODELS = [
   { id: "minimax-m2.7", label: "MiniMax M2.7" },
   { id: "deepseek-v4-flash-0731", label: "DeepSeek V4 Flash 0731" },
   { id: "deepseek-v4.1-flash", label: "DeepSeek V4.1 Flash" },
-  { id: "deepseek-v4-flash", label: "DeepSeek V4 Flash" },
+  { id: "deepseek-v3", label: "DeepSeek V3" },
   { id: "mimo-v2.5", label: "MiMo V2.5" },
-  { id: "kimi-k2.6", label: "Kimi K2.6" },
+  { id: "kimi-k2.5", label: "Kimi K2.5" },
   { id: "glm-5.3", label: "GLM 5.3" },
   { id: "mercury-3", label: "Mercury 3" },
 ];
