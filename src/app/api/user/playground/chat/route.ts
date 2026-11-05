@@ -66,6 +66,10 @@ export async function POST(req: Request) {
     }
     if (typeof msg.content === "string") {
       if (msg.content.trim() === "") {
+        // Pesan assistant kosong (jawaban model pernah tidak keluar)
+        // dibuang dari riwayat, BUKAN menolak seluruh request; tanpa
+        // ini satu jawaban kosong mengunci percakapan selamanya.
+        if (msg.role === "assistant") continue;
         return openAiError(400, "Content pesan tidak boleh kosong");
       }
       messages.push({ role: msg.role, content: msg.content.slice(0, MAX_CONTENT) });
@@ -111,7 +115,7 @@ export async function POST(req: Request) {
     }
     messages.push({ role: msg.role, content: parts });
   }
-  if (messages[messages.length - 1].role !== "user") {
+  if (messages.length === 0 || messages[messages.length - 1].role !== "user") {
     return openAiError(400, "Pesan terakhir harus dari pengguna");
   }
 

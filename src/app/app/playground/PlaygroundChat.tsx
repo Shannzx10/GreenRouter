@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
+  Brain,
   ChevronDown,
   Paperclip,
   RotateCcw,
@@ -28,6 +29,7 @@ export type PlaygroundModel = {
 type Msg = {
   role: "user" | "assistant";
   content: string;
+  reasoning?: string;
   images?: string[];
   tokens?: number | null;
   secs?: number;
@@ -55,6 +57,35 @@ function fmtTokens(n: number | null): string | null {
 
 const labelCls =
   "mb-2 block font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500";
+
+// Blok proses berpikir (reasoning) model penalaran: terbuka selama
+// jawaban mengalir, terlipat sesudahnya dan bisa dibuka lagi. Tanpa
+// ini model yang lama berpikir terlihat diam lalu "tidak menjawab".
+function ReasoningBlock({ text, live }: { text: string; live: boolean }) {
+  const [open, setOpen] = useState(live);
+  useEffect(() => {
+    setOpen(live);
+  }, [live]);
+  return (
+    <div className="mt-1.5 overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-2 px-3.5 py-2 text-left text-xs font-medium text-zinc-400 transition hover:text-zinc-200"
+      >
+        <Brain size={13} className="shrink-0 text-lime-300/80" />
+        {live ? "Sedang berpikir…" : "Proses berpikir"}
+        <ChevronDown size={13} className={`ml-auto shrink-0 transition ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="max-h-44 overflow-y-auto border-t border-white/[0.06] px-3.5 py-2.5">
+          <p className="whitespace-pre-wrap break-words text-xs leading-relaxed text-zinc-500">{text}</p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function PlaygroundChat({
   models,
@@ -153,6 +184,7 @@ export default function PlaygroundChat({
     const ctrl = new AbortController();
     abortRef.current = ctrl;
     let acc = "";
+    let racc = "";
     let usage: Usage | null = null;
     let stopped = false;
     try {
@@ -162,7 +194,11 @@ export default function PlaygroundChat({
         signal: ctrl.signal,
         body: JSON.stringify({
           model: model.modelId,
-          messages: history.map((m) => {
+          messages: history
+            // Jawaban assistant yang pernah kosong tidak ikut dikirim;
+            // mengirimnya hanya membuat riwayat ditolak server.
+            .filter((m) => !(m.role === "assistant" && m.content.trim() === ""))
+            .map((m) => {
             // Riwayat berisi gambar hanya diteruskan ke model
             // berkemampuan gambar, dalam format bagian konten OpenAI.
             if (m.images && m.images.length > 0 && model.supportsImage) {
@@ -203,13 +239,18 @@ export default function PlaygroundChat({
           if (payload === "[DONE]") continue;
           try {
             const chunk = JSON.parse(payload) as {
-              choices?: { delta?: { content?: unknown } }[];
+              choices?: { delta?: { content?: unknown; reasoning_content?: unknown } }[];
               usage?: Usage;
             };
             const delta = chunk.choices?.[0]?.delta?.content;
             if (typeof delta === "string" && delta) {
               acc += delta;
               patchLast({ content: acc });
+            }
+            const rdelta = chunk.choices?.[0]?.delta?.reasoning_content;
+            if (typeof rdelta === "string" && rdelta) {
+              racc += rdelta;
+              patchLast({ reasoning: racc });
             }
             if (chunk.usage) usage = chunk.usage;
           } catch {
@@ -444,6 +485,7 @@ export default function PlaygroundChat({
                         {model?.modelId}
                       </span>
                     </p>
+                    {m.reasoning && <ReasoningBlock text={m.reasoning} live={!!m.pending} />}
                     <div className="mt-1.5 rounded-3xl rounded-tl-md border border-white/[0.07] bg-white/[0.03] px-4 py-3">
                       {m.pending && m.content === "" ? (
                         <span className="flex items-center gap-1.5 py-1" aria-label="Model sedang menjawab">
@@ -453,7 +495,9 @@ export default function PlaygroundChat({
                         </span>
                       ) : m.empty ? (
                         <p className="text-sm italic leading-relaxed text-zinc-500">
-                          Model tidak memberikan jawaban. Coba lagi, atau pilih model lain.
+                          {m.reasoning
+                            ? "Jawaban akhir tidak keluar karena token jawaban habis untuk proses berpikir. Naikkan Token Jawaban Maks di Pengaturan, lalu tanyakan lagi."
+                            : "Model tidak memberikan jawaban. Coba lagi, atau pilih model lain."}
                         </p>
                       ) : (
                         <div>
