@@ -15,7 +15,7 @@ const MODEL_TILES = [
   { modelId: "minimax-m2.7", name: "MiniMax" },
   { modelId: "mimo-v2.5", name: "MiMo" },
   { modelId: "deepseek-v3", name: "DeepSeek" },
-  { modelId: "kimi-k2.5", name: "Kimi" },
+  { modelId: "kimi-k2.5", name: "Moonshot" },
   { modelId: "mercury-3", name: "Mercury" },
   { modelId: "glm-5.3-flash", name: "Z.ai" },
   { modelId: "hy4-preview", name: "Tencent" },

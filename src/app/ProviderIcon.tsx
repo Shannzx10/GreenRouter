@@ -28,7 +28,7 @@ export function familyLabel(modelId: string): string {
     case "minimax":
       return "MiniMax";
     case "kimi":
-      return "Kimi";
+      return "Moonshot";
     case "qwen":
       return "Qwen";
     case "mimo":
