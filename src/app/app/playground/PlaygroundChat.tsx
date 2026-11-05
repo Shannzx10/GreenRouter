@@ -244,7 +244,7 @@ export default function PlaygroundChat({
           if (payload === "[DONE]") continue;
           try {
             const chunk = JSON.parse(payload) as {
-              choices?: { delta?: { content?: unknown; reasoning_content?: unknown } }[];
+              choices?: { delta?: { content?: unknown; reasoning_content?: unknown; reasoning?: unknown } }[];
               usage?: Usage;
             };
             const delta = chunk.choices?.[0]?.delta?.content;
@@ -252,7 +252,7 @@ export default function PlaygroundChat({
               acc += delta;
               patchLast({ content: acc });
             }
-            const rdelta = chunk.choices?.[0]?.delta?.reasoning_content;
+            const rdelta = chunk.choices?.[0]?.delta?.reasoning_content ?? chunk.choices?.[0]?.delta?.reasoning;
             if (typeof rdelta === "string" && rdelta) {
               racc += rdelta;
               patchLast({ reasoning: racc });
