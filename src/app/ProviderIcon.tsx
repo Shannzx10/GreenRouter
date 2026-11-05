@@ -40,7 +40,7 @@ export function familyLabel(modelId: string): string {
     case "mercury":
       return "Mercury";
     case "hunyuan":
-      return "Hunyuan";
+      return "Tencent";
     default:
       return "Model";
   }
