@@ -13,6 +13,7 @@ import {
   Layers,
   LayoutDashboard,
   Menu,
+  Receipt,
   ScrollText,
   ShieldCheck,
   User,
@@ -27,6 +28,7 @@ const NAV = [
   { href: "/app/playground", label: "Playground", short: "Playground", icon: FlaskConical, exact: false },
   { href: "/app/logs", label: "Log Pemakaian", short: "Log", icon: ScrollText, exact: false },
   { href: "/app/docs", label: "Dokumentasi", short: "Docs", icon: BookOpen, exact: false },
+  { href: "/app/tagihan", label: "Tagihan", short: "Tagihan", icon: Receipt, exact: false },
   { href: "/app/profile", label: "Profil", short: "Profil", icon: User, exact: false },
 ];
 

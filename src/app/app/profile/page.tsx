@@ -4,7 +4,7 @@ import { connection } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { CYCLE_DAYS, cycleTokensUsed, fmtDateShort, fmtResetIn, hourlyRequestsUsed } from "@/lib/quota";
-import { ArrowUpRight, CreditCard, Fingerprint, Gauge, Mail } from "lucide-react";
+import { ArrowUpRight, CreditCard, Fingerprint, Gauge, Mail, Receipt } from "lucide-react";
 import { Card, PageHeader, PANEL, Pill } from "../ui";
 import ProfileForms from "./ProfileForms";
 import LogoutSection from "./LogoutSection";
@@ -224,6 +224,12 @@ export default async function ProfilePage() {
                 </Link>
               )}
               {user.plan !== "gratis" && <PortalButton />}
+              <Link
+                href="/app/tagihan"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.03] px-6 py-3 text-sm font-semibold text-zinc-100 transition hover:border-lime-300/40 hover:text-lime-200"
+              >
+                <Receipt size={15} /> Riwayat Tagihan
+              </Link>
             </div>
             <p className="mt-3 text-xs leading-relaxed text-zinc-500">
               {user.plan === "gratis"
