@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Megaphone, Pencil, Trash2, X } from "lucide-react";
 import ConfirmModal from "@/app/ConfirmModal";
 import Reveal from "@/app/Reveal";
+import { PANEL } from "@/app/app/ui";
 
 type Announcement = {
   id: string;
@@ -13,7 +14,7 @@ type Announcement = {
 };
 
 const inputCls =
-  "w-full rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm outline-none transition placeholder:text-zinc-600 focus:border-lime-300/60";
+  "w-full rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm outline-none transition placeholder:text-zinc-600 focus:border-lime-300/60 focus:ring-2 focus:ring-lime-300/15";
 
 export default function AnnouncementsManager({ initial }: { initial: Announcement[] }) {
   const [items, setItems] = useState<Announcement[]>(initial);
@@ -93,7 +94,7 @@ export default function AnnouncementsManager({ initial }: { initial: Announcemen
   return (
     <div className="mt-8">
       <Reveal>
-        <form onSubmit={submit} className="glass rounded-3xl p-5 sm:p-6">
+        <form onSubmit={submit} className={`${PANEL} p-5 sm:p-6 ${editingId ? "border-lime-300/30" : ""}`}>
           <div className="flex items-center gap-4">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
               <Megaphone size={19} />
@@ -102,27 +103,37 @@ export default function AnnouncementsManager({ initial }: { initial: Announcemen
               {editingId ? "Ubah Pengumuman" : "Pengumuman Baru"}
             </p>
           </div>
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Judul, misalnya: Model baru telah tiba"
-            className={`${inputCls} mt-5`}
-            maxLength={120}
-          />
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder="Isi pengumuman, singkat dan jelas."
-            rows={3}
-            className={`${inputCls} mt-3 resize-none`}
-            maxLength={1000}
-          />
-          {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
+          <label className="mt-5 block">
+            <span className="mb-1.5 flex items-center justify-between text-xs text-zinc-500">
+              Judul <span className="tabular-nums">{title.length}/120</span>
+            </span>
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Judul, misalnya: Model baru telah tiba"
+              className={inputCls}
+              maxLength={120}
+            />
+          </label>
+          <label className="mt-3 block">
+            <span className="mb-1.5 flex items-center justify-between text-xs text-zinc-500">
+              Isi <span className="tabular-nums">{body.length}/1000</span>
+            </span>
+            <textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              placeholder="Isi pengumuman, singkat dan jelas."
+              rows={3}
+              className={`${inputCls} resize-none`}
+              maxLength={1000}
+            />
+          </label>
+          {error && <p role="alert" className="mt-3 text-sm text-red-300">{error}</p>}
           <div className="mt-4 flex gap-2">
             <button
               type="submit"
               disabled={busy}
-              className="rounded-full bg-lime-400 px-5 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-lime-300 disabled:opacity-50"
+              className="btn-shine rounded-full bg-lime-400 px-5 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-lime-300 disabled:opacity-50"
             >
               {busy ? "Menyimpan..." : editingId ? "Simpan Perubahan" : "Terbitkan"}
             </button>
@@ -141,16 +152,16 @@ export default function AnnouncementsManager({ initial }: { initial: Announcemen
 
       <div className="mt-6 flex flex-col gap-3">
         {items.length === 0 && (
-          <p className="glass rounded-3xl px-5 py-6 text-center text-sm text-zinc-500">
+          <p className={`${PANEL} px-5 py-10 text-center text-sm text-zinc-500`}>
             Belum ada pengumuman. Pengumuman pertama yang kamu terbitkan akan tampil di
             dashboard semua user.
           </p>
         )}
         {items.map((a, i) => (
           <Reveal key={a.id} delay={i * 90}>
-            <article className="glass group rounded-3xl p-5 transition duration-300 hover:-translate-y-0.5 hover:border-lime-300/25 sm:p-6">
-              <div className="flex items-start gap-4">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
+            <article className={`${PANEL} group p-5 transition duration-300 hover:border-lime-300/25 sm:p-6 ${editingId === a.id ? "border-lime-300/40" : ""}`}>
+              <div className="flex items-start gap-3 sm:gap-4">
+                <span className="hidden h-11 w-11 shrink-0 items-center sm:flex justify-center rounded-2xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
                   <Megaphone size={19} />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -171,15 +182,17 @@ export default function AnnouncementsManager({ initial }: { initial: Announcemen
                 <div className="flex shrink-0 gap-1.5">
                   <button
                     onClick={() => startEdit(a)}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.07] bg-white/[0.03] text-zinc-300 transition hover:text-lime-200"
-                    aria-label="Ubah"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.07] bg-white/[0.03] text-zinc-300 transition hover:text-lime-200"
+                    aria-label={`Ubah pengumuman ${a.title}`}
+                    title="Ubah"
                   >
                     <Pencil size={14} />
                   </button>
                   <button
                     onClick={() => setDeleteTarget(a)}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.07] bg-white/[0.03] text-zinc-300 transition hover:text-red-300"
-                    aria-label="Hapus"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.07] bg-white/[0.03] text-zinc-300 transition hover:text-red-300"
+                    aria-label={`Hapus pengumuman ${a.title}`}
+                    title="Hapus"
                   >
                     <Trash2 size={14} />
                   </button>

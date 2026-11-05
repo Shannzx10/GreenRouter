@@ -1,8 +1,11 @@
 import { connection } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import Link from "next/link";
 import Reveal from "../../Reveal";
-import { Activity, Network, TicketCheck, Coins } from "lucide-react";
+import { Spot } from "../../landing/Interactive";
+import { PANEL, Pill, SectionHead } from "../../app/ui";
+import { Activity, ArrowUpRight, Network, TicketCheck, Coins, ExternalLink } from "lucide-react";
 
 /** Angka ringkas untuk kartu statistik: 999, 1,5K, 2,3M, 1B. */
 function fmtCompact(n: number): string {
@@ -15,24 +18,6 @@ function fmtCompact(n: number): string {
 
 function fmtTime(d: Date) {
   return d.toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
-}
-
-function SectionHead({
-  eyebrow,
-  title,
-  children,
-}: {
-  eyebrow: string;
-  title: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div>
-      <p className="text-xs font-bold uppercase tracking-[0.3em] text-lime-300/80">{eyebrow}</p>
-      <h2 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">{title}</h2>
-      {children && <p className="mt-2 max-w-xl text-sm leading-relaxed text-zinc-400">{children}</p>}
-    </div>
-  );
 }
 
 export default async function OverviewPage() {
@@ -84,6 +69,9 @@ export default async function OverviewPage() {
     { label: "Token Hari Ini", value: tokensToday._sum.totalTokens ?? 0, icon: Coins },
   ];
 
+  const okPill = "bg-lime-400/10 text-lime-300";
+  const badPill = "bg-red-500/15 text-red-300";
+
   return (
     <div className="relative mx-auto w-full max-w-6xl">
       {/* ===== Sambutan ===== */}
@@ -94,19 +82,20 @@ export default async function OverviewPage() {
             <img
               src={me.image}
               alt={displayName}
-              className="h-14 w-14 rounded-3xl object-cover ring-1 ring-white/15"
+              className="h-14 w-14 rounded-2xl object-cover ring-1 ring-white/15"
               referrerPolicy="no-referrer"
             />
           ) : (
-            <span className="flex h-14 w-14 items-center justify-center rounded-3xl bg-lime-400 text-2xl font-extrabold text-zinc-950">
+            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-lime-400 text-2xl font-extrabold text-zinc-950">
               {displayName.charAt(0).toUpperCase()}
             </span>
           )}
           <div className="min-w-0">
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-lime-300/80">
+            <p className="flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.26em] text-lime-300/85">
+              <span className="h-1.5 w-1.5 bg-lime-300" />
               Panel Admin
             </p>
-            <h1 className="mt-1 truncate text-3xl font-extrabold tracking-tight sm:text-4xl">
+            <h1 className="mt-1 truncate text-2xl font-extrabold tracking-tight sm:text-4xl">
               Halo,{" "}
               <span className="text-gradient-anim bg-gradient-to-r from-lime-300 via-emerald-300 to-teal-300 bg-clip-text text-transparent">
                 {displayName}
@@ -114,99 +103,129 @@ export default async function OverviewPage() {
             </h1>
           </div>
         </div>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-400 sm:text-base">
+        <p className="mt-4 max-w-xl text-sm leading-relaxed text-zinc-400">
           Semua tentang gateway GreenRouter, diringkas dalam satu halaman.
         </p>
       </Reveal>
 
-      <Reveal>
-        <div className="mt-8 flex flex-wrap items-center gap-3 rounded-3xl border border-white/[0.06] bg-white/[0.03] px-5 py-4">
-          <span className={`h-2.5 w-2.5 rounded-full ${routerHealthy ? "bg-lime-400" : "bg-red-400"}`} />
-          <p className="text-sm text-zinc-300">
-            Hulu 9Router {routerHealthy ? "terhubung" : "tidak terjangkau"}. Semua provider dan key hulu dikelola di dashboard 9Router.
-          </p>
-          <a href="https://manager.greenrouter.eu.cc" target="_blank" rel="noreferrer" className="ml-auto text-sm font-medium text-lime-300 transition hover:text-lime-200">
-            Buka Dashboard 9Router
+      {/* ===== Status hulu ===== */}
+      <Reveal className="mt-6">
+        <div className={`${PANEL} flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center`}>
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="relative mt-1.5 flex h-2.5 w-2.5 shrink-0">
+              {routerHealthy && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-lime-400 opacity-60" />}
+              <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${routerHealthy ? "bg-lime-400" : "bg-red-400"}`} />
+            </span>
+            <p className="text-sm leading-relaxed text-zinc-300">
+              <span className={`font-semibold ${routerHealthy ? "text-lime-200" : "text-red-300"}`}>
+                Hulu 9Router {routerHealthy ? "terhubung" : "tidak terjangkau"}.
+              </span>{" "}
+              Semua provider dan key hulu dikelola di dashboard 9Router.
+            </p>
+          </div>
+          <a
+            href="https://manager.greenrouter.eu.cc"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-lime-300 transition hover:text-lime-200 sm:ml-auto"
+          >
+            Buka Dashboard 9Router <ExternalLink size={14} />
           </a>
         </div>
       </Reveal>
 
       {/* ===== Statistik ===== */}
-      <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-3">
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {cards.map((c, i) => {
           const Icon = c.icon;
           return (
-            <Reveal key={c.label} delay={i * 80}>
-              <div className="glass group h-full rounded-3xl p-5 transition duration-300 hover:-translate-y-1 hover:border-lime-300/25 hover:shadow-[0_20px_50px_-20px_rgba(163,230,53,0.35)]">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
-                    <Icon size={19} />
+            <Reveal key={c.label} delay={i * 70} className="h-full">
+              <Spot className="h-full rounded-3xl p-4 sm:p-5">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-[13px] leading-snug text-zinc-400">{c.label}</p>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
+                    <Icon size={16} />
                   </span>
-                  <p
-                    className="text-right text-[27px] font-extrabold leading-none tracking-tight tabular-nums sm:text-3xl"
-                    title={c.value.toLocaleString("id-ID")}
-                  >
-                    {fmtCompact(c.value)}
-                  </p>
                 </div>
-                <p className="mt-3.5 text-sm text-zinc-400">{c.label}</p>
-              </div>
+                <p
+                  className="mt-3 text-[28px] font-extrabold leading-none tracking-tight tabular-nums sm:text-[34px]"
+                  title={c.value.toLocaleString("id-ID")}
+                >
+                  {fmtCompact(c.value)}
+                </p>
+              </Spot>
             </Reveal>
           );
         })}
       </div>
 
       {/* ===== Aktivitas ===== */}
-      <Reveal>
-        <div className="mt-14">
-          <SectionHead eyebrow="Gateway" title="Aktivitas Terakhir">
-            Sepuluh request terbaru yang melewati gateway, dari semua user.
-          </SectionHead>
-          <div className="mt-5 overflow-x-auto glass rounded-3xl">
-            <table className="w-full min-w-[680px] text-left text-sm">
-              <thead className="bg-white/[0.04] text-zinc-400">
-                <tr>
-                  <th className="px-4 py-2.5 font-medium">Waktu</th>
-                  <th className="px-4 py-2.5 font-medium">Model</th>
-                  <th className="px-4 py-2.5 font-medium">Provider</th>
-                  <th className="px-4 py-2.5 font-medium">Key Klien</th>
-                  <th className="px-4 py-2.5 font-medium">Token</th>
-                  <th className="px-4 py-2.5 font-medium">Latency</th>
-                  <th className="px-4 py-2.5 font-medium">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recent.length === 0 && (
-                  <tr>
-                    <td colSpan={7} className="px-4 py-6 text-center text-zinc-500">
-                      Belum ada request tercatat.
-                    </td>
-                  </tr>
-                )}
+      <Reveal className="mt-12">
+        <SectionHead
+          eyebrow="Gateway"
+          title="Aktivitas Terakhir"
+          action={
+            <Link href="/admin/logs" className="inline-flex items-center gap-1 text-sm font-medium text-lime-300 transition hover:text-lime-200">
+              Semua log <ArrowUpRight size={15} />
+            </Link>
+          }
+        >
+          Sepuluh request terbaru yang melewati gateway, dari semua user.
+        </SectionHead>
+        <div className={`${PANEL} mt-4 overflow-hidden`}>
+          {recent.length === 0 ? (
+            <p className="px-4 py-10 text-center text-sm text-zinc-500">Belum ada request tercatat.</p>
+          ) : (
+            <>
+              <ul className="divide-y divide-white/[0.06] md:hidden">
                 {recent.map((l) => (
-                  <tr key={l.id} className="border-t border-white/[0.05]">
-                    <td className="px-4 py-2.5 whitespace-nowrap text-zinc-400">{fmtTime(l.createdAt)}</td>
-                    <td className="px-4 py-2.5 font-mono text-xs">{l.modelId}</td>
-                    <td className="px-4 py-2.5">{l.provider?.name ?? "-"}</td>
-                    <td className="px-4 py-2.5 font-mono text-xs">{l.apiKey?.prefix ?? "-"}</td>
-                    <td className="px-4 py-2.5">{l.totalTokens?.toLocaleString("id-ID") ?? "-"}</td>
-                    <td className="px-4 py-2.5">{l.latencyMs != null ? `${l.latencyMs} ms` : "-"}</td>
-                    <td className="px-4 py-2.5">
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs ${
-                          l.status === "SUCCESS"
-                            ? "bg-lime-400/10 text-lime-300"
-                            : "bg-red-500/15 text-red-300"
-                        }`}
-                      >
-                        {l.status}
-                      </span>
-                    </td>
-                  </tr>
+                  <li key={l.id} className="px-4 py-3.5">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="min-w-0 truncate font-mono text-xs text-zinc-200">{l.modelId}</p>
+                      <Pill className={l.status === "SUCCESS" ? okPill : badPill}>{l.status}</Pill>
+                    </div>
+                    <p className="mt-1.5 text-xs text-zinc-500">
+                      {fmtTime(l.createdAt)} · {l.provider?.name ?? "-"} ·{" "}
+                      <span className="font-mono">{l.apiKey?.prefix ?? "-"}</span>
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-400">
+                      {l.totalTokens?.toLocaleString("id-ID") ?? "-"} token · {l.latencyMs != null ? `${l.latencyMs} ms` : "-"}
+                    </p>
+                  </li>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </ul>
+              <div className="hidden overflow-x-auto md:block">
+                <table className="w-full min-w-[720px] text-left text-sm">
+                  <thead className="bg-white/[0.03] text-xs uppercase tracking-wider text-zinc-500">
+                    <tr>
+                      <th className="px-4 py-3 font-medium">Waktu</th>
+                      <th className="px-4 py-3 font-medium">Model</th>
+                      <th className="px-4 py-3 font-medium">Provider</th>
+                      <th className="px-4 py-3 font-medium">Key Klien</th>
+                      <th className="px-4 py-3 text-right font-medium">Token</th>
+                      <th className="px-4 py-3 text-right font-medium">Latency</th>
+                      <th className="px-4 py-3 font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recent.map((l) => (
+                      <tr key={l.id} className="border-t border-white/[0.05] transition hover:bg-white/[0.025]">
+                        <td className="whitespace-nowrap px-4 py-3 text-zinc-400">{fmtTime(l.createdAt)}</td>
+                        <td className="px-4 py-3 font-mono text-xs">{l.modelId}</td>
+                        <td className="px-4 py-3">{l.provider?.name ?? "-"}</td>
+                        <td className="px-4 py-3 font-mono text-xs">{l.apiKey?.prefix ?? "-"}</td>
+                        <td className="px-4 py-3 text-right tabular-nums">{l.totalTokens?.toLocaleString("id-ID") ?? "-"}</td>
+                        <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums">{l.latencyMs != null ? `${l.latencyMs} ms` : "-"}</td>
+                        <td className="px-4 py-3">
+                          <Pill className={l.status === "SUCCESS" ? okPill : badPill}>{l.status}</Pill>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </div>
       </Reveal>
     </div>

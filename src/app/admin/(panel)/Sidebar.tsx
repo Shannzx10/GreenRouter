@@ -27,6 +27,8 @@ const NAV = [
   { href: "/admin/logs", label: "Log Pemakaian", short: "Log", icon: ScrollText, exact: false },
 ];
 
+const FOCUS = "outline-none focus-visible:ring-2 focus-visible:ring-lime-300/60";
+
 function Brand({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-2.5">
@@ -35,6 +37,9 @@ function Brand({ compact = false }: { compact?: boolean }) {
       {!compact && (
         <span className="text-lg font-bold tracking-tight">
           Green<span className="text-lime-300">Router</span>
+          <span className="ml-2 rounded-md bg-lime-400/15 px-1.5 py-0.5 align-middle font-mono text-[10px] font-bold tracking-wider text-lime-300">
+            ADMIN
+          </span>
         </span>
       )}
     </div>
@@ -105,13 +110,16 @@ export default function Sidebar({ email }: { email: string }) {
     <>
       {/* ===== Sidebar desktop (bisa diciutkan) ===== */}
       <aside
-        className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-white/[0.06] bg-white/[0.02] px-4 py-6 transition-[width] duration-300 lg:flex ${
+        className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-white/[0.07] bg-[#070a06]/80 px-3.5 py-6 backdrop-blur-xl transition-[width] duration-300 lg:flex ${
           min ? "w-[76px]" : "w-64"
         }`}
       >
         <div className={`mb-8 ${min ? "flex justify-center" : "px-2"}`}>
           <Brand compact={min} />
         </div>
+        {!min && (
+          <p className="mb-2 px-3.5 font-mono text-[10px] font-semibold uppercase tracking-[0.26em] text-zinc-600">Menu</p>
+        )}
         <nav className="flex flex-col gap-1">
           {NAV.map((item) => {
             const Icon = item.icon;
@@ -121,17 +129,18 @@ export default function Sidebar({ email }: { email: string }) {
                 key={item.href}
                 href={item.href}
                 title={min ? item.label : undefined}
-                className={`flex items-center gap-3 whitespace-nowrap rounded-2xl py-2.5 text-sm transition ${
+                aria-current={on ? "page" : undefined}
+                className={`relative flex items-center gap-3 whitespace-nowrap rounded-2xl py-2.5 text-sm transition ${FOCUS} ${
                   min ? "justify-center px-0" : "px-3.5"
                 } ${
                   on
                     ? "bg-lime-400/10 font-medium text-lime-200"
-                    : "text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-100"
+                    : "text-zinc-400 hover:bg-white/[0.05] hover:text-zinc-100"
                 }`}
               >
+                {on && <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-lime-300 shadow-[0_0_10px_rgba(190,242,100,0.8)]" />}
                 <Icon size={18} className="shrink-0" />
                 {!min && item.label}
-                {on && !min && <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-lime-300" />}
               </Link>
             );
           })}
@@ -145,7 +154,7 @@ export default function Sidebar({ email }: { email: string }) {
             <ArrowLeftRight size={18} className="shrink-0" /> {!min && "Area Pengguna"}
           </Link>
         </nav>
-        <div className="mt-auto border-t border-white/[0.06] pt-4">
+        <div className="mt-auto border-t border-white/[0.07] pt-4">
           <button
             onClick={toggleMin}
             title={min ? "Lebarkan sidebar" : "Ciutkan sidebar"}
@@ -156,7 +165,12 @@ export default function Sidebar({ email }: { email: string }) {
             {min ? <ChevronsRight size={18} className="shrink-0" /> : <ChevronsLeft size={18} className="shrink-0" />}
             {!min && "Ciutkan"}
           </button>
-          {!min && <p className="mb-2 truncate px-2 text-xs text-zinc-500">{email}</p>}
+          <div className={`mb-2 mt-2 flex items-center gap-2.5 ${min ? "justify-center" : "px-2"}`} title={min ? email : undefined}>
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-lime-400 text-sm font-extrabold text-zinc-950">
+              {email.charAt(0).toUpperCase()}
+            </span>
+            {!min && <p className="min-w-0 truncate text-xs text-zinc-400">{email}</p>}
+          </div>
           <button
             onClick={() => setLogoutOpen(true)}
             title={min ? "Keluar" : undefined}
@@ -170,7 +184,7 @@ export default function Sidebar({ email }: { email: string }) {
       </aside>
 
       {/* ===== Topbar mobile ===== */}
-      <header className="fixed inset-x-0 top-0 z-40 flex items-center border-b border-white/[0.06] bg-[#060806]/85 px-4 py-3 backdrop-blur-md lg:hidden">
+      <header className="fixed inset-x-0 top-0 z-40 flex items-center border-b border-white/[0.07] bg-[#060806]/85 px-4 py-3 backdrop-blur-xl lg:hidden">
         <Brand />
       </header>
 
@@ -182,7 +196,7 @@ export default function Sidebar({ email }: { email: string }) {
             onClick={() => setMoreOpen(false)}
           />
           <div
-            className="glass fixed inset-x-3 z-40 rounded-3xl p-2 lg:hidden"
+            className="fixed inset-x-3 z-40 rounded-3xl border border-white/10 bg-zinc-950/95 p-2 shadow-2xl backdrop-blur-xl lg:hidden"
             style={{ bottom: "calc(76px + env(safe-area-inset-bottom))" }}
           >
             <p className="px-3 pb-1.5 pt-2 text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-500">
@@ -243,7 +257,7 @@ export default function Sidebar({ email }: { email: string }) {
         </>
       )}
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.06] bg-[#060806]/92 backdrop-blur-md lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.07] bg-[#060806]/92 backdrop-blur-xl lg:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <div className="grid grid-cols-5">
@@ -254,10 +268,12 @@ export default function Sidebar({ email }: { email: string }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition ${
+                aria-current={on ? "page" : undefined}
+                className={`relative flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition ${FOCUS} ${
                   on ? "text-lime-300" : "text-zinc-500 hover:text-zinc-300"
                 }`}
               >
+                {on && <span className="absolute top-0 h-[2px] w-8 rounded-b-full bg-lime-300 shadow-[0_0_10px_rgba(190,242,100,0.9)]" />}
                 <Icon size={20} strokeWidth={on ? 2.4 : 2} />
                 {item.short}
               </Link>

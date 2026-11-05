@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Network, Plus, SlidersHorizontal, Target, Trash2 } from "lucide-react";
+import { Network, Plus, Search, SlidersHorizontal, Target, Trash2, X } from "lucide-react";
 import ProviderIcon from "@/app/ProviderIcon";
 import ConfirmModal from "@/app/ConfirmModal";
 import Reveal from "@/app/Reveal";
+import { PageHeader, PANEL, Pill } from "@/app/app/ui";
 
 type ModelRow = {
   id: string;
@@ -35,6 +36,13 @@ const CAPABILITY_OPTS = [
   { value: "attachment", label: "Lampiran" },
 ];
 
+function fmtTok(n: number | null): string | null {
+  if (n == null) return null;
+  if (n >= 1_000_000) return `${Math.round(n / 1_000_000)}M`;
+  if (n >= 1_000) return `${Math.round(n / 1_000)}K`;
+  return String(n);
+}
+
 function csvToList(value: string | null): string[] {
   return value ? value.split(",").map((s) => s.trim()).filter(Boolean) : [];
 }
@@ -47,9 +55,9 @@ function stripPrefix(id: string): string {
 }
 
 const inputCls =
-  "w-full rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm outline-none transition focus:border-lime-300/60";
+  "w-full rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm outline-none transition focus:border-lime-300/60 focus:ring-2 focus:ring-lime-300/15";
 const btnCls =
-  "inline-flex items-center justify-center gap-1.5 rounded-full bg-lime-400 px-3.5 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-lime-300 disabled:opacity-50";
+  "btn-shine inline-flex items-center justify-center gap-1.5 rounded-full bg-lime-400 px-3.5 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-lime-300 disabled:opacity-50";
 
 // Konversi ISO ke nilai input datetime-local (waktu setempat).
 function isoToLocalInput(iso: string | null): string {
@@ -115,12 +123,12 @@ function MetaForm({ model, onDone }: { model: ModelRow; onDone: () => void }) {
   }
 
   return (
-    <form onSubmit={save} className="mt-5 rounded-3xl border border-white/[0.06] bg-black/20 p-5">
+    <form onSubmit={save} className="mt-5 rounded-2xl border border-white/[0.08] bg-black/30 p-4 sm:p-5">
       <p className="text-sm font-semibold">Metadata Katalog</p>
       <p className="mt-0.5 text-xs text-zinc-500">
         Data ini yang tampil di kartu katalog user. Kosongkan angka untuk menyembunyikannya.
       </p>
-      {err && <p className="mt-2 text-sm text-red-300">{err}</p>}
+      {err && <p role="alert" className="mt-2 text-sm text-red-300">{err}</p>}
       <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <label className="block">
           <span className="mb-1 block text-xs text-zinc-400">Nama tampilan</span>
@@ -197,6 +205,7 @@ export default function ModelsManager({
   const [confirmBusy, setConfirmBusy] = useState(false);
   const [targetEdits, setTargetEdits] = useState<Record<string, string>>({});
   const [targetBusy, setTargetBusy] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
 
   async function call(url: string, method: string, body?: unknown) {
     const res = await fetch(url, {
@@ -271,102 +280,176 @@ export default function ModelsManager({
     }
   }
 
+  const q = query.trim().toLowerCase();
+  const shown = models.filter(
+    (x) => !q || x.modelId.toLowerCase().includes(q) || x.displayName.toLowerCase().includes(q),
+  );
+  const unlinked = models.filter((x) => !x.target).length;
+
   return (
     <div className="relative mx-auto w-full max-w-6xl">
-      <Reveal>
-        <p className="text-xs font-bold uppercase tracking-[0.3em] text-lime-300/80">
-          Panel Admin
-        </p>
-        <h1 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Model</h1>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-400 sm:text-base">
+      <PageHeader eyebrow="Panel Admin" title="Model">
+        <p>
           Katalog model yang dilihat klien. Setiap model terhubung ke satu model di 9Router
           sebagai sasarannya; urusan provider, key, dan fallback dikelola di dashboard 9Router.
         </p>
-      </Reveal>
+      </PageHeader>
 
-      {err && (
-        <p className="mt-4 rounded-xl border border-red-400/25 bg-red-500/10 px-3.5 py-2.5 text-sm text-red-300">
-          {err}
-        </p>
-      )}
-      {!routerOk && (
-        <p className="mt-4 rounded-xl border border-amber-400/25 bg-amber-500/10 px-3.5 py-2.5 text-sm text-amber-200">
-          Daftar model 9Router tidak terjangkau saat ini, jadi sasaran model belum bisa dipilih
-          atau diganti. Periksa layanan 9Router, lalu muat ulang halaman ini.
-        </p>
-      )}
+      <div aria-live="polite">
+        {err && (
+          <p role="alert" className="mt-5 flex items-start justify-between gap-3 rounded-2xl border border-red-400/25 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            {err}
+            <button onClick={() => setErr("")} aria-label="Tutup pesan" className="shrink-0 text-red-300/70 hover:text-red-200">
+              <X size={15} />
+            </button>
+          </p>
+        )}
+        {!routerOk && (
+          <p className="mt-5 rounded-2xl border border-amber-400/25 bg-amber-500/10 px-4 py-3 text-sm leading-relaxed text-amber-200">
+            Daftar model 9Router tidak terjangkau saat ini, jadi sasaran model belum bisa dipilih
+            atau diganti. Periksa layanan 9Router, lalu muat ulang halaman ini.
+          </p>
+        )}
+      </div>
 
       <Reveal>
-        <form onSubmit={addModel} className="glass mt-6 rounded-3xl p-5 sm:p-6">
-          <div className="flex items-center gap-4">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
-              <Network size={19} />
+        <form onSubmit={addModel} className={`${PANEL} mt-6 p-5 sm:p-6`}>
+          <p className="flex items-center gap-3 text-sm font-semibold sm:text-base">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-lime-400/10 text-lime-300 ring-1 ring-lime-300/20">
+              <Network size={18} />
             </span>
-            <p className="font-semibold sm:text-lg">Model Baru</p>
-          </div>
+            Model Baru
+          </p>
           <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <input className={inputCls} placeholder="ID model (mis. deepseek-v4-flash-0731)" value={modelId} onChange={(e) => setModelId(e.target.value)} required />
-            <input className={inputCls} placeholder="Nama tampilan (opsional)" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+            <label className="block">
+              <span className="mb-1.5 block text-xs text-zinc-500">ID model</span>
+              <input className={inputCls} placeholder="ID model (mis. deepseek-v4-flash-0731)" value={modelId} onChange={(e) => setModelId(e.target.value)} required />
+            </label>
+            <label className="block">
+              <span className="mb-1.5 block text-xs text-zinc-500">Nama tampilan</span>
+              <input className={inputCls} placeholder="Nama tampilan (opsional)" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+            </label>
           </div>
-          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto]">
-            <select className={inputCls} value={newTarget} onChange={(e) => setNewTarget(e.target.value)} required disabled={!routerOk}>
-              <option value="" disabled>
-                {routerOk ? "Pilih sasaran di 9Router" : "9Router tidak terjangkau"}
-              </option>
-              {routerModels.map((id) => (
-                <option key={id} value={id}>
-                  {stripPrefix(id)}
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+            <label className="block">
+              <span className="mb-1.5 block text-xs text-zinc-500">Sasaran di 9Router</span>
+              <select className={inputCls} value={newTarget} onChange={(e) => setNewTarget(e.target.value)} required disabled={!routerOk}>
+                <option value="" disabled>
+                  {routerOk ? "Pilih sasaran di 9Router" : "9Router tidak terjangkau"}
                 </option>
-              ))}
-            </select>
-            <button type="submit" className={btnCls} disabled={!routerOk || !newTarget}>
+                {routerModels.map((id) => (
+                  <option key={id} value={id}>
+                    {stripPrefix(id)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button type="submit" className={btnCls + " px-5"} disabled={!routerOk || !newTarget}>
               <Plus size={16} /> Tambah Model
             </button>
           </div>
         </form>
       </Reveal>
 
-      <div className="mt-6 flex flex-col gap-4">
+      {/* Cari model */}
+      {models.length > 0 && (
+        <div className={`${PANEL} mt-4 p-4 sm:p-5`}>
+          <div className="relative">
+            <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Cari ID atau nama model"
+              aria-label="Cari model"
+              className={`${inputCls} pl-10 pr-10`}
+            />
+            {query && (
+              <button
+                type="button"
+                aria-label="Hapus pencarian"
+                onClick={() => setQuery("")}
+                className="absolute right-2.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-white/[0.06] hover:text-zinc-200"
+              >
+                <X size={15} />
+              </button>
+            )}
+          </div>
+          <p className="mt-3 text-sm text-zinc-400" aria-live="polite">
+            Menampilkan <span className="font-semibold text-zinc-100">{shown.length}</span> dari {models.length} model
+            {unlinked > 0 && <span className="text-amber-300/90"> · {unlinked} belum punya sasaran</span>}
+          </p>
+        </div>
+      )}
+
+      <div className="mt-4 flex flex-col gap-4">
         {models.length === 0 && (
-          <p className="glass rounded-3xl px-4 py-8 text-center text-zinc-500">Belum ada model.</p>
+          <p className={`${PANEL} px-4 py-10 text-center text-sm text-zinc-500`}>Belum ada model.</p>
         )}
-        {models.map((m, mi) => {
+        {models.length > 0 && shown.length === 0 && (
+          <p className={`${PANEL} px-4 py-10 text-center text-sm text-zinc-500`}>Tidak ada model yang cocok.</p>
+        )}
+        {shown.map((m, mi) => {
           const chosen = targetEdits[m.id] ?? m.target ?? "";
           const changed = chosen !== (m.target ?? "");
+          const ctx = fmtTok(m.contextTokens);
+          const out = fmtTok(m.maxOutputTokens);
           return (
-            <Reveal key={m.id} delay={mi * 80}>
-              <div className="glass rounded-3xl p-5 sm:p-6">
-                <div className="flex flex-wrap items-center gap-4">
-                  <ProviderIcon modelId={m.modelId} className="h-11 w-11" />
-                  <div className="min-w-0">
+            <Reveal key={m.id} delay={Math.min(mi, 6) * 60}>
+              <div className={`${PANEL} p-4 transition sm:p-6 ${openMeta === m.id ? "border-lime-300/30" : ""}`}>
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                  <ProviderIcon modelId={m.modelId} className="h-11 w-11 shrink-0" />
+                  <div className="min-w-0 flex-1 basis-52">
                     <code className="block break-all font-mono text-sm font-semibold text-lime-300">{m.modelId}</code>
                     <span className="mt-0.5 block text-sm text-zinc-400">{m.displayName}</span>
                   </div>
-                  <div className="ml-auto flex items-center gap-1">
-                    <button
-                      onClick={() => setOpenMeta(openMeta === m.id ? null : m.id)}
-                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition ${
-                        openMeta === m.id
-                          ? "bg-lime-400/10 text-lime-200"
-                          : "bg-white/[0.04] text-zinc-300 hover:bg-white/[0.07]"
-                      }`}
-                    >
-                      <SlidersHorizontal size={13} /> Metadata
-                    </button>
-                    <button
-                      onClick={() => setConfirmModel(m)}
-                      className="rounded-lg p-1.5 text-zinc-500 transition hover:bg-white/[0.06] hover:text-red-300"
-                      title="Hapus model"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                  <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
+                    <Pill className={`px-2.5 py-1 font-medium ${m.target ? "bg-lime-400/10 text-lime-300" : "bg-amber-400/10 text-amber-300"}`}>
+                      <span className={`h-1.5 w-1.5 rounded-full ${m.target ? "bg-lime-300" : "bg-amber-300"}`} />
+                      {m.target ? "Terhubung" : "Belum terhubung"}
+                    </Pill>
+                    <span className="ml-auto flex items-center gap-1.5">
+                      <button
+                        onClick={() => setOpenMeta(openMeta === m.id ? null : m.id)}
+                        aria-expanded={openMeta === m.id}
+                        className={`inline-flex h-9 items-center gap-1.5 rounded-xl border px-3 text-xs font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-lime-300/60 ${
+                          openMeta === m.id
+                            ? "border-lime-300/40 bg-lime-400/10 text-lime-200"
+                            : "border-white/10 text-zinc-300 hover:border-lime-300/40 hover:text-lime-200"
+                        }`}
+                      >
+                        <SlidersHorizontal size={13} /> Metadata
+                      </button>
+                      <button
+                        onClick={() => setConfirmModel(m)}
+                        className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 text-zinc-400 outline-none transition hover:border-red-400/40 hover:text-red-300 focus-visible:ring-2 focus-visible:ring-lime-300/60"
+                        title="Hapus model"
+                        aria-label={`Hapus model ${m.modelId}`}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </span>
                   </div>
                 </div>
 
+                {(ctx || out || m.knowledgeCutoff) && (
+                  <dl className="mt-4 grid grid-cols-3 gap-2 text-sm">
+                    {[
+                      ["Konteks", ctx],
+                      ["Output maks", out],
+                      ["Data s/d", m.knowledgeCutoff],
+                    ].map(([k, v]) => (
+                      <div key={k} className="min-w-0 rounded-xl bg-white/[0.03] px-3 py-2">
+                        <dt className="truncate text-[11px] text-zinc-500">{k}</dt>
+                        <dd className="mt-0.5 truncate font-semibold tabular-nums text-zinc-100">{v ?? "-"}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+
                 {openMeta === m.id && <MetaForm model={m} onDone={() => setOpenMeta(null)} />}
 
-                <div className="mt-6 border-t border-white/[0.05] pt-5">
-                  <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-500">
+                <div className="mt-5 border-t border-white/[0.07] pt-5">
+                  <p className="flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-500">
                     <Target size={13} /> Sasaran di 9Router
                   </p>
                   <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto]">
@@ -374,6 +457,7 @@ export default function ModelsManager({
                       className={inputCls}
                       value={chosen}
                       disabled={!routerOk}
+                      aria-label={`Sasaran 9Router untuk ${m.modelId}`}
                       onChange={(e) => setTargetEdits((s) => ({ ...s, [m.id]: e.target.value }))}
                     >
                       {!m.target && (
@@ -389,7 +473,7 @@ export default function ModelsManager({
                     </select>
                     <button
                       onClick={() => saveTarget(m)}
-                      className={btnCls}
+                      className={btnCls + " px-5"}
                       disabled={!routerOk || !changed || targetBusy === m.id}
                     >
                       {targetBusy === m.id ? "Menyimpan..." : "Simpan Sasaran"}

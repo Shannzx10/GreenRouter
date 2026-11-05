@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Ban, Pencil, Trash2, Undo2, X } from "lucide-react";
+import { Ban, Pencil, Search, Trash2, Undo2, Users, X } from "lucide-react";
 import ConfirmModal from "@/app/ConfirmModal";
 import Reveal from "@/app/Reveal";
+import { PageHeader, PANEL, Pill } from "@/app/app/ui";
 
 type UserRow = {
   id: string;
@@ -24,9 +25,9 @@ type UserRow = {
 };
 
 const inputCls =
-  "w-full rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm outline-none transition focus:border-lime-300/60";
+  "w-full rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm outline-none transition focus:border-lime-300/60 focus:ring-2 focus:ring-lime-300/15";
 const btnCls =
-  "inline-flex items-center gap-1.5 rounded-full bg-lime-400 px-4 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-lime-300 disabled:opacity-50";
+  "btn-shine inline-flex items-center justify-center gap-1.5 rounded-full bg-lime-400 px-4 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-lime-300 disabled:opacity-50";
 
 function fmtNum(n: number) {
   return n.toLocaleString("id-ID");
@@ -43,6 +44,8 @@ export default function UsersManager({ users }: { users: UserRow[] }) {
   const [suspending, setSuspending] = useState(false);
   const [unsuspendTarget, setUnsuspendTarget] = useState<UserRow | null>(null);
   const [unsuspending, setUnsuspending] = useState(false);
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<"semua" | "aktif" | "suspend" | "admin">("semua");
 
   async function doSuspend() {
     if (!suspendTarget) return;
@@ -139,152 +142,259 @@ export default function UsersManager({ users }: { users: UserRow[] }) {
     }
   }
 
+  const q = query.trim().toLowerCase();
+  const shown = users.filter((u) => {
+    if (filter === "aktif" && u.suspendedAt) return false;
+    if (filter === "suspend" && !u.suspendedAt) return false;
+    if (filter === "admin" && u.role !== "ADMIN") return false;
+    return !q || u.email.toLowerCase().includes(q) || (u.name ?? "").toLowerCase().includes(q);
+  });
+  const count = {
+    semua: users.length,
+    aktif: users.filter((u) => !u.suspendedAt).length,
+    suspend: users.filter((u) => u.suspendedAt).length,
+    admin: users.filter((u) => u.role === "ADMIN").length,
+  };
+  const chip = (on: boolean) =>
+    `inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-lime-300/60 ${
+      on
+        ? "bg-lime-400 font-semibold text-zinc-950 shadow-[0_6px_20px_-6px_rgba(163,230,53,0.6)]"
+        : "border border-white/10 text-zinc-300 hover:border-lime-300/40 hover:text-lime-200"
+    }`;
+  const iconBtn =
+    "flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 text-zinc-400 outline-none transition focus-visible:ring-2 focus-visible:ring-lime-300/60 ";
+
   return (
     <div className="relative mx-auto w-full max-w-6xl">
-      <Reveal>
-        <p className="text-xs font-bold uppercase tracking-[0.3em] text-lime-300/80">
-          Panel Admin
-        </p>
-        <h1 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Pengguna</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-400 sm:text-base">
+      <PageHeader eyebrow="Panel Admin" title="Pengguna">
+        <p>
           Kelola akun user yang mendaftar lewat Google/GitHub: data diri, role, suspend, dan
           limit token per siklus 7 hari. Akun baru hanya lahir dari pendaftaran OAuth, tidak ada pembuatan
           user manual. User yang disuspend terkunci ke halaman suspend dan key API-nya berhenti bekerja;
           bila suspend tidak dibatalkan dalam 3 hari, akun terhapus permanen dan emailnya masuk daftar
           hitam. Menghapus user juga menghapus semua key miliknya.
         </p>
-      </Reveal>
+      </PageHeader>
 
-      {err && (
-        <p className="mt-4 rounded-xl border border-red-400/25 bg-red-500/10 px-3.5 py-2.5 text-sm text-red-300">{err}</p>
-      )}
+      <div aria-live="polite">
+        {err && (
+          <p role="alert" className="mt-5 flex items-start justify-between gap-3 rounded-2xl border border-red-400/25 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            {err}
+            <button onClick={() => setErr("")} aria-label="Tutup pesan" className="shrink-0 text-red-300/70 hover:text-red-200">
+              <X size={15} />
+            </button>
+          </p>
+        )}
+      </div>
 
-      <div className="mt-8 flex flex-col gap-4">
-        {users.map((u, ui) => {
+      {/* Cari + saring */}
+      <div className={`${PANEL} mt-6 p-4 sm:p-5`}>
+        <div className="relative">
+          <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Cari nama atau email"
+            aria-label="Cari pengguna"
+            className={`${inputCls} pl-10 pr-10`}
+          />
+          {query && (
+            <button
+              type="button"
+              aria-label="Hapus pencarian"
+              onClick={() => setQuery("")}
+              className="absolute right-2.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-white/[0.06] hover:text-zinc-200"
+            >
+              <X size={15} />
+            </button>
+          )}
+        </div>
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] sm:flex-wrap sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden">
+          {(
+            [
+              ["semua", "Semua"],
+              ["aktif", "Aktif"],
+              ["suspend", "Disuspend"],
+              ["admin", "Admin"],
+            ] as const
+          ).map(([k, label]) => (
+            <button key={k} type="button" aria-pressed={filter === k} onClick={() => setFilter(k)} className={chip(filter === k)}>
+              {label}
+              <span className={`text-[10px] ${filter === k ? "text-zinc-950/60" : "text-zinc-500"}`}>{count[k]}</span>
+            </button>
+          ))}
+        </div>
+        <p className="mt-3 border-t border-white/[0.07] pt-3 text-sm text-zinc-400" aria-live="polite">
+          Menampilkan <span className="font-semibold text-zinc-100">{shown.length}</span> dari {users.length} pengguna
+        </p>
+      </div>
+
+      <div className="mt-4 flex flex-col gap-4">
+        {shown.length === 0 && (
+          <div className={`${PANEL} flex flex-col items-center px-6 py-12 text-center`}>
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.05] text-zinc-400">
+              <Users size={20} />
+            </span>
+            <p className="mt-4 text-sm text-zinc-400">Tidak ada pengguna yang cocok.</p>
+          </div>
+        )}
+        {shown.map((u, ui) => {
           const pct = u.tokenLimit
             ? Math.min(100, Math.round((u.usedThisCycle / u.tokenLimit) * 100))
             : null;
           const isEditing = editing === u.id;
+          const providers = u.authProviders
+            .split(",")
+            .map((p) => (p === "google" ? "Google" : p === "github" ? "GitHub" : "password"))
+            .join(" + ");
           return (
-            <Reveal key={u.id} delay={ui * 80}>
-            <div className="glass rounded-3xl p-5 sm:p-6">
-              <div className="flex flex-wrap items-center gap-3">
-                {u.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={u.image}
-                    alt={u.name ?? u.email}
-                    className="h-11 w-11 shrink-0 rounded-2xl object-cover ring-1 ring-white/15"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-lime-400/10 text-base font-bold text-lime-300 ring-1 ring-lime-300/20">
-                    {(u.name ?? u.email).charAt(0).toUpperCase()}
-                  </span>
-                )}
-                <div className="min-w-0">
-                  <p className="truncate font-semibold">
-                    {u.name ?? u.email.split("@")[0]}
-                    {u.isSelf && <span className="ml-2 text-xs font-normal text-zinc-500">(kamu)</span>}
-                  </p>
-                  <p className="truncate text-sm text-zinc-400">
-                    {u.email} · masuk via{" "}
-                    {u.authProviders
-                      .split(",")
-                      .map((p) => (p === "google" ? "Google" : p === "github" ? "GitHub" : "password"))
-                      .join(" + ")}
-                  </p>
-                </div>
-                <div className="ml-auto flex flex-wrap items-center gap-2">
-                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${u.role === "ADMIN" ? "bg-lime-400/15 text-lime-200" : "bg-white/[0.06] text-zinc-300"}`}>
-                    {u.role}
-                  </span>
-                  <button
-                    disabled={u.isSelf}
-                    onClick={() => (u.suspendedAt ? setUnsuspendTarget(u) : setSuspendTarget(u))}
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium disabled:opacity-40 ${
-                      u.suspendedAt ? "bg-red-500/15 text-red-300" : "bg-lime-400/10 text-lime-300"
-                    }`}
-                    title={
-                      u.isSelf
-                        ? "Akun sendiri tidak bisa disuspend"
-                        : u.suspendedAt
-                          ? "Batalkan suspend"
-                          : "Suspend akun ini"
-                    }
-                  >
-                    {u.suspendedAt ? "DISUSPEND" : "AKTIF"}
-                  </button>
-                  <button
-                    onClick={() => (isEditing ? setEditing(null) : startEdit(u))}
-                    className="rounded-lg p-1.5 text-zinc-400 transition hover:bg-white/[0.06] hover:text-zinc-100"
-                    title="Edit user"
-                  >
-                    {isEditing ? <X size={16} /> : <Pencil size={16} />}
-                  </button>
-                  {!u.isSelf && (
-                    <button
-                      onClick={() => setDeleteTarget(u)}
-                      className="rounded-lg p-1.5 text-zinc-500 transition hover:bg-white/[0.06] hover:text-red-300"
-                      title="Hapus user"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+            <Reveal key={u.id} delay={Math.min(ui, 6) * 60}>
+              <div className={`${PANEL} p-4 transition sm:p-6 ${isEditing ? "border-lime-300/30" : ""}`}>
+                <div className="flex flex-wrap items-center gap-3">
+                  {u.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={u.image}
+                      alt={u.name ?? u.email}
+                      className="h-11 w-11 shrink-0 rounded-2xl object-cover ring-1 ring-white/15"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-lime-400/10 text-base font-bold text-lime-300 ring-1 ring-lime-300/20">
+                      {(u.name ?? u.email).charAt(0).toUpperCase()}
+                    </span>
                   )}
+                  <div className="min-w-0 flex-1 basis-48">
+                    <p className="truncate font-semibold">
+                      {u.name ?? u.email.split("@")[0]}
+                      {u.isSelf && <span className="ml-2 text-xs font-normal text-zinc-500">(kamu)</span>}
+                    </p>
+                    <p className="truncate text-sm text-zinc-400">{u.email}</p>
+                    <p className="text-xs text-zinc-500">masuk via {providers}</p>
+                  </div>
+                  <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
+                    <Pill className={`px-2.5 py-1 font-medium ${u.role === "ADMIN" ? "bg-lime-400/15 text-lime-200" : "bg-white/[0.06] text-zinc-300"}`}>
+                      {u.role}
+                    </Pill>
+                    <button
+                      disabled={u.isSelf}
+                      onClick={() => (u.suspendedAt ? setUnsuspendTarget(u) : setSuspendTarget(u))}
+                      className={`rounded-full px-2.5 py-1 text-xs font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-lime-300/60 disabled:opacity-40 ${
+                        u.suspendedAt ? "bg-red-500/15 text-red-300 hover:bg-red-500/25" : "bg-lime-400/10 text-lime-300 hover:bg-lime-400/20"
+                      }`}
+                      title={
+                        u.isSelf
+                          ? "Akun sendiri tidak bisa disuspend"
+                          : u.suspendedAt
+                            ? "Batalkan suspend"
+                            : "Suspend akun ini"
+                      }
+                    >
+                      {u.suspendedAt ? "DISUSPEND" : "AKTIF"}
+                    </button>
+                    <span className="ml-auto flex gap-1.5">
+                      <button
+                        onClick={() => (isEditing ? setEditing(null) : startEdit(u))}
+                        className={iconBtn + "hover:border-lime-300/40 hover:text-lime-200"}
+                        title="Edit user"
+                        aria-label={`${isEditing ? "Tutup edit" : "Edit"} user ${u.email}`}
+                      >
+                        {isEditing ? <X size={16} /> : <Pencil size={16} />}
+                      </button>
+                      {!u.isSelf && (
+                        <button
+                          onClick={() => setDeleteTarget(u)}
+                          className={iconBtn + "hover:border-red-400/40 hover:text-red-300"}
+                          title="Hapus user"
+                          aria-label={`Hapus user ${u.email}`}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-zinc-400">
-                <span>{u.keyCount} key</span>
-                <span>Terpakai siklus ini: <span className="text-zinc-200">{fmtNum(u.usedThisCycle)}</span> token</span>
-                <span>
-                  Limit:{" "}
-                  <span className="text-zinc-200">
-                    {u.tokenLimit ? `${fmtNum(u.tokenLimit)} / siklus` : "tanpa batas"}
-                  </span>
-                </span>
-                <span>
-                  Request:{" "}
-                  <span className="text-zinc-200">
-                    {u.requestLimitHourly ? `${fmtNum(u.requestLimitHourly)} / jam` : "tanpa batas"}
-                  </span>
-                </span>
-                <span>Bergabung {new Date(u.createdAt).toLocaleDateString("id-ID", { dateStyle: "medium" })}</span>
-              </div>
-              {u.suspendedAt && (
-                <p className="mt-2.5 rounded-xl border border-red-400/25 bg-red-500/10 px-3.5 py-2.5 text-sm leading-relaxed text-red-200">
-                  Disuspend {new Date(u.suspendedAt).toLocaleDateString("id-ID", { dateStyle: "medium" })}
-                  {u.suspendReason ? <> · alasan: {u.suspendReason}</> : null}
-                  {" "}· akun terhapus permanen pada{" "}
-                  {new Date(new Date(u.suspendedAt).getTime() + 3 * 24 * 3600 * 1000).toLocaleDateString("id-ID", { dateStyle: "medium" })}{" "}
-                  bila tidak dibatalkan.
-                </p>
-              )}
-              {pct !== null && (
-                <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
-                  <div
-                    className={`h-full rounded-full ${pct >= 100 ? "bg-red-400" : pct >= 80 ? "bg-amber-300" : "bg-lime-400"}`}
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-              )}
+                <dl className="mt-4 grid grid-cols-2 gap-2 text-sm sm:grid-cols-3 lg:grid-cols-5">
+                  {[
+                    ["Key", `${u.keyCount}`],
+                    ["Terpakai siklus ini", `${fmtNum(u.usedThisCycle)} token`],
+                    ["Limit token", u.tokenLimit ? `${fmtNum(u.tokenLimit)} / siklus` : "tanpa batas"],
+                    ["Limit request", u.requestLimitHourly ? `${fmtNum(u.requestLimitHourly)} / jam` : "tanpa batas"],
+                    ["Bergabung", new Date(u.createdAt).toLocaleDateString("id-ID", { dateStyle: "medium" })],
+                  ].map(([k, v]) => (
+                    <div key={k} className="min-w-0 rounded-xl bg-white/[0.03] px-3 py-2.5">
+                      <dt className="truncate text-[11px] text-zinc-500">{k}</dt>
+                      <dd className="mt-0.5 truncate font-medium tabular-nums text-zinc-100">{v}</dd>
+                    </div>
+                  ))}
+                </dl>
 
-              {isEditing && (
-                <div className="mt-4 grid grid-cols-1 gap-3 border-t border-white/[0.06] pt-4 sm:grid-cols-2 lg:grid-cols-3">
-                  <input className={inputCls} placeholder="Nama" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
-                  <input className={inputCls} type="email" placeholder="Email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} />
-                  <select className={inputCls} value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}>
-                    <option value="USER">USER</option>
-                    <option value="ADMIN">ADMIN</option>
-                  </select>
-                  <input className={inputCls} type="number" min="0" placeholder="Limit token/siklus 7 hari (kosong = ∞)" value={editForm.limit} onChange={(e) => setEditForm({ ...editForm, limit: e.target.value })} />
-                  <input className={inputCls} type="number" min="0" placeholder="Limit request/jam (kosong = ∞)" value={editForm.hourly} onChange={(e) => setEditForm({ ...editForm, hourly: e.target.value })} />
-                  <button onClick={() => saveEdit(u)} className={btnCls}>
-                    Simpan Perubahan
-                  </button>
-                </div>
-              )}
-            </div>
+                {pct !== null && (
+                  <div className="mt-3">
+                    <div className="flex justify-between text-xs text-zinc-500">
+                      <span>Pemakaian kuota</span>
+                      <span className="tabular-nums">{pct}%</span>
+                    </div>
+                    <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/[0.07]">
+                      <div
+                        className={`h-full rounded-full ${pct >= 100 ? "bg-red-400" : pct >= 80 ? "bg-amber-300" : "bg-lime-400"}`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {u.suspendedAt && (
+                  <p className="mt-3 rounded-xl border border-red-400/25 bg-red-500/10 px-3.5 py-2.5 text-sm leading-relaxed text-red-200">
+                    Disuspend {new Date(u.suspendedAt).toLocaleDateString("id-ID", { dateStyle: "medium" })}
+                    {u.suspendReason ? <> · alasan: {u.suspendReason}</> : null}
+                    {" "}· akun terhapus permanen pada{" "}
+                    {new Date(new Date(u.suspendedAt).getTime() + 3 * 24 * 3600 * 1000).toLocaleDateString("id-ID", { dateStyle: "medium" })}{" "}
+                    bila tidak dibatalkan.
+                  </p>
+                )}
+
+                {isEditing && (
+                  <div className="mt-4 grid grid-cols-1 gap-3 border-t border-white/[0.07] pt-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs text-zinc-500">Nama</span>
+                      <input className={inputCls} placeholder="Nama" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
+                    </label>
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs text-zinc-500">Email</span>
+                      <input className={inputCls} type="email" placeholder="Email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} />
+                    </label>
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs text-zinc-500">Role</span>
+                      <select className={inputCls} value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}>
+                        <option value="USER">USER</option>
+                        <option value="ADMIN">ADMIN</option>
+                      </select>
+                    </label>
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs text-zinc-500">Limit token per siklus 7 hari</span>
+                      <input className={inputCls} type="number" min="0" placeholder="Kosong = ∞" value={editForm.limit} onChange={(e) => setEditForm({ ...editForm, limit: e.target.value })} />
+                    </label>
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs text-zinc-500">Limit request per jam</span>
+                      <input className={inputCls} type="number" min="0" placeholder="Kosong = ∞" value={editForm.hourly} onChange={(e) => setEditForm({ ...editForm, hourly: e.target.value })} />
+                    </label>
+                    <div className="flex items-end gap-2">
+                      <button onClick={() => saveEdit(u)} className={`${btnCls} flex-1`}>
+                        Simpan Perubahan
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditing(null)}
+                        className="rounded-full border border-white/10 px-4 py-2.5 text-sm text-zinc-300 transition hover:bg-white/[0.04]"
+                      >
+                        Batal
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </Reveal>
           );
         })}
@@ -295,7 +405,7 @@ export default function UsersManager({ users }: { users: UserRow[] }) {
           className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-4 backdrop-blur-sm sm:items-center"
           onClick={() => !suspending && setSuspendTarget(null)}
         >
-          <div className="glass w-full max-w-sm rounded-3xl p-5" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-zinc-950/95 p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-500/10 text-red-300 ring-1 ring-red-400/25">
               <Ban size={19} />
             </span>
