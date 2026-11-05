@@ -167,13 +167,7 @@ export default function UsersManager({ users }: { users: UserRow[] }) {
   return (
     <div className="relative mx-auto w-full max-w-6xl">
       <PageHeader eyebrow="Panel Admin" title="Pengguna">
-        <p>
-          Kelola akun user yang mendaftar lewat Google/GitHub: data diri, role, suspend, dan
-          limit token per siklus 7 hari. Akun baru hanya lahir dari pendaftaran OAuth, tidak ada pembuatan
-          user manual. User yang disuspend terkunci ke halaman suspend dan key API-nya berhenti bekerja;
-          bila suspend tidak dibatalkan dalam 3 hari, akun terhapus permanen dan emailnya masuk daftar
-          hitam. Menghapus user juga menghapus semua key miliknya.
-        </p>
+        <p>Kelola akun user: role, suspend, dan limit token.</p>
       </PageHeader>
 
       <div aria-live="polite">
