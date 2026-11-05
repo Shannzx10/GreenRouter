@@ -8,6 +8,7 @@ import { getPaddleInstance } from "@/lib/paddle";
 import { intervalOfPriceId, planById, planByPriceId } from "@/lib/plans";
 import { PageHeader, PANEL, Pill } from "../ui";
 import PortalButton from "../profile/PortalButton";
+import InvoiceButton from "./InvoiceButton";
 
 // Halaman Tagihan: status langganan berjalan dari cerminan database,
 // plus riwayat pembayaran yang dibaca langsung dari Paddle saat
@@ -197,6 +198,11 @@ export default async function TagihanPage() {
                       {t.invoiceNumber && <> · Invoice {t.invoiceNumber}</>}
                     </p>
                     <p className="mt-1.5 text-sm font-semibold tabular-nums text-zinc-100">{t.amount}</p>
+                    {t.invoiceNumber && (
+                      <div className="mt-2">
+                        <InvoiceButton transactionId={t.id} />
+                      </div>
+                    )}
                   </li>
                 );
               })}
@@ -220,7 +226,10 @@ export default async function TagihanPage() {
                         <td className="px-6 py-3">
                           <span className="text-zinc-200">{t.label}</span>
                           {t.invoiceNumber && (
-                            <span className="block text-xs text-zinc-500">Invoice {t.invoiceNumber}</span>
+                            <span className="mt-0.5 flex items-center gap-3 text-xs text-zinc-500">
+                              Invoice {t.invoiceNumber}
+                              <InvoiceButton transactionId={t.id} />
+                            </span>
                           )}
                         </td>
                         <td className="whitespace-nowrap px-6 py-3 text-right font-medium tabular-nums text-zinc-100">
