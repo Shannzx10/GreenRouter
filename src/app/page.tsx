@@ -29,13 +29,10 @@ const MODELS = [
   { id: "deepseek-v4.1-flash", label: "DeepSeek V4.1 Flash" },
   { id: "deepseek-v4-flash", label: "DeepSeek V4 Flash" },
   { id: "mimo-v2.5", label: "MiMo V2.5" },
-  { id: "mimo-v2.6-flash", label: "MiMo V2.6 Flash" },
   { id: "minicpm-v-4.7-35b-a3b", label: "MiniCPM-V 4.7 35B" },
   { id: "qwen3.8-27b", label: "Qwen3.8 27B" },
   { id: "kimi-k2.6", label: "Kimi K2.6" },
   { id: "glm-5.3", label: "GLM 5.3" },
-  { id: "qwen3.5", label: "Qwen3.5" },
-  { id: "atria-dawn", label: "Atria Dawn" },
   { id: "mercury-3", label: "Mercury 3" },
 ];
 
