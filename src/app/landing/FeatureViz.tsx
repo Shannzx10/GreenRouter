@@ -3,7 +3,7 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { Check, ShieldCheck } from "lucide-react";
 
-const PROV = ["deepseek", "zai", "mimo", "minicpm", "kimi", "mercury", "atria", "qwen"];
+const PROV = ["deepseek", "zai", "mimo", "kimi", "mercury"];
 
 // Logo provider mengorbit mengelilingi satu key.
 export function KeyViz() {

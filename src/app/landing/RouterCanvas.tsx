@@ -28,10 +28,8 @@ const MODELS = [
   { name: "Z.ai", src: "/assets/providers/zai.png" },
   { name: "MiniMax", mm: true },
   { name: "MiMo", src: "/assets/providers/mimo.png" },
-  { name: "MiniCPM", src: "/assets/providers/minicpm.png" },
   { name: "Kimi", src: "/assets/providers/kimi.png" },
   { name: "Mercury", src: "/assets/providers/mercury.png" },
-  { name: "Atria", src: "/assets/providers/atria.png" },
 ];
 const TOOLS = [
   { name: "OpenCode", src: "/assets/tools/opencode.svg" },

@@ -6,7 +6,7 @@ import Link from "next/link";
 // mana pun, bukan hanya dari landing.
 const POPULAR_IDS = [
   "deepseek-v4-flash-0731",
-  "qwen3.8-27b",
+  "deepseek-v4-flash",
   "kimi-k2.6",
   "glm-5.3",
   "minimax-m2.7",
