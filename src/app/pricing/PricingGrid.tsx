@@ -258,7 +258,7 @@ export default function PricingGrid({
               {k === "monthly" ? "Bulanan" : "Tahunan"}
               {k === "yearly" && (
                 <span className={"rounded-full px-1.5 py-0.5 text-[10px] font-bold " + (interval === "yearly" ? "bg-zinc-950/15" : "bg-lime-400/15 text-lime-300")}>
-                  -17%
+                  -11%
                 </span>
               )}
             </button>

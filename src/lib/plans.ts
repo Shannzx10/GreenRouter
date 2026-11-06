@@ -5,14 +5,24 @@ import { DEFAULT_REQUEST_LIMIT_HOURLY, DEFAULT_TOKEN_LIMIT } from "@/lib/limits"
 // Harga dikunci dari sisi bersih yang diterima pemilik (keputusan
 // 3 Nov 2026): Pro bersih sekitar Rp55.000 dan Max sekitar
 // Rp100.000 per bulan sesudah PPN dan potongan Paddle, sehingga
-// harga tampil (sudah termasuk pajak) adalah Rp75.000 dan
+// harga tampil awal (sudah termasuk pajak) adalah Rp75.000 dan
 // Rp128.000 per bulan. Paket tahunan memakai skema A: 10 kali
 // harga bulanan untuk 12 bulan (hemat sekitar 17 persen).
+// REVISI 6 Nov 2026 (keputusan pemilik): harga BULANAN diturunkan
+// supaya tidak jomplang terhadap tarif efektif tahunan, Pro jadi
+// Rp70.000 (bersih sekitar Rp51.000) dan Max jadi Rp123.000
+// (bersih sekitar Rp96.000); harga tahunan TIDAK berubah
+// (Rp750.000 dan Rp1.280.000, kini setara hemat sekitar 11 persen
+// di Pro dan 13 persen di Max). Price bulanan Paddle diganti baru
+// (Pro $3,87 dan Max $6,79); price bulanan lama ($4,15 dan $7,07)
+// diarsipkan tapi tetap dikenali pemetaan lewat variabel
+// PADDLE_PRICE_*_MONTHLY_LEGACY agar langganan berjalan tidak
+// kehilangan plan-nya.
 // Paddle TIDAK mendukung mata uang IDR untuk harga (daftar mata
 // uangnya tetap), jadi harga sebenarnya di Paddle dibuat dalam
 // USD yang sudah termasuk pajak dan mendekati angka rupiah ini
-// pada kurs sekitar Rp18.140: Pro $4,15/bln dan $41,50/thn, Max
-// $7,07/bln dan $70,70/thn. Angka rupiah di situs adalah
+// pada kurs sekitar Rp18.140: Pro $3,87/bln dan $41,50/thn, Max
+// $6,79/bln dan $70,70/thn (bulanan per revisi 6 Nov 2026). Angka rupiah di situs adalah
 // perkiraan tampil; rupiah yang tertagih mengikuti kurs saat
 // pembayaran dan bersih yang diterima ikut bergerak dengan kurs.
 // Plan Gratis memakai konstanta bawaan dari limits.ts agar tidak
@@ -52,7 +62,7 @@ export const PLANS: Plan[] = [
     id: "pro",
     name: "Pro",
     tagline: "Untuk pemakaian harian dan agen pemrograman.",
-    priceIdrMonthly: 75_000,
+    priceIdrMonthly: 70_000,
     priceIdrYearly: 750_000,
     tokenLimit: 20_000_000,
     requestLimitHourly: 600,
@@ -70,7 +80,7 @@ export const PLANS: Plan[] = [
     id: "max",
     name: "Max",
     tagline: "Kuota terbesar untuk beban kerja produksi.",
-    priceIdrMonthly: 128_000,
+    priceIdrMonthly: 123_000,
     priceIdrYearly: 1_280_000,
     tokenLimit: 50_000_000,
     requestLimitHourly: 1200,
@@ -104,11 +114,16 @@ export type BillingInterval = "monthly" | "yearly";
 // Dua variabel lama (PADDLE_PRICE_PRO, PADDLE_PRICE_MAX) adalah
 // harga dolar sandbox generasi pertama; tetap dikenali supaya
 // langganan lama yang masih berjalan tidak kehilangan plan-nya.
+// Hal yang sama berlaku untuk price bulanan generasi Nov 2026
+// ($4,15 dan $7,07) yang digantikan revisi harga 6 Nov 2026:
+// id-nya disimpan di PADDLE_PRICE_PRO_MONTHLY_LEGACY dan
+// PADDLE_PRICE_MAX_MONTHLY_LEGACY dan tetap dikenali di sini.
 // Price yang tidak dikenal mengembalikan null.
 export function planByPriceId(priceId: string | undefined | null): Plan | null {
   if (!priceId) return null;
   if (
     priceId === process.env.PADDLE_PRICE_PRO_MONTHLY ||
+    priceId === process.env.PADDLE_PRICE_PRO_MONTHLY_LEGACY ||
     priceId === process.env.PADDLE_PRICE_PRO_YEARLY ||
     priceId === process.env.PADDLE_PRICE_PRO
   ) {
@@ -116,6 +131,7 @@ export function planByPriceId(priceId: string | undefined | null): Plan | null {
   }
   if (
     priceId === process.env.PADDLE_PRICE_MAX_MONTHLY ||
+    priceId === process.env.PADDLE_PRICE_MAX_MONTHLY_LEGACY ||
     priceId === process.env.PADDLE_PRICE_MAX_YEARLY ||
     priceId === process.env.PADDLE_PRICE_MAX
   ) {
