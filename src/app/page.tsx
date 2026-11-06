@@ -23,6 +23,7 @@ import { CountUp, QuotaGauge } from "./landing/Quota";
 import { KeyViz, StreamViz, QuotaViz, ShieldViz, CompatViz, SpeedViz } from "./landing/FeatureViz";
 
 const MODELS = [
+  { id: "greenrouter-v1", label: "GreenRouter V1" },
   { id: "glm-5.3-flash", label: "GLM 5.3 Flash" },
   { id: "minimax-m2.7", label: "MiniMax M2.7" },
   { id: "deepseek-v4-flash-0731", label: "DeepSeek V4 Flash 0731" },

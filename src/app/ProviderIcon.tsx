@@ -4,8 +4,9 @@ import { Bot } from "lucide-react";
 // di-host sendiri di public/assets/providers; MiniMax digambar sebagai SVG.
 export function modelFamily(
   modelId: string,
-): "deepseek" | "zai" | "minimax" | "kimi" | "qwen" | "mimo" | "minicpm" | "atria" | "mercury" | "hunyuan" | "generic" {
+): "deepseek" | "zai" | "minimax" | "kimi" | "qwen" | "mimo" | "minicpm" | "atria" | "mercury" | "hunyuan" | "greenrouter" | "generic" {
   const id = modelId.toLowerCase();
+  if (id.startsWith("greenrouter")) return "greenrouter";
   if (id.startsWith("deepseek")) return "deepseek";
   if (id.startsWith("glm")) return "zai";
   if (id.startsWith("minimax")) return "minimax";
@@ -41,6 +42,8 @@ export function familyLabel(modelId: string): string {
       return "Inception";
     case "hunyuan":
       return "Tencent";
+    case "greenrouter":
+      return "GreenRouter";
     default:
       return "Model";
   }
@@ -54,6 +57,16 @@ export default function ProviderIcon({
   className?: string;
 }) {
   const family = modelFamily(modelId);
+  if (family === "greenrouter") {
+    return (
+      <span
+        className={`flex shrink-0 items-center justify-center rounded-[12px] bg-white/[0.05] ring-1 ring-white/10 ${className}`}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/assets/brand/leaf.png" alt="" className="h-[62%] w-[62%] object-contain" loading="lazy" />
+      </span>
+    );
+  }
   if (family === "minimax") {
     return (
       <span
