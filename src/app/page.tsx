@@ -35,6 +35,11 @@ const MODELS = [
   { id: "mercury-3", label: "Mercury 3" },
   { id: "hy4-preview", label: "Hy4 Preview" },
   { id: "deepseek-v4.1-flash-uncensored", label: "DeepSeek V4.1 Flash Uncensored" },
+  { id: "mercury-2.5", label: "Mercury 2.5" },
+  { id: "north-mini-code", label: "North Mini Code" },
+  { id: "qwen3.8-flash", label: "Qwen 3.8 Flash" },
+  { id: "qwen3-coder", label: "Qwen 3 Coder" },
+  { id: "agnes-2.5-flash", label: "Agnes 2.5 Flash" },
 ];
 
 const FEATURES = [

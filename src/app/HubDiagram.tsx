@@ -19,6 +19,7 @@ const MODEL_TILES = [
   { modelId: "mercury-3", name: "Inception" },
   { modelId: "glm-5.3-flash", name: "Z.ai" },
   { modelId: "hy4-preview", name: "Tencent" },
+  { modelId: "qwen3.8-flash", name: "Qwen" },
 ];
 
 const TOOL_TILES = [

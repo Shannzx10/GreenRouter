@@ -4,7 +4,7 @@ import { Bot } from "lucide-react";
 // di-host sendiri di public/assets/providers; MiniMax digambar sebagai SVG.
 export function modelFamily(
   modelId: string,
-): "deepseek" | "zai" | "minimax" | "kimi" | "qwen" | "mimo" | "minicpm" | "atria" | "mercury" | "hunyuan" | "greenrouter" | "generic" {
+): "deepseek" | "zai" | "minimax" | "kimi" | "qwen" | "mimo" | "minicpm" | "atria" | "mercury" | "hunyuan" | "greenrouter" | "cohere" | "agnes" | "generic" {
   const id = modelId.toLowerCase();
   if (id.startsWith("greenrouter")) return "greenrouter";
   if (id.startsWith("deepseek")) return "deepseek";
@@ -17,6 +17,8 @@ export function modelFamily(
   if (id.startsWith("atria")) return "atria";
   if (id.startsWith("mercury")) return "mercury";
   if (id.startsWith("hy")) return "hunyuan";
+  if (id.startsWith("north")) return "cohere";
+  if (id.startsWith("agnes")) return "agnes";
   return "generic";
 }
 
@@ -44,6 +46,10 @@ export function familyLabel(modelId: string): string {
       return "Tencent";
     case "greenrouter":
       return "GreenRouter";
+    case "cohere":
+      return "Cohere";
+    case "agnes":
+      return "Sapiens AI";
     default:
       return "Model";
   }
@@ -78,7 +84,7 @@ export default function ProviderIcon({
       </span>
     );
   }
-  if (family === "generic") {
+  if (family === "generic" || family === "cohere" || family === "agnes") {
     return (
       <span
         className={`flex shrink-0 items-center justify-center rounded-[12px] bg-white/[0.05] text-lime-300 ring-1 ring-white/10 ${className}`}
