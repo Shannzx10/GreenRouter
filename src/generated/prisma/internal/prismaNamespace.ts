@@ -1302,6 +1302,7 @@ export const ModelCatalogScalarFieldEnum = {
   capabilities: 'capabilities',
   knowledgeCutoff: 'knowledgeCutoff',
   earlyAccessUntil: 'earlyAccessUntil',
+  isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

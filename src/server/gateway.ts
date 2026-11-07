@@ -88,7 +88,9 @@ export async function getCandidates(
   modelId: string,
 ): Promise<{ catalog: ModelCatalog | null; candidates: Candidate[] }> {
   const catalog = await prisma.modelCatalog.findUnique({ where: { modelId } });
-  if (!catalog) return { catalog: null, candidates: [] };
+  // Model nonaktif diperlakukan persis seperti model tidak dikenal di
+  // semua jalur chat (API dan Playground sama-sama lewat sini).
+  if (!catalog || !catalog.isActive) return { catalog: null, candidates: [] };
 
   const routes = await prisma.modelRoute.findMany({
     where: { modelId: catalog.id, isActive: true, provider: { isActive: true } },
@@ -1005,6 +1007,7 @@ export async function runModelHealthChecks(): Promise<
   { modelId: string; ok: boolean; latencyMs: number; error?: string }[]
 > {
   const models = await prisma.modelCatalog.findMany({
+    where: { isActive: true },
     select: { modelId: true },
     orderBy: { modelId: "asc" },
   });

@@ -140,6 +140,12 @@ model ModelCatalog {
   // /v1/models dan gateway menolaknya seperti model tidak dikenal.
   // NULL atau sudah lewat = terbuka untuk semua plan.
   earlyAccessUntil DateTime?
+  // Nonaktif: model disembunyikan dari seluruh permukaan user
+  // (daftar /v1/models, katalog, Playground, Performa, dokumentasi)
+  // dan gateway menolaknya seperti model tidak dikenal, TANPA
+  // menghapus barisnya. Admin tetap melihat dan bisa
+  // mengaktifkannya lagi dari panel Model.
+  isActive        Boolean      @default(true)
   routes          ModelRoute[]
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt

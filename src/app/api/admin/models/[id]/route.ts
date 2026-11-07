@@ -69,6 +69,12 @@ export async function PATCH(req: Request, { params }: Ctx) {
       data.earlyAccessUntil = d;
     }
   }
+  if (body.isActive !== undefined) {
+    if (typeof body.isActive !== "boolean") {
+      return Response.json({ error: "isActive harus boolean" }, { status: 400 });
+    }
+    data.isActive = body.isActive;
+  }
   if (Object.keys(data).length === 0) {
     return Response.json({ error: "Tidak ada field yang diubah" }, { status: 400 });
   }

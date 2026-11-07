@@ -19,7 +19,7 @@ export default async function UserModelsPage() {
   await connection();
   const session = await getSession();
   if (!session) return null;
-  const models = await prisma.modelCatalog.findMany({ orderBy: { displayName: "asc" } });
+  const models = await prisma.modelCatalog.findMany({ where: { isActive: true }, orderBy: { displayName: "asc" } });
   const routes = await prisma.modelRoute.findMany({
     where: { isActive: true },
     select: { modelId: true },

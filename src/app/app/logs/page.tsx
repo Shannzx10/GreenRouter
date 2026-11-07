@@ -87,6 +87,7 @@ export default async function UserLogsPage({
     prisma.usageLog.count({ where: { ...where, status: "SUCCESS" } }),
     prisma.usageLog.aggregate({ where, _sum: { totalTokens: true } }),
     prisma.modelCatalog.findMany({
+      where: { isActive: true },
       select: { modelId: true, displayName: true },
       orderBy: { displayName: "asc" },
     }),

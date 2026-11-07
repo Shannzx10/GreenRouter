@@ -20,7 +20,7 @@ export async function GET(req: Request) {
     return openAiError(401, "API key tidak valid", "invalid_request_error", "invalid_api_key");
   }
   const models = await prisma.modelCatalog.findMany({
-    where: { routes: { some: { isActive: true, provider: { isActive: true } } } },
+    where: { isActive: true, routes: { some: { isActive: true, provider: { isActive: true } } } },
     orderBy: { modelId: "asc" },
   });
   // Akses awal: model yang masih dalam masa akses awal hanya

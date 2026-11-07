@@ -21,7 +21,7 @@ export default async function PlaygroundPage({
   const now = new Date();
 
   const [catalog, routes, user] = await Promise.all([
-    prisma.modelCatalog.findMany({ orderBy: { displayName: "asc" } }),
+    prisma.modelCatalog.findMany({ where: { isActive: true }, orderBy: { displayName: "asc" } }),
     prisma.modelRoute.findMany({
       where: { isActive: true, provider: { isActive: true } },
       select: { modelId: true },

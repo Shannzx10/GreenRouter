@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Network, Plus, Search, SlidersHorizontal, Target, Trash2, X } from "lucide-react";
+import { Network, Plus, Power, Search, SlidersHorizontal, Target, Trash2, X } from "lucide-react";
 import ProviderIcon from "@/app/ProviderIcon";
 import ConfirmModal from "@/app/ConfirmModal";
 import Reveal from "@/app/Reveal";
@@ -18,6 +18,7 @@ type ModelRow = {
   capabilities: string | null;
   knowledgeCutoff: string | null;
   earlyAccessUntil: string | null;
+  isActive: boolean;
   routeId: string | null;
   target: string | null;
 };
@@ -205,6 +206,7 @@ export default function ModelsManager({
   const [confirmBusy, setConfirmBusy] = useState(false);
   const [targetEdits, setTargetEdits] = useState<Record<string, string>>({});
   const [targetBusy, setTargetBusy] = useState<string | null>(null);
+  const [activeBusy, setActiveBusy] = useState<string | null>(null);
   const [query, setQuery] = useState("");
 
   async function call(url: string, method: string, body?: unknown) {
@@ -261,6 +263,19 @@ export default function ModelsManager({
       setErr(e2 instanceof Error ? e2.message : "Gagal menyimpan sasaran");
     } finally {
       setTargetBusy(null);
+    }
+  }
+
+  async function toggleActive(m: ModelRow) {
+    setActiveBusy(m.id);
+    setErr("");
+    try {
+      await call(`/api/admin/models/${m.id}`, "PATCH", { isActive: !m.isActive });
+      router.refresh();
+    } catch (e2) {
+      setErr(e2 instanceof Error ? e2.message : "Gagal mengubah status model");
+    } finally {
+      setActiveBusy(null);
     }
   }
 
@@ -407,7 +422,21 @@ export default function ModelsManager({
                       <span className={`h-1.5 w-1.5 rounded-full ${m.target ? "bg-lime-300" : "bg-amber-300"}`} />
                       {m.target ? "Terhubung" : "Belum terhubung"}
                     </Pill>
+                    {!m.isActive && (
+                      <Pill className="bg-zinc-400/10 px-2.5 py-1 font-medium text-zinc-300">
+                        <span className="h-1.5 w-1.5 rounded-full bg-zinc-400" />
+                        Nonaktif
+                      </Pill>
+                    )}
                     <span className="ml-auto flex items-center gap-1.5">
+                      <button
+                        onClick={() => toggleActive(m)}
+                        disabled={activeBusy === m.id}
+                        className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-white/10 px-3 text-xs font-medium text-zinc-300 outline-none transition hover:border-lime-300/40 hover:text-lime-200 focus-visible:ring-2 focus-visible:ring-lime-300/60 disabled:opacity-50"
+                        title={m.isActive ? "Sembunyikan model dari katalog user tanpa menghapusnya" : "Tampilkan lagi model di katalog user"}
+                      >
+                        <Power size={13} /> {m.isActive ? "Nonaktifkan" : "Aktifkan"}
+                      </button>
                       <button
                         onClick={() => setOpenMeta(openMeta === m.id ? null : m.id)}
                         aria-expanded={openMeta === m.id}

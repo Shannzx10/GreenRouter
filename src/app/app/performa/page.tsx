@@ -132,7 +132,7 @@ export default async function PerformaPage() {
   const viewerPlan = viewer?.plan ?? "gratis";
   const now = new Date();
 
-  const models = await prisma.modelCatalog.findMany({ orderBy: { displayName: "asc" } });
+  const models = await prisma.modelCatalog.findMany({ where: { isActive: true }, orderBy: { displayName: "asc" } });
   const ids = models.map((m) => m.modelId);
   const routes = await prisma.modelRoute.findMany({
     where: { isActive: true },
